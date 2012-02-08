@@ -1,0 +1,24 @@
+.mod-hotquestion .author {
+    color: grey;
+    font-style: italic;
+    font-size: 90%;
+}
+
+.toolbar {
+    text-align: right;
+    padding: 5px;
+}
+
+ul#toolbar{
+    display: inline;
+    list-style: none;
+}
+
+#toolbar li{
+    display: inline;
+    padding: 0 5px;
+}
+
+.dis_toolbutton{
+    color: gray;
+}
