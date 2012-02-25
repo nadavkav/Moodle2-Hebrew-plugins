@@ -1,0 +1,20 @@
+#tab-menu-wrapper {
+			min-width: 600px;
+			min-height: 950px;
+			max-width: 2000px;
+			position: absolute;
+			margin: 10px;
+			background-color:#FFFFFF;
+		}
+		#left {
+			position: absolute;
+			top: 10;
+			bottom: 0;
+			left: 0;
+			width: 325px;
+			padding: inherit;
+			
+		}
+#tabcontent {
+background-color:#FFFFFF;
+}
