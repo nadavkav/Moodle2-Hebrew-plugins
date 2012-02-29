@@ -1,26 +1,17 @@
-﻿<?php
-
-$string['namegrid']='תצוגה טבלאית'; // Name of a section within your format
-$string['formatgrid']='תצוגה טבלאית'; // Name to display for format
-
-$string['sectionname'] = 'נושא';
-$string['pluginname'] = 'תצוגה טבלאית';
-
-$string['hide_summary'] = 'העבר נושא לתוך הטבלה';
-$string['display_summary'] = 'הוצא נושא מהטבלה';
-$string['hide_summary_alt'] = 'מעביר את נושא זה לתוך הטבלה';
-$string['display_summary_alt'] = 'מעביר את נושא זה אל מחוץ לטבלה';
-
-$string['editimage'] = 'החלף תמונה';
-$string['title'] = 'כותרת נושא';
-$string['image'] = 'אייקון נושא';
-$string['titlealreadyexist'] = '$a הכותרת כבר קיימת. יש להחליפה.';
-$string['updatesection'] = 'Overwrote section';
-$string['topicoutline'] = 'נושא';
-
-$string['generalinformation'] = 'מידע כללי';
-
-
-//$string['section0name'] = 'General';
-
+<?php
+$string['display_summary'] = 'הוספת יחידת הוראה זו לטבלת התמונות';
+$string['display_summary_alt'] = 'הסרת יחידת הוראה זו מטבלת התמונות';
+$string['editimage'] = 'עדכון תמונה';
+$string['formatgrid']='יחידות הוראה בטבלת תמונות'; // Name to display for format
+$string['hide_summary'] = 'הוספת יחידת הוראה זו לטבלת התמונות';
+$string['hide_summary_alt'] = 'הוספת יחידת הוראה זו לטבלת התמונות';
+$string['image'] = 'סמל יחידת ההוראה';
+$string['namegrid'] = 'יחידות הוראה בטבלת תמונות'; // Name of a section within your format
+$string['pluginname'] = 'יחידות הוראה בטבלת תמונות';
+$string['sectionname'] = 'יחידת הוראה';
+$string['section0name'] = 'מבוא';
+$string['title'] = 'נושא יחידת ההוראה';
+$string['titlealreadyexist'] = 'הנושא $a עבור יחידת ההוראה כבר קיים. אנא בחרו נושא חדש.';
+$string['topicoutline'] = 'יחידות הוראה';
+$string['updatesection'] = 'עדכון יחידת הוראה';
 ?>

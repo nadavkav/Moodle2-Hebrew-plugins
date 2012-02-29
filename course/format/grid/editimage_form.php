@@ -18,7 +18,7 @@ class image_form extends moodleform {
         $mform->addElement('hidden', 'userid', $instance['userid']);
         $mform->setType('userid', PARAM_INT);
         $mform->addElement('hidden', 'sectionid', $instance['sectionid']);
-        $mform->setType('sectionid', PARAM_INT);         
+        $mform->setType('sectionid', PARAM_INT);
         $mform->addElement('hidden', 'action', 'uploadfile');
         $mform->setType('action', PARAM_ALPHA);
 
@@ -33,9 +33,9 @@ class image_form extends moodleform {
 
 /*
 require_once("$CFG->libdir/formslib.php");
- 
+
 class image_form extends moodleform {
- 
+
     function definition() {
         global $USER, $CFG, $DB;
 
@@ -45,17 +45,17 @@ class image_form extends moodleform {
         $data      	 = $this->_customdata['data'];
         $options     = $this->_customdata['options'];
 
-         				
- 		
-		//$mform->addElement(type, id, title_string, ?, options e.g: array('maxbytes' => $maxbytes, 'accepted_types' => '*')); 
+
+
+		//$mform->addElement(type, id, title_string, ?, options e.g: array('maxbytes' => $maxbytes, 'accepted_types' => '*'));
 		$mform->addElement('filemanager', 'userfile_filemanager', get_string('file'), null, $options);
         $mform->addElement('hidden', 'returnurl', $data->returnurl);
-		
+
         $this->add_action_buttons(true, get_string('savechanges'));
         $this->set_data($data);
-        
-        
-        
+
+
+
 */
 /*
         $mform = $this->_form;
@@ -68,10 +68,10 @@ class image_form extends moodleform {
 
         $this->add_action_buttons(true, get_string('savechanges'));
 
-        $this->set_data($data); 
-*/       
+        $this->set_data($data);
+*/
 /*
-		
+
     }                           // Close the function
 
 }                               // Close the class

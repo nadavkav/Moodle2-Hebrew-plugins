@@ -3,7 +3,7 @@
     require("../../../config.php");
     require_once("../../lib.php");
     require_once("lib.php");
-    
+
     require_login();
 
     $course = optional_param('course', '', PARAM_INT);

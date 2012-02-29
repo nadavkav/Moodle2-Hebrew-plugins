@@ -43,27 +43,27 @@ $mform = new image_form(null, array('contextid'=>$contextid, 'userid'=>$formdata
 if ($mform->is_cancelled()) { //Someone has hit the 'cancel' button
     redirect(new moodle_url($CFG->wwwroot . '/course/view.php?id='.$course->id));
 } else if ($formdata = $mform->get_data()) { //Form has been submitted
-        
-        /* Delete old images associated with this course section */
-        $fs = get_file_storage(); 
-        $fs->delete_area_files($context->id, 'course', 'section', $sectionid);
-    
-        if ($newfilename = $mform->get_new_filename('assignment_file')) { 
 
-            /* Resize the new image and save it */      
+        /* Delete old images associated with this course section */
+        $fs = get_file_storage();
+        $fs->delete_area_files($context->id, 'course', 'section', $sectionid);
+
+        if ($newfilename = $mform->get_new_filename('assignment_file')) {
+
+            /* Resize the new image and save it */
             $temp_path = $mform->save_temp_file('assignment_file');
             resize_image($temp_path, $image_width, $image_height);
-        
+
             $file_record = array('contextid'=>$context->id, 'component'=>'course', 'filearea'=>'section',
              'itemid'=>$sectionid, 'filepath'=>'/', 'filename'=>$newfilename,
              'timecreated'=>time(), 'timemodified'=>time());
 
             $fs->create_file_from_pathname($file_record, $temp_path);
             $DB->set_field("format_grid_icon", "imagepath", $newfilename,  array("sectionid" => $sectionid));
-            
+
             unlink($temp_path);
             redirect($CFG->wwwroot . "/course/view.php?id=".$course->id);
-        } 
+        }
 }
 
 /* Draw the form */
