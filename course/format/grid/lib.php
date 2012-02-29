@@ -29,7 +29,7 @@
  *
  * @return bool Returns true
  */
-function callback_topics_uses_sections() {
+function callback_grid_uses_sections() {
     return true;
 }
 
@@ -43,7 +43,7 @@ function callback_topics_uses_sections() {
  * @param stdClass $modinfo The mod info object for the current course
  * @return bool Returns true
  */
-function callback_topics_load_content(&$navigation, $course, $coursenode) {
+function callback_grid_load_content(&$navigation, $course, $coursenode) {
     return $navigation->load_generic_course_sections($course, $coursenode, 'topics');
 }
 
@@ -53,7 +53,7 @@ function callback_topics_load_content(&$navigation, $course, $coursenode) {
  *
  * @return string
  */
-function callback_topics_definition() {
+function callback_grid_definition() {
     return get_string('topic');
 }
 
@@ -63,11 +63,11 @@ function callback_topics_definition() {
  *
  * @return string
  */
-function callback_topics_request_key() {
+function callback_grid_request_key() {
     return 'topic';
 }
 
-function callback_topics_get_section_name($course, $section) {
+function callback_grid_get_section_name($course, $section) {
     // We can't add a node without any text
     if (!empty($section->name)) {
         return $section->name;
@@ -84,7 +84,7 @@ function callback_topics_get_section_name($course, $section) {
  * @see course_format_ajax_support()
  * @return stdClass
  */
-function callback_topics_ajax_support() {
+function callback_grid_ajax_support() {
     $ajaxsupport = new stdClass();
     $ajaxsupport->capable = true;
     $ajaxsupport->testedbrowsers = array('MSIE' => 6.0, 'Gecko' => 20061111, 'Safari' => 531, 'Chrome' => 6.0);
