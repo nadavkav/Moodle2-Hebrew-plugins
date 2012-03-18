@@ -34,11 +34,12 @@ $string['afterenddatecapable'] = 'המשתמשים יכולים לקרוא את 
 מרגע סגירת קבוצת־הדיון ב: {$}. 
 לעומת זאת,למנהל הקבוצת־דיון יש עדיין 
  גישה לשליחת פרסומים.';
-$string['alert_condition2'] = 'זוהי הטרדה';
-$string['alert_condition3'] = 'זוהי הערה המכילה תוכן מגונה כגון פורנוגרפיה';
-$string['alert_condition4'] = 'זוהי הערת השמצה/ הוצאת דיבה';
-$string['alert_condition5'] = 'זוהי הפרת זכויות יוצרים';
-$string['alert_condition6'] = 'זוהי הערה הנוגדת את החוקים מסיבות אחרות';
+$string['alert_condition1'] = 'הערה פוגעת';
+$string['alert_condition2'] = 'הערה זו היא הטרדה';
+$string['alert_condition3'] = 'הערה זו מכילה תוכן מגונה כגון פורנוגרפיה';
+$string['alert_condition4'] = 'הערה זו היא השמצה או הוצאת־דיבה';
+$string['alert_condition5'] = 'הערה זו היא הפרת זכויות יוצרים';
+$string['alert_condition6'] = 'הערה זו הנוגדת את חוקי הכתיבה בקבוצת־דיון זו.';
 $string['alert_conditionmore'] = 'מידע אחר';
 $string['alert_emailappendix'] = 'אתם מקבלים הודעת דוא"ל זו, היות וכתובת 
 הדוא"ל שלכם שמישה ב- ForumNG  ,
@@ -75,7 +76,7 @@ $string['attachment'] = 'קובץ מצורף';
 $string['attachmentmaxbytes'] = 'גודל מירבי של קובץ מצורף';
 $string['attachmentmaxbytes_help'] = 'זהו הגודל המירבי  האפשרי, של  צירוף מספר קבצים,לפרסום אחד בקבוצת־דיון.';
 $string['attachmentnum'] = 'קובץ מצורף';
-$string['attachments'] = 'מספר קבצים מצורפים';
+$string['attachments'] = 'קבצים מצורפים';
 $string['author'] = 'מחבר';
 $string['authorname'] = 'שם המחבר';
 $string['authorname_help'] = 'ניתן להקליד את השם הפרטי (ג\'יין), משפחה (בראון), שם מלא (ג\'יין בראון), או את החלק הראשון של כל אחד מאלה (גי,ברא, ג\'יין ב \').  ניתן גם להקליד שם משתמש (jb001). אם תשאירו משבצת זו ריקה, פירסומיי כל המחברים,  ייכללו בחיפוש.';
@@ -97,7 +98,7 @@ $string['configattachmentmaxbytes'] = 'גודל ברירת המחדל המרבי
 $string['configdiscussionsperpage'] = 'מספר הדיונים המרבי ,אשר ניתן להציג בעמוד 
 אחד בקבוצת־דיון.';
 $string['configdonotmailafter'] = 'לשם מניעת מבול של דואר, במצב בו השרת הפסיק את פעילותו לזמן מה, רכיב הפורום לא ישלח הודעות דוא"ל עבור פירסומים שפורסמו בזמן זה.';
-$string['configenableadvanced'] = 'אפשרות זו מאפשרת תכונות מתקדמות לרכיב הפורום, אשר עשויה להיות מורכבת שלא לצורך ,להתקנות רבות. נכון לעכשיו, פעולה זו רק מאפשרת שיתוף בקבוצת דיון (פורום), אך יש אפשרות להוסיף תכונות נוספות בהמשך  ..';
+$string['configenableadvanced'] = 'אפשרות זו מאפשרת תכונות מתקדמות לרכיב הפורום, אשר עשויה להיות מורכבת שלא לצורך ,להתקנות רבות. נכון לעכשיו, פעולה זו רק מאפשרת שיתוף בקבוצת־דיון (פורום), אך יש אפשרות להוסיף תכונות נוספות בהמשך.';
 $string['configenablerssfeeds'] = 'דגל זה יפעיל את האפשרות של הזנות RSS לכל קבוצות־הדיון. עדיין תצטרכו להפעיל את ההזנות באופן ידני בהגדרות של כל קבוצת־דיון בנפרד.';
 $string['configfeeditems'] = 'מספר ההודעות האחרונות, אשר נכללו בהזנה אחת .';
 $string['configfeedtype'] = 'בחרו את המידע שברצונכם לכלול בתוך הזנות RSS  שבפורום.';
@@ -107,8 +108,8 @@ $string['configpermanentdeletion'] = 'לאחר פרק זמן זה (פרק זמן
 $string['configreadafterdays'] = 'לאחר מספר ימים (שיקבע מראש במערכת), הפרסומים ייחשבו כנקראו על ידי כל המשתמשים (בין אם הכן נקראו או לא).';
 $string['configreplytouser'] = 'כאשר פרסום בקבוצת־דיון נשלחת בדואר החוצה, האם עליה לכלול את כתובת הדוא"ל של המשתמש, כך שלמקבל התגובה תהיה את האפשרות להגיב באופן אישי ולא דרך הקבוצת־דיון? גם אם תסומן בהגדרות המלה - \'כן\' , עדיין יוכלו המשתמשים ,לבחור להסתיר את כתובת הדוא"ל בפרופיל שלהם.';
 $string['configreportunacceptable'] = 'מטרת כתובת דוא"ל זו היא לשם דיווח על פרסומים מעליבים בקבוצת־דיון.ברמת האתר, אם לא תמלאו את כתובת הדוא"ל  בפרופיל שלכם (כלומר משבצת הדוא"ל שלכם תשאר ריקה), אזי פונקציית ההתראה תשאר כבויה, אלא אם כן כבר הופעלה ברמת בפורום.';
-$string['configshowidnumber'] = 'מספריי זיהוי של משתמשים הנכללים בדוחות הקשורים לפורום , ואשר ניתנים לצפייה על ידי מנהליי הפורום [ולא ע" משתמשים רגילים].';
-$string['configshowusername'] = 'שמות משתמשים הנכללים בדוחות הקשורים לקבוצת־דיון , ואשר ניתנים לצפייה על ידי מנהליי קבוצת־דיון [ולא ע"י משתמשים רגילים].';
+$string['configshowidnumber'] = 'מספריי זיהוי של משתמשים הנכללים בדוחות הקשורים לפורום , ואשר ניתנים לצפייה על ידי מנהליי הפורום [ולא על־ידי משתמשים רגילים].';
+$string['configshowusername'] = 'שמות משתמשים הנכללים בדוחות הקשורים לקבוצת־דיון , ואשר ניתנים לצפייה על ידי מנהליי קבוצת־דיון [ולא על־ידי משתמשים רגילים].';
 $string['configsubscription'] = 'שליטה על אפשרויות מנויים בדוא"ל בכל קבוצות־הדיון ברחבי המערכת.';
 $string['configtrackreadposts'] = 'בחרו \'כן\' , אם ברצונכם לעקוב אחר פירסום של כל משתמש ומשתמש  , שנקרא/לא נקרא.';
 $string['confirmbulkunsubscribe'] = 'האם אתם בטוחים שברצונכם לבטל את המנויים  שברשימה הבאה? (שימו לב: לא יהיה ניתן לבטל פעולה זו לאחר ביצועה)';
@@ -140,15 +141,15 @@ $string['convert_process_update_subscriptions'] = 'המרה  לקבוצות מנ
 $string['convert_title'] = 'המרת קבוצות־דיון';
 $string['crondebug'] = 'פלט איתור תקלות (Cron)';
 $string['currentpost'] = 'גרסה נוכחית של הפרסום';
-$string['daterangefrom'] = 'טווח תאריכים מ:';
-$string['daterangeto'] = 'טווח תאריכים עד:';
+$string['daterangefrom'] = 'מתאריך:';
+$string['daterangeto'] = 'עד תאריך:';
 $string['date_asc'] = 'תצוגת הפרסום הוותיק ביותר,
 בראש הרשימה';
 $string['date_desc'] = 'תצוגת הפרסום העדכני ביותר,
 בראש הרשימה';
 $string['delete'] = 'מחיקת <span class=\'accesshide\'> פרסום {$a}</span>';
 $string['deleteattachments'] = 'מחיקת הקבצים המצורפים';
-$string['deletedbyauthor'] = 'הפרסום הנוכחי נמחק ע"י המחבר 
+$string['deletedbyauthor'] = 'הפרסום הנוכחי נמחק על־ידי המחבר
 ב {$a}.';
 $string['deletedbymoderator'] = 'פרסום זה נמחק על־ידי מנהל קבוצת־הדיון ב: {$a}.';
 $string['deletedbyuser'] = 'פרסום זה נמחק על־ידי המשתמש {$a->user} ב: {$a->date}.';
@@ -180,8 +181,8 @@ $string['draft_inreplyto'] = '( תגובה ל: {$a} )';
 $string['draft_newdiscussion'] = '(דיון חדש)';
 $string['draft_noedit'] = 'לא ניתן להשתמש ברכיב הטיוטה בעת עריכת פרסומים.';
 $string['edit'] = 'עריכת<span class=\'accesshide\'> פרסום {$a}</span>';
-$string['editbyother'] = 'נערך ע"י  {$a->שם} ב  {$a->תאריך}';
-$string['editbyself'] = 'נערך ע"י המחבר בתאריך {$a}';
+$string['editbyother'] = 'נערך על־ידי  {$a->שם} ב  {$a->תאריך}';
+$string['editbyself'] = 'נערך על־ידי המחבר בתאריך {$a}';
 $string['editdiscussionoptions'] = 'עריכת אפשרויות הדיון ב: {$a}';
 $string['editlimited'] = 'אזהרה: עליכם לשמור שינויים בפרסום זה לפני {$a}.
 לאחר תאריך זה, לא יהיה ניתן לערוך עוד.';
@@ -215,7 +216,7 @@ $string['error_duplicate'] = 'כבר יצרתם פרסום באמצעות הטו
 על כפתור "הודעה". במקרה כזה, הפרסום שלכם כנראה נשמר.)';
 $string['error_exception'] = 'התרחשה טעות בקבוצת הדיון.  נסו שוב מאוחר יותר, 
 או נסו פעולה אחרת
- <div class=\'קבוצת דיון mg-הודעת שגיאה\'> הודעת שגיאה:
+ <div class=\'קבוצת־דיון NG -הודעת שגיאה\'> הודעת שגיאה:
  {$} </div>';
 $string['error_feedlogin'] = 'שגיאה בהשלמת פרטי המשתמש, לכניסה(הרשמה) לקבוצת־דיון';
 $string['error_fileexception'] = 'התרחשה שגיאת עיבוד קובץ ,כנראה עקב בעיות במערכת. מומלץ לנסות שוב מאוחר יותר.';
@@ -244,12 +245,12 @@ $string['feeds'] = 'הזנות';
 $string['feedtype'] = 'תוכן הזנה';
 $string['feedtype_all_posts'] = 'מכיל את כל הפרסומים';
 $string['feedtype_discussions'] = 'מכיל דיונים בלבד';
-$string['feedtype_help'] = 'במצב "פעיל", משתמשים יכולים להרשם לקבוצת דיון באמצעות קורא הזנה RSS או Atom . באפשרותכם להגדיר את ההזנה כך שתכלול רק דיונים ברמת חשיבות עליונה ולא תגובות, או שתכלול את כל הפרסומים.';
+$string['feedtype_help'] = 'במצב "פעיל", משתמשים יכולים להרשם לקבוצת־דיון באמצעות קורא הזנה RSS או Atom . באפשרותכם להגדיר את ההזנה כך שתכלול רק דיונים ברמת חשיבות עליונה ולא תגובות, או שתכלול את כל הפרסומים.';
 $string['feedtype_none'] = 'הזנה לא פעילה';
 $string['feed_nopermission'] = 'אין לכם הרשאת צפיה בהזנה זו.';
 $string['feed_notavailable'] = 'הזנה זו אינה זמינה.';
-$string['flaggedposts'] = 'פרסומים מסומנים (ע"י דגלים)';
-$string['flaggedpostslink'] = '{$a} פרסומים מסומנים (ע"י דגלים)';
+$string['flaggedposts'] = 'פרסומים מסומנים (על־ידי דגלים)';
+$string['flaggedpostslink'] = '{$a} פרסומים מסומנים (על־ידי דגלים)';
 $string['flaggedposts_help'] = 'פרסומים מסומנים מופיעים ברשימה זו. על מנת לעבור לפרסום מסומן,עליכם להקיש עליו. על מנת להעביר דגל(סימון) מפרסום,יש להקיש על סמל הדגל (כאן או בתוך הפרסום).';
 $string['flagoff'] = 'לא סומן בדגל';
 $string['flagon'] = 'סימנתם פרסום זה.';
@@ -299,7 +300,7 @@ $string['historypage'] = 'הסטוריה: {$a}';
 $string['housekeepingstarthour'] = 'שעת התחלת פעילות הארכיון';
 $string['housekeepingstophour'] = 'שעת הפסקת פעילות הארכיון';
 $string['important'] = 'פרסום חשוב';
-$string['inappropriatedateortime'] = '<strong>טווח תאריכים מ</strong> חורג מהתאריך הנוכחי. אנא הזינו תאריך חדש!';
+$string['inappropriatedateortime'] = '<strong>טווח תאריכים</strong> חורג מהתאריך הנוכחי. אנא הזינו תאריך חדש!';
 $string['initialsubscribe'] = 'הפעלת מנוי באופן אוטומטי לכולם';
 $string['inreplyto'] = 'בתגובה ל';
 $string['invalidalert'] = 'יש לציין בפניי מנהלי קבוצת־הדיון ,את סיבת הדיווח על פרסום זה.';
@@ -328,8 +329,8 @@ $string['jumppreviousboth'] = 'קודם';
 $string['jumpto'] = 'עבור ל:';
 $string['lastpost'] = 'פרסום קודם';
 $string['limitposts'] = 'הגבלת פרסומים';
-$string['mailnow'] = 'שליחת דוא"ל בקרוב';
-$string['mailnow_help'] = 'אנא בחרו באפשרות זו אם אתם מעוניינים  בשליחת הפרסומים שלכם ,במהירות רבה יותר,לדוא"ל של המנויים . אלא אם כן, אתם מעוניינים לערוך פעם נוספת את הפרסום שלכם, ולשם כך יינתן זמן מה ע"י המערכת.';
+$string['mailnow'] = 'שליחת הודעה זו, באופן מיידי, באמצעות דוא"ל';
+$string['mailnow_help'] = 'אנא בחרו באפשרות זו אם אתם מעוניינים  בשליחת הפרסומים שלכם ,במהירות רבה יותר,לדוא"ל של המנויים . אלא אם כן, אתם מעוניינים לערוך פעם נוספת את הפרסום שלכם, ולשם כך יינתן זמן מה על־ידי המערכת.';
 $string['markdiscussionread'] = 'סמנו את כל הדיונים בפרסום זה כ: "נצפו"';
 $string['message'] = 'הודעה';
 $string['modulename'] = 'קבוצת־דיון (פורום NG)';
@@ -354,14 +355,14 @@ $string['offerconvert'] = 'אם ברצונכם ליצור קבוצת־דיון N
 <a href=\'{$a}\'>המירו את קבוצת הדיון </a>.';
 $string['olderversions'] = 'גרסה ישנה';
 $string['onemonth'] = 'חודש 1';
-$string['optionalsubject'] = 'שנו נושא (ישנה אפשרות)';
+$string['optionalsubject'] = 'נושא חדש';
 $string['partialsubscribed'] = 'חלקי';
 $string['pastediscussion'] = 'הדביקו דיון';
 $string['perforumoption'] = 'הגדירו כל קבוצת־דיון בנפרד.';
 $string['pluginadministration'] = 'ניהול קבוצת־דיון NG';
 $string['pluginname'] = 'קבוצת־דיון NG';
 $string['post'] = 'פרסום';
-$string['postby'] = '(ע"י {$a})';
+$string['postby'] = '(על־ידי {$a})';
 $string['postdiscussion'] = 'פרסום מסוג דיון';
 $string['postinfo_deleted'] = 'נמחק';
 $string['postinfo_short'] = 'סוכם';
@@ -369,7 +370,7 @@ $string['postinfo_unread'] = 'טרם נצפה';
 $string['postingfrom'] = 'פרסום בלבד מותר מ';
 $string['postinguntil'] = 'פרסום בלבד מותר עד';
 $string['postmailinfo'] = 'זהו העתק של הודעה, אשר פורסמה באתר האינטרנט {$}. כדי להוסיף את תגובתכם באמצעות אתר האינטרנט,אנא הקישו על הקישור הבא:';
-$string['postreply'] = 'הגיבו לפרסום';
+$string['postreply'] = 'שליחת תגובה';
 $string['posts'] = 'פרסומים';
 $string['previousresults'] = 'חזרה לתוצאות {$a}';
 $string['quotaleft_plural'] = 'הנכם רשאים ליצור
@@ -413,7 +414,7 @@ $string['savedposts_one_tag'] = 'פרסום';
 $string['savedposts_original'] = 'מקור ראשוני של הדיון';
 $string['savedposts_selected'] = '{$a} (פרסומים שנבחרו)';
 $string['savedposts_selected_tag'] = 'פרסומים';
-$string['savedraft'] = 'שמרו כטיוטה';
+$string['savedraft'] = 'שמירת טיוטה';
 $string['savedtoportfolio'] = 'המידע שנבחר,נשמר ב- MyStuff';
 $string['savetoportfolio'] = 'שמירה ב- MyStuff';
 $string['searchallforums'] = 'בחרו את כל קבוצות הדיון';
@@ -428,7 +429,7 @@ $string['selectlabel'] = 'בחרו פרסום {$a}';
 $string['selectorall'] = 'האם אתם מעוניינים לכלול את הדיון כולו, או  את הפרסומים הנבחרים בלבד?';
 $string['set'] = 'עריכה';
 $string['setflag'] = 'סמנו הודעה/פרסום זה, לשימוש עתידי.';
-$string['setimportant'] = 'סמנו הודעות החשובות לכם';
+$string['setimportant'] = 'סמנו הודעה זו כ\'חשובה\'';
 $string['shared'] = 'אפשרו שיתוף של קבוצת־דיון';
 $string['sharedinfo'] = 'קבוצת־דיון זו היא שיתופית. הגדרות הגישה
 אליה אינן משותפות, והן חלות רק על 
@@ -471,6 +472,7 @@ $string['subscribers_nopermission'] = 'אינכם רשאים לצפות ברשי
 $string['subscribeshort'] = 'להירשם כמנוי';
 $string['subscribestart'] = 'שלחו אלי דוא"ל המכיל פרסומים חדשים, מקבוצת־דיון זו.';
 $string['subscribestate_discussionsubscribed'] = 'מתקבלים באמצעות דוא"ל, פרסומים מדיון זה, ל:{$a}.';
+$string['subscribestate_discussionunsubscribed'] = 'אינכם מנויים לקבלת עדכונים בדוא"ל על פרסומים מדיונים בקבוצת־דיון זו. אם אתם מעוניינים להירשם כמנויים, הקליקו על &lsquo;הרשמה כמנויים&rsquo;.';
 $string['subscribestate_forced'] = '(קבוצת־דיון זו אינה מאפשרת ביטול מנוי )';
 $string['subscribestate_groups_partiallysubscribed'] = 'הנכם מנויים באמצעות דוא"ל לקבלת פרסומים מקבוצות שונות בקבוצת־דיון זו לכתובת: {$}.';
 $string['subscribestate_not_permitted'] = 'קבוצת־דיון זו אינה מאפשרת הרשמה למנויים.';
@@ -480,6 +482,8 @@ $string['subscribestate_partiallysubscribed_thisgroup'] = 'הנכם מנויים
 $string['subscribestate_subscribed'] = 'הנכם מנויים לקבלת הודעות מקבוצת־דיון זו, באמצעות דוא"ל ל: {$}.';
 $string['subscribestate_subscribed_notinallgroup'] = 'הקליקו &lsquo;ביטול מנויי&rsquo; ל ביטול קבלת עדכונים מקבוצת־דיון זו.';
 $string['subscribestate_subscribed_thisgroup'] = 'הנכם מנויים לקבלת הודעות מקבוצה זו,  באמצעות דוא"ל ל: {$}.';
+$string['subscribestate_unsubscribed'] = 'אינכם מנויים לקבלת עדכונים בדוא"ל מקבוצת־דיון זו. אם אתם מעוניינים להירשם כמנויים, הקליקו על  &lsquo;להירשם כמנוי&rsquo;.';
+$string['subscribestate_unsubscribed_thisgroup'] = 'אינכם מנויים לקבלת עדכונים בדוא"ל מקבוצה זו. אם אתם מעוניינים להירשם כמנויים, הקליקו על  &lsquo;הרשמה לקבוצה&rsquo;.';
 $string['subscribestop'] = 'אינני מעוניין בעותקי דוא"ל של פרסומים, מקבוצת־דיון זו.';
 $string['subscribe_already'] = 'הנכם רשומים כבר כמנויים.';
 $string['subscribe_already_group'] = 'הנכם רשומים כבר כמנויים לקבוצה זו.';
@@ -494,8 +498,8 @@ $string['subscription_not_permitted'] = 'אין אפשרות להירשם כמנ
 $string['subscription_permitted'] = 'ניתנת למשתמשים האפשרות לבחור אם להירשם כמנוי או לא.';
 $string['switchto_simple_text'] = 'תצוגה רגילה של קבוצת־דיון זו, אינה תמיד עובדת בצורה טובה עם טכנולוגיה מסייעת. לכן, מצורפת בנוסף, תצוגה 
 פשוטה יותר, אשר מכילה את כל היכולות של קבוצת־הדיון.';
-$string['switchto_standard_text'] = 'הנכם משתמשים בתצוגה הרגילה של קבוצת דיון זו, אשר
- עובדת טוב יותר עם טכנולוגיה מסייעת';
+$string['switchto_standard_text'] = 'הנכם משתמשים בתצוגה הרגילה של קבוצת־דיון זו, אשר
+ פועלת טוב יותר עם טכנולוגיה מסייעת';
 $string['text_asc'] = 'א-ת';
 $string['text_desc'] = 'ת-א';
 $string['timeend'] = 'תצוגה עד הסוף';
@@ -524,7 +528,7 @@ $string['useshared'] = 'שכפול קבוצת־דיון זו';
 $string['useshared_help'] = 'אם ברצונכם ליצור שכפול של קבוצת־דיון זו, השתמשו בתיבת סימון זו, והקישו את מספר הזיהוי של קבוצת־הדיון המקורית (אשר מחייבת אפשרות שיתוף). 
 
 פעולה זו למעשה,אינה יוצרת קבוצת־דיון חדשה, אלא יוצרת קישור לקבוצת־דיון  קיימת. הייחודיות בכך  היא הזמינות  ואפשרויות מעקב ההתקדמות (מתבצעת ידנית בלבד).';
-$string['viewsubscribers'] = 'תצוגת רשומים כמנויים';
+$string['viewsubscribers'] = 'ניהול רשימת מנויים';
 $string['withremoveddiscussions'] = 'העברת דיונים ל:';
 $string['words'] = 'חיפוש';
 $string['yourrating'] = 'הדירוג לשלך:';

@@ -908,11 +908,12 @@ class mod_forumng_renderer extends plugin_renderer_base {
                 $out .= '</span>';
             }
             if ($options[mod_forumng_post::OPTION_SELECTABLE]) {
-                $out .= ' &#x2022; <input type="checkbox" name="selectp' .
-                    $post->get_id() . '" id="id_selectp' . $post->get_id() .
-                    '" /><label class="accesshide" for="id_selectp' .
-                    $post->get_id() . '">' .
-                    get_string('selectlabel', 'forumng', $postnumber) . '</label>';
+                $out .= '<span class="forumng-separator"> &#x2022; </span>' .
+                        '<input type="checkbox" name="selectp' .
+                        $post->get_id() . '" id="id_selectp' . $post->get_id() .
+                        '" /><label class="accesshide" for="id_selectp' .
+                        $post->get_id() . '">' .
+                        get_string('selectlabel', 'forumng', $postnumber) . '</label>';
             }
             if ($options[mod_forumng_post::OPTION_FLAG_CONTROL]) {
                 $out .= '<div class="forumng-flag">' .
@@ -1019,14 +1020,15 @@ class mod_forumng_renderer extends plugin_renderer_base {
             $attachments = $post->get_attachment_names();
             if (count($attachments)) {
                 if ($html) {
-                    $out .= $lf . '<ul class="forumng-attachments">';
+                    $out .= $lf;
+                    if (count($attachments) == 1) {
+                        $attachmentlabel = get_string('attachment', 'forumng');
+                    } else {
+                        $attachmentlabel = get_string('attachments', 'forumng');
+                    }
+                    $out .= '<span class="accesshide">' . $attachmentlabel .
+                            '</span><ul class="forumng-attachments">';
                 }
-                if (count($attachments) == 1) {
-                    $attachmentlabel = get_string('attachment', 'forumng');
-                } else {
-                    $attachmentlabel = get_string('attachments', 'forumng');
-                }
-                $out .= '<span class="accesshide">'.$attachmentlabel.'</span>';
                 foreach ($attachments as $attachment) {
                     if ($html) {
                         require_once($CFG->libdir . '/filelib.php');
@@ -1036,7 +1038,7 @@ class mod_forumng_renderer extends plugin_renderer_base {
 
                         $out .= '<li><a href="' . $post->get_attachment_url($attachment) . '">' .
                                 '<img src="' . $iconsrc . '" alt="' . $alt . '" /> <span>' .
-                                htmlspecialchars($attachment) . '</span></a></li>';
+                                htmlspecialchars($attachment) . '</span></a> </li>';
                     } else {
                         // Right-align the entry to 70 characters
                         $padding = 70 - strlen($attachment);

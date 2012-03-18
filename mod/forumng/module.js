@@ -2051,12 +2051,15 @@ M.mod_forumng = {
         if (on) {
             var info = post.one('div.forumng-info');
             var span = this.Y.Node.create('<span/>');
+            var spanseparator = this.Y.Node.create('<span/>');
             info.appendChild(span);
             post.extraSpan = span;
             post.addClass('forumng-deselected');
             var postid = post.one('>a').get('id');
 
-            span.appendChild(document.createTextNode(' \u2022 '));
+            spanseparator.addClass('forumng-separator');
+            spanseparator.appendChild(document.createTextNode(' \u2022 '));
+            span.appendChild(spanseparator);
             var check = this.Y.Node.create('<input type="checkbox"/>');
             check.set('id', 'check' + postid);
             post.check = check;
@@ -2065,7 +2068,7 @@ M.mod_forumng = {
             label.setAttribute('for', check.get('id'));
             span.appendChild(label);
             label.appendChild(document.createTextNode(M.str.forumng.selectlabel));
-            this.links_disable(post);
+            this.links_disable(document.body);
 
             var hidden = this.Y.Node.create('<input type="hidden" value="0"/>');
             post.forumng_hidden = hidden;
@@ -2085,7 +2088,7 @@ M.mod_forumng = {
         } else {
             post.extraSpan.remove();
             post.removeClass('forumng-deselected');
-            this.links_enable(post);
+            this.links_enable(document.body);
         }
     },
 
