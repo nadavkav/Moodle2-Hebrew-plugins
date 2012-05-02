@@ -1,0 +1,373 @@
+/* 
+    Document   : style
+    Created on : Aug 10, 2010, 8:12:18 AM
+    Author     : rwainman
+*/
+
+/* ROOMS.PHP */
+.room_row:hover{
+    background-color:#E7E7E7;
+    cursor:pointer;
+}
+
+/* SYSTEM */
+.calendar_icon {
+    cursor:pointer;
+}
+
+/* CALENDAR */
+.calendar_day{
+    background-color:white;
+    border:1px solid #DDDDDD;
+}
+
+.calendar_tophour {
+    border-top:1px solid #DDDDDD;
+}
+
+/* MINI CALENDAR */
+.calendar_side_picker {
+    width:33%;
+    text-align:center;
+    border:1px solid #DDDDDD;
+    cursor:pointer;
+}
+
+.calendar_minical_daysofweek {
+    border-bottom:1px solid #DDDDDD;
+}
+
+.calendar_miniCal_day:hover {
+    cursor:pointer;
+}
+
+.calendar_miniCal_today {
+    border:1px solid black;
+    font-weight:bold;
+    padding-left:2px;
+    padding-right:2px;
+}
+
+.calendar_miniCal_todaySelected {
+    border:1px solid black;
+    font-weight:bold;
+    padding-left:2px;
+    padding-right:2px;
+    background-color:#DDDDDD;
+}
+
+.calendar_miniCal_selected {
+    font-weight:bold;
+    background-color:#DDDDDD;
+    padding-left:2px;
+    padding-right:2px;
+}
+
+/* SELECTION STYLES */
+
+.calendar_default_top {
+    background-color:#28518E;
+    height:5px;
+    margin-right:10px;
+    color:white;
+    padding:0;
+    font-weight:bold;
+    font-size:10px;
+    opacity:0.9;
+}
+
+.calendar_default_top a {
+    color:white;
+}
+
+.calendar_default_middle {
+    background-color:#B4C6ED;
+    opacity:0.9;
+    height:5px;
+    margin-right:10px;
+    font-size:10px;
+    padding:0;
+}
+.calendar_default_bottom {
+    background-color:#B4C6ED;
+    opacity:0.9;
+    height:5px;
+    margin-right:10px;
+    font-size:10px;
+    padding:0;
+}
+
+.calendar_default_dropdown {
+    background-color:#B4C6ED;
+}
+
+.calendar_default_cal{
+    background-color:#28518E;
+    color:white;
+    font-size:10px;
+    opacity:0.9;
+    font-weight:bold;
+    text-align:left;
+    margin-top:2px;
+    margin-bottom:2px;
+}
+
+.calendar_selection_top {
+    background-color:#6689C7;
+    height:5px;
+    margin-right:10px;
+    color:white;
+    padding:0;
+    font-weight:bold;
+    font-size:10px;
+    opacity:0.9;
+}
+.calendar_selection_middle {
+    background-color:#C4D2E9;
+    opacity:0.9;
+    height:5px;
+    margin-right:10px;
+    font-size:10px;
+    padding:0;
+    color:black;
+}
+.calendar_selection_bottom {
+    background-color:#C4D2E9;
+    opacity:0.9;
+    height:5px;
+    margin-right:10px;
+    font-size:10px;
+    padding:0;
+    color:black;
+}
+
+.calendar_selection_dropdown {
+    background-color:#C4D2E9;
+}
+
+.calendar_meeting_top {
+    background-color:#AD4D0D;
+    height:5px;
+    margin-right:10px;
+    color:white;
+    padding:0;
+    font-weight:bold;
+    font-size:10px;
+    opacity:0.9;
+}
+.calendar_meeting_top a {
+    color:white;
+}
+.calendar_meeting_middle {
+    background-color:#F8C297;
+    opacity:0.9;
+    height:5px;
+    margin-right:10px;
+    font-size:10px;
+    padding:0;
+    color:black;
+}
+.calendar_meeting_bottom {
+    background-color:#F8C297;
+    opacity:0.9;
+    height:5px;
+    margin-right:10px;
+    font-size:10px;
+    padding:0;
+    color:black;
+}
+
+.calendar_meeting_dropdown {
+    background-color:#F8C297;
+}
+
+.calendar_meeting_cal{
+    background-color:#AD4D0D;
+    color:white;
+    font-size:10px;
+    opacity:0.9;
+    font-weight:bold;
+    text-align:left;
+    margin-top:2px;
+    margin-bottom:2px;
+}
+
+.calendar_class_top {
+    background-color:#3F8131;
+    height:5px;
+    margin-right:10px;
+    color:white;
+    padding:0;
+    font-weight:bold;
+    font-size:10px;
+    opacity:0.9;
+}
+.calendar_class_top a {
+    color:white;
+}
+.calendar_class_middle {
+    background-color:#B7E5AE;
+    opacity:0.9;
+    height:5px;
+    margin-right:10px;
+    font-size:10px;
+    padding:0;
+    color:black;
+}
+.calendar_class_bottom {
+    background-color:#B7E5AE;
+    opacity:0.9;
+    height:5px;
+    margin-right:10px;
+    font-size:10px;
+    padding:0;
+    color:black;
+}
+
+.calendar_class_dropdown {
+    background-color:#B7E5AE;
+}
+
+.calendar_class_cal{
+    background-color:#3F8131;
+    color:white;
+    font-size:10px;
+    opacity:0.9;
+    font-weight:bold;
+    text-align:left;
+    margin-top:2px;
+    margin-bottom:2px;
+}
+
+
+
+/* APPOINTMENT FORM */
+
+.calendar_apptForm_box {
+    border:1px solid #DDDDDD;
+    padding:5px;
+}
+
+.calendar_apptForm_selectedTab {
+    border:1px solid #DDDDDD;
+    padding:10px;
+    background-color:#DDDDDD;
+    cursor:pointer;
+    border-bottom:0;
+}
+
+.calendar_apptForm_tab {
+    border:1px solid #DDDDDD;
+    padding:10px;
+    cursor:pointer;
+    border-bottom:0;
+}
+
+.calendar_apptForm_status {
+    border: 1px solid #DDDDDD;
+    width:98%;
+    height:16px;
+    font-size:10px;
+    padding:3px;
+}
+
+/* HOURS BACKGROUNDS */
+
+#calendar_time_0{
+background:url(img/hour-01.png);	
+background-repeat:no-repeat;
+}
+#calendar_time_1{
+background:url(img/hour-02.png);	
+background-repeat:no-repeat;
+}
+#calendar_time_2{
+background:url(img/hour-03.png);	
+background-repeat:no-repeat;
+}
+#calendar_time_3{
+background:url(img/hour-04.png);	
+background-repeat:no-repeat;
+}
+#calendar_time_4{
+background:url(img/hour-05.png);	
+background-repeat:no-repeat;
+}
+#calendar_time_5{
+background:url(img/hour-06.png);	
+background-repeat:no-repeat;
+}
+#calendar_time_6{
+background:url(img/hour-07.png);	
+background-repeat:no-repeat;
+}
+#calendar_time_7{
+background:url(img/hour-08.png);	
+background-repeat:no-repeat;
+}
+#calendar_time_8{
+background:url(img/hour-09.png);	
+background-repeat:no-repeat;
+}
+#calendar_time_9{
+background:url(img/hour-10.png);	
+background-repeat:no-repeat;
+}
+#calendar_time_10{
+background:url(img/hour-11.png);	
+background-repeat:no-repeat;
+}
+#calendar_time_11{
+background:url(img/hour-12.png);	
+background-repeat:no-repeat;
+}
+#calendar_time_12{
+background:url(img/hour-13.png);	
+background-repeat:no-repeat;
+}
+#calendar_time_13{
+background:url(img/hour-14.png);	
+background-repeat:no-repeat;
+}
+#calendar_time_14{
+background:url(img/hour-15.png);	
+background-repeat:no-repeat;
+}
+#calendar_time_15{
+background:url(img/hour-16.png);	
+background-repeat:no-repeat;
+}
+#calendar_time_16{
+background:url(img/hour-17.png);	
+background-repeat:no-repeat;
+}
+#calendar_time_17{
+background:url(img/hour-18.png);	
+background-repeat:no-repeat;
+}
+#calendar_time_18{
+background:url(img/hour-19.png);	
+background-repeat:no-repeat;
+}
+#calendar_time_19{
+background:url(img/hour-20.png);	
+background-repeat:no-repeat;
+}
+#calendar_time_20{
+background:url(img/hour-21.png);	
+background-repeat:no-repeat;
+}
+#calendar_time_21{
+background:url(img/hour-22.png);	
+background-repeat:no-repeat;
+}
+#calendar_time_22{
+background:url(img/hour-23.png);	
+background-repeat:no-repeat;
+}
+#calendar_time_23{
+background:url(img/hour-24.png);	
+background-repeat:no-repeat;
+}
+
+

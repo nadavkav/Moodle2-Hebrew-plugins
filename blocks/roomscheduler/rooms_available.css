@@ -1,0 +1,69 @@
+#open_rooms_table
+{
+	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+	font-size: 12px;
+	margin: 5px;
+        margin-left: 0;
+	width: 350px;
+	text-align: left;
+	border-collapse: collapse;
+}
+#open_rooms_table th
+{
+	font-size: 13px;
+	font-weight: normal;
+	padding: 8px;
+	background: #b9c9fe url('img/gradhead.png') repeat-x;
+	border-top: 2px solid #d3ddff;
+	border-bottom: 1px solid #fff;
+	color: #039;
+}
+#open_rooms_table td
+{
+	padding: 8px;
+	border-bottom: 1px solid #fff;
+	color: #669;
+	border-top: 1px solid #fff;
+	background: #e8edff url('img/gradback.png') repeat-x;
+}
+#open_rooms_table tfoot tr td
+{
+	background: #e8edff;
+	font-size: 12px;
+	color: #99c;
+}
+#open_rooms_table tbody tr:hover td
+{
+	background: #d0dafd url('img/gradhover.png') repeat-x;
+	color: #339;
+}
+
+/* APPOINTMENT FORM */
+
+.calendar_apptForm_box {
+    border:1px solid #DDDDDD;
+    padding:5px;
+}
+
+.calendar_apptForm_selectedTab {
+    border:1px solid #DDDDDD;
+    padding:10px;
+    background-color:#DDDDDD;
+    cursor:pointer;
+    border-bottom:0;
+}
+
+.calendar_apptForm_tab {
+    border:1px solid #DDDDDD;
+    padding:10px;
+    cursor:pointer;
+    border-bottom:0;
+}
+
+.calendar_apptForm_status {
+    border: 1px solid #DDDDDD;
+    width:98%;
+    height:16px;
+    font-size:10px;
+    padding:3px;
+}
