@@ -41,46 +41,30 @@ Page
 Header and Logo
 ---------------------------*/
 #page-header {
-    height: auto;
+    height: 100px;
     width: 100%;
     background: #fff;
-	min-height: 60px;
 }
-
+a.logo {
+    background: url([[setting:logo]]) no-repeat 0 0;
+    width: 320px;
+    height: 75px;
+    display: block;
+    margin: 15px 10px 10px;
+    float: left;
+}
 .headermenu,
 .langmenu {
     float:right;
     clear: right;
     font-size:1em;
-    margin-top:10px;
+    margin:0px;
     text-align:right;
-    position: absolute;
+    position: relative;
     top: 10px;
-	font-weight: bold;
 }
 .headermenu {
-	left:100px;
-    clear: right;
-	margin-top: 10px;
-	color: #666;
-	background-color: white;
-	min-height: 15px;
-	
-	-webkit-border-top-left-radius: 3px;
-    -moz-border-radius-topleft: 3px;
-    border-top-left-radius: 3px;
-    
-	-webkit-border-bottom-left-radius: 3px;
-    -moz-border-radius-bottomleft: 3px;
-    border-bottom-left-radius: 3px;
-	
-		-webkit-border-top-right-radius: 3px;
-    -moz-border-radius-topright: 3px;
-    border-top-right-radius: 3px;
-    
-	-webkit-border-bottom-right-radius: 3px;
-    -moz-border-radius-bottomright: 3px;
-    border-bottom-right-radius: 3px;
+    right: 10px;
 }
 /*
 Page Footer
@@ -222,9 +206,15 @@ select, input, button {
     background-color: #34637f;
     color: #fff;
 }
-#loginbtn, input, button, select { cursor: pointer;}
-input#username, input#password,
-input[type="text"], input[type="password"], textarea {
+#loginbtn, input, button, select {
+    cursor: pointer;
+    margin-left: 5px;
+}
+input#username,
+input#password,
+input[type="text"],
+input[type="password"],
+textarea {
     background-color: white;
     border: 2px inset threedface;
     color: #4b4b4b;
@@ -234,7 +224,7 @@ input[type="text"], input[type="password"], textarea {
 /*
 Coursebox Info & Summary
 ------------------------*/
-.coursebox h3
+.coursebox h3,
 .coursebox .info,
 .coursebox .summary {
     text-align: left;
@@ -269,6 +259,11 @@ Course Section Topic & Weekly
     display: none; /* hides topic items title or weekly itens title */
     margin-bottom: 9px;
 }
+/*Login (Login page)*/
+.loginbox .loginform .form-label {width:46%;}
+.dir-rtl .loginbox .loginform .form-label {width:46%;}
+.loginbox .loginform .form-input {width:53%;}
+
 /*
 Login (Front Page)
 -----------------------*/
@@ -456,7 +451,3 @@ tab styles for ie6 & ie7
 .yui-skin-sam .yui-panel-container {
     z-index: 999999!important;
 }
-
-/* Custom CSS Settings
--------------------------*/
-[[setting:customcss]]
