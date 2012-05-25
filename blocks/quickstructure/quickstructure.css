@@ -1,0 +1,43 @@
+
+.qs_h{
+ text-transform: upper;   
+}
+.qs_i{
+ text-align:left;
+ width:200;   
+}
+#qs_menu{
+ clear:both;   
+}
+.qs_hidden{
+    display:none;    
+}
+.qs_center{
+    margin:0 auto; 
+    clear:both;   
+}
+
+#qs_all{
+    margin:1px auto;
+    padding:0px;
+    width:100px;
+    text-align:center;
+    cursor:pointer;
+}
+#qs_prev{
+    float:left;
+    width:300px;
+    text-align:left;
+    cursor:pointer;
+}
+#qs_next{
+    float:right;
+    width:300px;    
+    text-align:right;
+    cursor:pointer;
+}
+
+a.qs_hover:hover img{
+    width:80%;          
+}
+
