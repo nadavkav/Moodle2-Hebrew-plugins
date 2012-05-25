@@ -1,0 +1,11 @@
+
+#nav .current {
+background-color:#DCE7EB;
+}
+
+
+#nav li {margin-bottom:2px;}
+
+#nav .showall {font-weight:bold; margin-bottom:4px;}
+
+#nav .list .column p {display:inline;}

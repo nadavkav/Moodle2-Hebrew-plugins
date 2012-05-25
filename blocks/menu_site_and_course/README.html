@@ -1,0 +1,121 @@
+<h1>menu_site_and_course</h1>
+<a href="http://moodle.org/mod/data/view.php?d=13&rid=1216">http://moodle.org/mod/data/view.php?d=13&rid=1216</a>
+
+<h3>About</h3>
+<ul>
+<li>This is the kind of user-friendy menu that web users are very familiar with using.
+<li>I've tested it on Moodle 1.9 and Moodle 1.8.  Perhaps it works on other versions too.
+<li>I've had no problems with this and have had several other sites test it.
+<li>However, as with all "Contributed" block, use it at your own risk. (In other words, try it with a test site first, before installing it into a production site.)
+</ul>
+
+<h3>Some Features</h3>
+<ul>
+<li>It's similar to Moodle's "Section Links" block, so when you click a button, it shows only that one lesson.
+<li>There are "roll-over" navigation buttons with the titles of the lessons. (The "Section Links" block only shows numbers.)
+<li>Course-level and site-level buttons are not the same.
+<ul><li>If you are on the "front page," then a "login" button is at the top of the menu, unless you are logged in, then it is hidden.</ul>
+<li>The "Participants" link is included, so the "People" block isn't needed.
+<ul><li>You can easily edit one variable in the file to not have this show, if you prefer.</ul>
+<li>Also, links to "Calendar" and "Courses" are included. You can edit one variable in the file to choose not to show them.
+<li>Things that students need from the Administration Block are included, so you don't need it to have it on the page.
+<ul>
+<li>Note, I have a slightly edited version of the "Administration" block, that only gets displayed for teachers.
+</ul>
+<li>The colors are limited to grays (greys), so the menu should blend in with any color scheme.
+<ul><li>The the buttons are grouped by different shades of gray.
+<li>You can easily change the color of the buttons by editing the "styles.php" file in the block's folder.</ul>
+
+<li>If you are in a "course," then the top link is "Home" and it will take you back to the "front page."
+</ul>
+</ul>
+
+<h3>The Parts of the Image Explained</h3>
+<ol>
+<li>This shows the front page before visitors log in.
+<li>This show how the menu looks on the front page after logging in.
+<li>This shows how a logged-in student sees the menu.
+<li>This shows how another language is handled.
+<ul><li>The parts that are in Japanese in this image, will be in the student's chosen language.<li>Also, note that in the menu, long Japanese titles (2-byte characters) still get truncated OK.</ul>
+<li>This shows how the menu looks for a guest in courses that allow guest access.
+<li>This shows the menu when all "weeks" or "topics" are shown.
+<li>This shows the collapsed "show one" lesson mode.
+<li>This shows how the menu can fit on the page.  I prefer placing it in upper-left corner since that's where a majority of other websites have their navigation menus.
+</ol>
+<img src="http://moodle.org/file.php/1/moddata/data/13/48/1216/menu_demo780.jpg">
+<h3>See a Demo</h3>
+<ul>
+<li><a href="http://study.aitech.ac.jp/guest/course/view.php?id=4">Live Demo of a Course Using This Menu</a>
+<br />Guest access allowed. (This website may not always be online, but it was on March 23, 2008)
+</ul>
+
+<hr noshade size=20>
+<h3>Options for the Brave</h3>
+
+See these options around line 52 of block_menu_site_and_course.php
+
+<pre>    	/* Options you can set
+    	 * 1 = show
+    	 * 0 = don't show
+    	 */
+   	 $showcalendar = 1;
+         $showparticipants = 1;
+         $showprofile = 1;
+
+=== Changing the color of the buttons.
+=== This block will probably work better with a wide variety of
+=== themes if you leave the buttons gray.
+
+Edit the "styles.php" within this folder if you need to change the button's colors.
+
+These are the lines you are looking for...
+
+* Near the top
+.block_menu_site_and_course #nav{
+background-color: #777;
+color: #fff;
+}
+
+
+* Lower in the file
+.block_menu_site_and_course #nav .h{
+background-color: #555;
+border: none;
+}
+
+.block_menu_site_and_course #nav .s{
+background-color: #555;
+border: none;
+}
+
+.block_menu_site_and_course #nav .c{
+background-color: #999;
+}
+
+
+.block_menu_site_and_course #nav .a{
+background-color: #1834F0;
+}
+
+
+
+=== Author
+See http://www.manythings.org/tesl/moodle/
+2008-03-19  Charles Kelly
+</pre> 
+
+
+
+
+
+
+
+=== Author
+See http://www.manythings.org/tesl/moodle/
+2008-03-19  Charles Kelly
+</pre> 
+
+
+
+
+
