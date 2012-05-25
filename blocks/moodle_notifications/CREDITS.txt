@@ -1,0 +1,16 @@
+****************************************************************
+* Tue Feb  1 11:36:51 CET 2011
+* Goran Josic goran.josic@usi.ch
+* eLab - http://www.elearninglab.org
+****************************************************************
+
+eLab
+eLab aims at promoting the development of eLearning applications 
+at USI and SUPSI, as well as in the Italian speaking part of 
+Switzerland. To achieve this goal, it provides the necessary 
+infrastructures and services to USI and SUPSI faculties, 
+departments, institutes, teachers, lecturers, and collaborators.
+The laboratory also places its competences at disposal 
+for collaborations with other institutions.
+
+Goran Josic - http://www.usi.ch/en/personal-info?id=815

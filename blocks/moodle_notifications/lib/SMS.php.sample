@@ -1,0 +1,139 @@
+<?php
+require_once LIB_DIR.DIRECTORY_SEPARATOR."AbstractSMS.php";
+//***************************************************	
+// SMS notification abstract class
+//***************************************************	
+class SMS extends AbstractSMS {
+//class SMS {
+
+	public function message( $changelist, $course ) {
+		global $CFG;
+		$charmax = 160;
+		// create actions arrays
+		$added = array();
+		$updated = array();
+		$deleted = array();
+
+		foreach( $changelist as $entry ) {
+			switch( $entry->action ) {
+				case "added":	
+
+					if( array_key_exists($entry->type, $added) ) {
+						$added[$entry->type] += 1;
+					} else {
+						$added[$entry->type] = 1;
+					}
+					break;
+
+				case "updated":	
+					if( array_key_exists($entry->type, $updated) ) {
+						$updated[$entry->type] += 1;
+					} else {
+						$updated[$entry->type] = 1;
+					}
+					break;
+
+				case "deleted":	
+					if(array_key_exists($entry->type, $deleted))
+						$deleted[$entry->type] += 1;
+					else
+						$deleted[$entry->type] = 1;
+					break;
+			}
+		}
+
+		$smsbody = "";
+		if( count($added) > 0 ) {
+			// added items
+			$smsbody .= get_string( 'added', 'block_moodle_notifications' ).': ';
+			foreach ( $added as $module => $number ) {
+				$smsbody .= $number.' ';
+				$smsbody .= get_string($module, 'block_moodle_notifications').', ';
+			}
+			// remove the last coma symbol
+			$smsbody = substr( $smsbody, 0, -2 );
+		}
+
+		if( count($updated) > 0 ) {
+			// added items
+			$smsbody .= get_string( 'updated', 'block_moodle_notifications' ).': ';
+			foreach ( $updated as $module => $number ) {
+				$smsbody .= $number.' ';
+				$smsbody .= get_string( $module, 'block_moodle_notifications' ).', ';
+			}
+			// remove the last come symbol
+			$smsbody = substr( $smsbody, 0, -2 );
+		}
+
+		if( count($deleted) > 0 ) {
+			// added items
+			$smsbody .= get_string( 'deleted', 'block_moodle_notifications' ).': ';
+			foreach ( $deleted as $module => $number ) {
+				$smsbody .= $number.' ';
+				$smsbody .= get_string( $module, 'block_moodle_notifications' ).', ';
+			}
+			// remove the last come symbol
+			$smsbody = substr( $smsbody, 0, -2 );
+		}
+
+		return $smsbody;
+	}
+
+	public function notify( $changelist, $user, $course ) {
+		$message_size = 160; // 160 chars 
+		$course_shortname_limit = 10;
+		$subject_overhead = ' () '; // space()space -> overhead of 4 chars in the subject
+		$from = 'elab@usi.ch';
+		$to = "$user->phone2@sms.switch.ch";
+		// replace all occurences of ++ with 00
+		$to = str_replace( '++', '00', $to );
+		// replace all occurences of + with 00
+		$to = str_replace( '+', '00', $to );
+		$subject = substr( $course->shortname, 0, $course_shortname_limit );
+		$smsmessage = $this->message( $changelist, $course );
+		//echo $smsmessage;
+
+		// if the sms message is longer than 160 chars then cut and put ... at the end of the message
+		$message_length = strlen( $from . $subject_overhead . $subject . $smsmessage );
+		//echo $message_length."\n";
+		if( $message_length > $message_size ) {
+			$proper_size = $message_size - strlen($from . $subject_overhead . $subject) - 3;
+			$smsmessage = substr($smsmessage, 0, $proper_size) . '...';
+		}
+		
+		/*
+		echo '<br />';
+		echo "$from\n\n";
+		echo "$to\n\n";
+		echo "$subject\n\n";
+		echo "$smsmessage\n\n";
+		echo '<br />';
+		return;
+		*/
+
+		$mail =& get_mailer();
+        $mail->Sender = $from;
+        $mail->From = $from;
+        $mail->AddReplyTo( $from );
+        $mail->Subject = $subject;
+        $mail->AddAddress( $to ); //to $phone.self::$emailsuffix
+        $mail->Body = $smsmessage;
+        $mail->IsHTML( false );
+
+		if ( $mail->Send() ) {
+			$mail->IsSMTP(); // use SMTP directly
+			if ( !empty($mail->SMTPDebug) ) {
+				echo '</pre>';
+				echo 'mail spedita';
+			}
+		} else {
+			if ( !empty($mail->SMTPDebug) ) {
+				echo '</pre>';                  
+			}
+			//Send Error
+			return $mail->ErrorInfo;
+		}
+	}
+}
+
+?>

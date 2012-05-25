@@ -1,0 +1,27 @@
+To upgrade from 1.0.x version to 1.1.0 version please reinstall the plugin 
+by first deleting the old one and then installing the new one.
+
+Here is the procedure:
+
+***************************************************************************
+NOTE: 
+***************************************************************************
+This procedure removes every previous instances of the block in all courses 
+where it has been added.
+***************************************************************************
+
+
+- Access as administrator and go to the front page.
+
+- Click on Modules > Blocks > Manage blocks in the Site Adminstration Block.
+
+- Delete Notifications block.
+
+- Delete the folder MOODLE_INSTALLATION_DIRECTORY/blocks/notify_changes
+
+- Copy the folder moodle_notifications to MOODLE_INSTALLATION_DIRECTORY/blocks/
+
+- Go back to the front page and click on Notifications in the Site Administration Block.
+
+- At this point the tables are going to be recreated and the new plugin is going to be installed. 
+

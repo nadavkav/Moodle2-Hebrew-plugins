@@ -1,0 +1,31 @@
+    Several bugfixes for new version: 1.0.3
+    
+        Bugfix: Courses without teachers have broken RSS
+            --
+            Courses without teachers used to be a problem because of
+            the missing email fields inside RSS file. When the course
+            has no enrolled teachers a dummy email account is used.
+            --
+    
+        Bugfix: Deletion of invisible modules is notified
+            --
+            This version of the plugin ignores invisible modules during
+            the course scansion. If a registered but invisible module is
+            deleted than the deletion is still notified. This is just a
+            matter of consistency because the addition of the module
+            has been notified before.
+            --
+    
+        Bugfix: The order in the RSS entries is messy.
+            --
+            This was due to the initial logging policy. Every module had
+            one entry in the log. Now every action is a different entry
+            in the log table.
+            --
+    
+        Bugfix: Email; deleted entries have a link which is obviously broken
+            --
+            No links for deleted entries anymore. The modules doesn't exist
+            so having a link is just pointless.
+            --
+
