@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="blocks/ajax_marking/db" VERSION="20111031" COMMENT="XMLDB file for Moodle blocks/ajax_marking"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="block_ajax_marking" COMMENT="stores user preferences (if any) on which assessments they would like hidden in the AJAX marking block." NEXT="block_ajax_marking_groups">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="false" SEQUENCE="true" COMMENT="id of the table, please edit me" NEXT="userid"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="false" SEQUENCE="false" COMMENT="the userid of the person to whom this preference applies" PREVIOUS="id" NEXT="instanceid"/>
+        <FIELD NAME="instanceid" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="Matches the primary key of whatever table this setting refers to" PREVIOUS="userid" NEXT="tablename"/>
+        <FIELD NAME="tablename" TYPE="char" LENGTH="40" NOTNULL="false" SEQUENCE="false" COMMENT="What table contains the item we are making display settings for?" PREVIOUS="instanceid" NEXT="display"/>
+        <FIELD NAME="display" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="false" DEFAULT="1" SEQUENCE="false" COMMENT="should this assessment be shown at all to this user? 0=no 1=yes default to yes" PREVIOUS="tablename" NEXT="groupsdisplay"/>
+        <FIELD NAME="groupsdisplay" TYPE="int" LENGTH="1" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" COMMENT="Should group nodes be shown for this item?" PREVIOUS="display"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="primary key of the table, please edit me" NEXT="useridkey"/>
+        <KEY NAME="useridkey" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id" COMMENT="links userid to the user table" PREVIOUS="primary"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="block_ajax_marking_groups" COMMENT="Holds the show/hide status of the groups for each user's config choices. Display 1=show the group, display 0=hide it. A group id of 0 means what to do for students in no group." PREVIOUS="block_ajax_marking">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="configid"/>
+        <FIELD NAME="configid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="The id of the field in the config table" PREVIOUS="id" NEXT="groupid"/>
+        <FIELD NAME="groupid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="The id of the group" PREVIOUS="configid" NEXT="display"/>
+        <FIELD NAME="display" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="1=show 0=hide" PREVIOUS="groupid"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="configid-id"/>
+        <KEY NAME="configid-id" TYPE="foreign" FIELDS="configid" REFTABLE="block_ajax_marking" REFFIELDS="id" COMMENT="Links this table with the config table" PREVIOUS="primary" NEXT="groupid-id"/>
+        <KEY NAME="groupid-id" TYPE="foreign" FIELDS="groupid" REFTABLE="groups" REFFIELDS="id" COMMENT="Links this table with the groups table" PREVIOUS="configid-id"/>
+      </KEYS>
+    </TABLE>
+  </TABLES>
+</XMLDB>
