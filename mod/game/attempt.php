@@ -1,9 +1,9 @@
-<?php  // $Id: attempt.php,v 1.15 2010/08/27 10:21:36 bdaloukas Exp $
+<?php  // $Id: attempt.php,v 1.20 2012/02/19 15:19:55 bdaloukas Exp $
 /**
  * This page prints a particular attempt of game
  * 
  * @author  bdaloukas
- * @version $Id: attempt.php,v 1.15 2010/08/27 10:21:36 bdaloukas Exp $
+ * @version $Id: attempt.php,v 1.20 2012/02/19 15:19:55 bdaloukas Exp $
  * @package game
  **/    
     require_once( "../../config.php");
@@ -21,10 +21,10 @@
 
     $action  = optional_param('action', "", PARAM_ALPHANUM);  // action
 	
-    game_show_header( $id, $game, $course);
-    game_do_attempt( $id, $game, $action, $course);
+    game_show_header( $id, $game, $course, $context);
+    game_do_attempt( $id, $game, $action, $course, $context);
 
-    function game_show_header( &$id, &$game, &$course)
+    function game_show_header( &$id, &$game, &$course, &$context)
     {
         global $DB, $USER, $PAGE, $OUTPUT;
 
@@ -102,7 +102,7 @@
         echo $OUTPUT->header();
     }
 
-    function game_do_attempt( $id, $game, $action, $course)
+    function game_do_attempt( $id, $game, $action, $course, $context)
     {
         global $OUTPUT;
 
@@ -115,16 +115,16 @@
     		$attempt = game_getattempt( $game, $detail);
     		$g = game_cross_unpackpuzzle( $_GET[ 'g']);
     		$finishattempt = array_key_exists( 'finishattempt', $_GET);
-    		game_cross_continue( $id, $game, $attempt, $detail, $g, $finishattempt);
+    		game_cross_continue( $id, $game, $attempt, $detail, $g, $finishattempt, $context);
     		break;
     	case 'crossprint':
     		$attempt = game_getattempt( $game, $detail);
-    		game_cross_play( $id, $game, $attempt, $detail, '', true, false, false, true);
+    		game_cross_play( $id, $game, $attempt, $detail, '', true, false, false, true, $context);
     		break;
         case 'sudokucheck':		//the student tries to answer a question
     		$attempt = game_getattempt( $game, $detail);
     		$finishattempt = array_key_exists( 'finishattempt', $_POST);
-    		game_sudoku_check_questions( $id, $game, $attempt, $detail, $finishattempt, $course);
+    		game_sudoku_check_questions( $id, $game, $attempt, $detail, $finishattempt, $course, $context);
             $continue = true;
             break;
         case 'sudokucheckg':		//the student tries to guess a glossaryenry
@@ -137,14 +137,14 @@
     		$attempt = game_getattempt( $game, $detail);
     		$pos = $_GET[ 'pos'];
     		$num = $_GET[ 'num'];
-    		game_sudoku_check_number( $id, $game, $attempt, $detail, $pos, $num);
-            $continue = true;
+    		game_sudoku_check_number( $id, $game, $attempt, $detail, $pos, $num, $context);
+            $continue = false;
             break;
     	case 'cryptexcheck':	//the user tries to guess a question
     		$attempt = game_getattempt( $game, $detail);
     		$q = $_GET[ 'q'];
     		$answer = $_GET[ 'answer'];
-    		game_cryptex_check( $id, $game, $attempt, $detail, $q, $answer);
+    		game_cryptex_check( $id, $game, $attempt, $detail, $q, $answer, $context);
             break;
         case 'bookquizcheck':		//the student tries to answer a question
     		$attempt = game_getattempt( $game, $detail);
@@ -152,35 +152,35 @@
             break;
         case 'snakescheck':		//the student tries to answer a question
     		$attempt = game_getattempt( $game, $detail);
-    		game_snakes_check_questions( $id, $game, $attempt, $detail);
+    		game_snakes_check_questions( $id, $game, $attempt, $detail, $context);
             break;
-        case 'snakescheckg':		//the student tries to answer a question
+        case 'snakescheckg':		//the student tries to answer a question from glossary
     		$attempt = game_getattempt( $game, $detail);
-    		game_snakes_check_glossary( $id, $game, $attempt, $detail);
+    		game_snakes_check_glossary( $id, $game, $attempt, $detail, $context);
             break;        
         case 'hiddenpicturecheck':		//the student tries to answer a question
 	    	$attempt = game_getattempt( $game, $detail);
 	    	$finishattempt = array_key_exists( 'finishattempt', $_POST);
-	    	$continue = game_hiddenpicture_check_questions( $id, $game, $attempt, $detail, $finishattempt);
+	    	$continue = game_hiddenpicture_check_questions( $id, $game, $attempt, $detail, $finishattempt, $context);
             break;
         case 'hiddenpicturecheckg':		//the student tries to guess a glossaryenry
 	    	$attempt = game_getattempt( $game, $detail);
 	    	$endofgame = array_key_exists( 'endofgame', $_GET);
-	    	game_hiddenpicture_check_mainquestion( $id, $game, $attempt, $detail, $endofgame);
+	    	game_hiddenpicture_check_mainquestion( $id, $game, $attempt, $detail, $endofgame, $context);
             break;
         default:
             $continue = true;
             break;    
 	    }
         if( $continue){
-            game_create( $game, $id, $forcenew, $course);
+            game_create( $game, $id, $forcenew, $course, $context);
         }
 /// Finish the page
         echo $OUTPUT->footer();
     }
 
 
-	function game_create( $game, $id, $forcenew, $course)
+	function game_create( $game, $id, $forcenew, $course, $context)
 	{
 		global $USER, $CFG, $DB;
 		
@@ -189,7 +189,7 @@
 		switch( $game->gamekind)
 		{
 		case 'cross':
-			game_cross_continue( $id, $game, $attempt, $detail, '', $forcenew);
+			game_cross_continue( $id, $game, $attempt, $detail, '', $forcenew, $context);
 			break;
 		case 'hangman':
 			if( array_key_exists( 'newletter', $_GET))
@@ -200,10 +200,10 @@
 				$action2 = $_GET[ 'action2'];
 			else
 				$action2 = '';
-			game_hangman_continue( $id, $game, $attempt, $detail, $newletter, $action2);
+			game_hangman_continue( $id, $game, $attempt, $detail, $newletter, $action2, $context);
 			break;
 		case 'millionaire':
-			game_millionaire_continue( $id, $game, $attempt, $detail);
+			game_millionaire_continue( $id, $game, $attempt, $detail, $context);
 			break;
 		case 'bookquiz':
 			if( array_key_exists( 'chapterid', $_GET))
@@ -213,53 +213,21 @@
 			game_bookquiz_continue( $id, $game, $attempt, $detail, $chapterid);
 			break;
 		case 'sudoku':
-			game_sudoku_continue( $id, $game, $attempt, $detail);
+			game_sudoku_continue( $id, $game, $attempt, $detail, '', $context);
 			break;
 		case 'cryptex':
-			game_cryptex_continue( $id, $game, $attempt, $detail, $forcenew);
+			game_cryptex_continue( $id, $game, $attempt, $detail, $forcenew, $context);
 			break;
 		case 'snakes':
-			game_snakes_continue( $id, $game, $attempt, $detail);
+			game_snakes_continue( $id, $game, $attempt, $detail, $context);
 			break;
 		case 'hiddenpicture':
-			game_hiddenpicture_continue( $id, $game, $attempt, $detail);
-			break;
-		case '':
-			echo get_string( 'useupdategame', 'game');
-			print_continue($CFG->wwwroot . '/course/view.php?id=' . $course->id);
+			game_hiddenpicture_continue( $id, $game, $attempt, $detail, $context);
 			break;
 		default:
 			error( "Game {$game->gamekind} not found");
 			break;
 		}
-	}
-	
-	//inserts a record to game_attempts
-	function game_addattempt( $game)
-	{
-		global $DB, $USER;
-		
-		$newrec->gamekind = $game->gamekind;
-		$newrec->gameid = $game->id;
-		$newrec->userid = $USER->id;
-		$newrec->timestart = time();
-		$newrec->timefinish = 0;
-		$newrec->timelastattempt = 0;
-		$newrec->preview = 0;
-        $params = array( 'gameid' => $game->id, 'userid' => $USER->id);
-		$newrec->attempt = $DB->get_field( 'game_attempts', 'max(attempt)', $params) + 1;
-		$newrec->score = 0;
-
-		if (!($newid = $DB->insert_record( 'game_attempts', $newrec))){
-			error("Insert game_attempts: new rec not inserted");
-		}
-		
-		if( $USER->username == 'guest'){
-			$key = 'mod/game:instanceid'.$game->id;
-			$_SESSION[ $key] = $newid;
-		}
-
-		return $DB->get_record_select( 'game_attempts', 'id='.$newid);
 	}
 	
 	

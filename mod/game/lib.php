@@ -1,9 +1,9 @@
-<?php  // $Id: lib.php,v 1.20 2010/09/03 12:41:55 bdaloukas Exp $
+<?php  // $Id: lib.php,v 1.35 2012/02/19 15:19:55 bdaloukas Exp $
 /**
  * Library of functions and constants for module game
  *
  * @author 
- * @version $Id: lib.php,v 1.20 2010/09/03 12:41:55 bdaloukas Exp $
+ * @version $Id: lib.php,v 1.35 2012/02/19 15:19:55 bdaloukas Exp $
  * @package game
  **/
 
@@ -119,8 +119,12 @@ function game_update_instance($game) {
         $game->param2 = 0;
     }
     
+    if( !isset( $game->questioncategoryid)){
+        $game->questioncategoryid = 0;
+    }    
+    
     game_before_add_or_update( $game);
-        	
+    
     if( !$DB->update_record("game", $game)){
         return false;
     }
@@ -132,26 +136,37 @@ function game_update_instance($game) {
 }
 
 function game_before_add_or_update(&$game) {
+
+    $pos = strpos( $game->questioncategoryid, ',');
+    if( $pos != false)
+        $game->questioncategoryid = substr( $game->questioncategoryid, 0, $pos);
+
     if( $game->gamekind == 'millionaire')
     {
-        if( substr( $game->param8, 0, 1) == '#')
+        $pos = strpos( '-'.$game->param8, '#');
+        if( $pos > 0)
         {
-            $game->param8 = hexdec(substr( $game->param8, 1));
+            $game->param8 = hexdec(substr( $game->param8, $pos));
         }
     }else if( $game->gamekind == 'snakes')
     {
         $s = '';
         if( $game->param3 == 0)
         {
-            $draftitemid = file_get_submitted_draft_itemid('snakes_file');
-            $cmg = get_coursemodule_from_instance('game', $game->id, $game->course);
-            $modcontext = get_context_instance(CONTEXT_MODULE, $cmg->id);
-            file_prepare_draft_area($draftitemid, $modcontext->id, 'mod_game', 'snakes_file', $game->id);
-            $game->param4 = $draftitemid;
+            //means user defined
+            $draftitemid = $game->param4;
+            if( isset( $game->id))
+            {
+                $cmg = get_coursemodule_from_instance('game', $game->id, $game->course);
+                $modcontext = get_context_instance(CONTEXT_MODULE, $cmg->id);
+                $attachmentoptions=array('subdirs' => 0, 'maxbytes' => 9999999, 'maxfiles' => 1);
+                file_save_draft_area_files($draftitemid, $modcontext->id, 'mod_game', 'snakes_file', $game->id, array('subdirs' => 0, 'maxbytes' => 9999999, 'maxfiles' => 1));
+                $game->param5 = 1;                
+            }
     
             if( isset( $_POST[ 'snakes_cols']))
             {
-                $fields = array( 'snakes_board', 'snakes_cols', 'snakes_rows', 'snakes_headerx', 'snakes_headery', 'snakes_footerx', 'snakes_footery');
+                $fields = array( 'snakes_data', 'snakes_cols', 'snakes_rows', 'snakes_headerx', 'snakes_headery', 'snakes_footerx', 'snakes_footery', 'snakes_width', 'snakes_height');
                 foreach( $fields as $f)
                     $s .= '#'.$f.':'.$_POST[ $f];
                 $s = substr( $s, 1);
@@ -664,9 +679,16 @@ function game_supports($feature) {
 
         case FEATURE_GRADE_HAS_GRADE:         return true;
 
-        case FEATURE_GROUPS:                  return false;
-        case FEATURE_GROUPINGS:               return false;
+        case FEATURE_GROUPS:                  return true;
+        case FEATURE_GROUPINGS:               return true;
+        case FEATURE_GROUPMEMBERSONLY:        return true;
         case FEATURE_MOD_INTRO:               return false;
+        case FEATURE_COMPLETION_TRACKS_VIEWS: return true;
+        case FEATURE_COMPLETION_HAS_RULES:    return true;
+        case FEATURE_GRADE_HAS_GRADE:         return true;
+        case FEATURE_GRADE_OUTCOMES:          return true;
+        case FEATURE_RATE:                    return false;
+        case FEATURE_BACKUP_MOODLE2:          return true;
 
         default: return null;
     }
@@ -796,6 +818,10 @@ function game_extend_navigation($gamenode, $course, $module, $cm) {
     if (has_capability('mod/game:viewreports', $context)) 
     {
         switch( $module->gamekind){
+        case 'bookquiz':
+            $url = new moodle_url('/mod/game/bookquiz/questions.php',  array('q'=>$cm->instance));
+            $exportnode = $gamenode->add( get_string('bookquiz_questions', 'game'), $url, navigation_node::TYPE_SETTING, null, null, new pix_icon('i/item', ''));
+            break;
         case 'hangman':
             $url = new moodle_url('', null);
             $exportnode = $gamenode->add( get_string('export', 'game'), $url, navigation_node::TYPE_SETTING, null, null, new pix_icon('i/report', ''));
@@ -806,6 +832,7 @@ function game_extend_navigation($gamenode, $course, $module, $cm) {
             $url = new moodle_url('/mod/game/export.php', array( 'id' => $cm->id,'courseid'=>$course->id, 'target' => 'javame'));
             $exportnode->add( get_string('export_to_javame', 'game'), $url, navigation_node::TYPE_SETTING, null, null, new pix_icon('i/item', ''));
             break;
+        case 'snakes':        
         case 'cross':
         case 'millionaire':
             $url = new moodle_url('/mod/game/export.php', array( 'id' => $cm->id,'courseid'=>$course->id, 'target' => 'html'));
@@ -828,7 +855,7 @@ function game_get_types(){
     $type = new object();
     $type->modclass = MOD_CLASS_ACTIVITY;
     $type->type = "game_group_start";
-    $type->typestr = '--'.'Games';
+    $type->typestr = '--'.get_string( 'modulenameplural', 'game');
     $types[] = $type;
 
     $type = new object();
@@ -890,3 +917,183 @@ function game_get_types(){
     return $types;
 
 }
+
+function mod_game_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload)
+{
+    global $CFG, $DB;
+
+    if ($context->contextlevel != CONTEXT_MODULE) {
+        return false;
+    }
+
+    require_course_login($course, true, $cm);
+
+    if( $filearea == 'questiontext')
+    {
+        $questionid = $args[ 0];
+        $file = $args[ 1];
+        
+        if (!$contextcourse = get_context_instance(CONTEXT_COURSE, $course->id)) {
+            print_error('nocontext');
+        }
+        $a = array( 'component' => 'question', 'filearea' => 'questiontext', 
+            'itemid' => $questionid, 'filename' => $file, 'contextid' => $contextcourse->id);
+        $rec = $DB->get_record( 'files', $a);
+
+        $fs = get_file_storage();
+        if (!$file = $fs->get_file_by_hash($rec->pathnamehash) or $file->is_directory()) {
+            return false;
+        }
+
+        // finally send the file
+        send_stored_file($file, 0, 0, true); // download MUST be forced - security!            
+    }else if( $filearea == 'answer')
+    {
+        $answerid = $args[ 0];
+        $file = $args[ 1];
+        
+        if (!$contextcourse = get_context_instance(CONTEXT_COURSE, $course->id)) {
+            print_error('nocontext');
+        }
+        $rec = $DB->get_record( 'files', array( 'component' => 'question', 'filearea' => 'answer', 
+            'itemid' => $answerid, 'filename' => $file, 'contextid' => $contextcourse->id));
+
+        $fs = get_file_storage();
+        if (!$file = $fs->get_file_by_hash($rec->pathnamehash) or $file->is_directory()) {
+            return false;
+        }
+
+        // finally send the file
+        send_stored_file($file, 0, 0, true); // download MUST be forced - security!            
+    }    
+
+    $filearea = $args[ 0];
+    $filename = $args[ 1];
+
+    $fs = get_file_storage();
+    $relativepath = implode('/', $args);
+    $fullpath = "/$context->id/mod_game/$filearea/$cm->instance/$filename";
+    if (!$file = $fs->get_file_by_hash(sha1($fullpath)) or $file->is_directory()) {
+        return false;
+    }
+
+    // finally send the file
+    send_stored_file($file, 0, 0, true); // download MUST be forced - security!
+}
+
+/**
+ * Implementation of the function for printing the form elements that control
+ * whether the course reset functionality affects the Game.
+ * @param object $mform form passed by reference
+ */
+function game_reset_course_form_definition(&$mform) {
+    $mform->addElement('header', 'gameheader', get_string('modulenameplural', 'game'));
+    $mform->addElement('checkbox', 'reset_game_all', get_string('reset_game_all','game'));
+    
+    $mform->addElement('checkbox', 'reset_game_deleted_course', get_string('reset_game_deleted_course', 'game'));
+}
+
+/**
+ * Course reset form defaults.
+ * @return array
+ */
+function game_reset_course_form_defaults($course) {
+    return array('reset_game_all'=>0, 'reset_game_deleted_course' => 0);
+}
+
+/**
+ * Actual implementation of the reset course functionality, delete all the
+ * Game responses for course $data->courseid.
+ *
+ * @global object
+ * @param $data the data submitted from the reset course.
+ * @return array status array
+ */
+function game_reset_userdata($data) {
+    global $DB;
+
+    $componentstr = get_string('modulenameplural', 'game');
+    $status = array();
+    $fs = get_file_storage();
+
+    for($i=1; $i <= 2; $i++){
+        if( $i == 1){
+            if (empty($data->reset_game_all))
+                continue;           
+            $allgamessql = 'SELECT g.id FROM {game} g WHERE g.course = '.$data->courseid;
+            $allattemptssql = 'SELECT ga.id FROM {game} g LEFT JOIN {game_attempts} ga ON g.id = ga.gameid WHERE g.course = '.$data->courseid;
+            $newstatus = array('component'=>$componentstr, 'item'=>get_string('reset_game_all', 'game'), 'error'=>false);
+        }else if( $i == 2)
+        {
+            if (empty($data->reset_game_deleted_course))
+                continue;           
+            $allgamessql = 'SELECT g.id FROM {game} g WHERE NOT EXISTS( SELECT * FROM {course} c WHERE c.id = g.course)';
+            $allattemptssql = 'SELECT ga.id FROM {game_attempts} ga WHERE NOT EXISTS( SELECT * FROM {game} g WHERE ga.gameid = g.id)';
+            $newstatus = array('component'=>$componentstr, 'item'=>get_string('reset_game_deleted_course', 'game'), 'error'=>false);
+        }
+        
+        $recs = $DB->get_recordset_sql($allgamessql);
+        if ($recs->valid()) {
+            foreach ($recs as $rec) {
+                if (!$cm = get_coursemodule_from_instance('game', $rec->id)) {
+                    continue;
+                }
+                $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+                $fs->delete_area_files($context->id, 'mod_game', 'gnakes_file');
+                $fs->delete_area_files($context->id, 'mod_game', 'gnakes_board');
+                
+                //reset grades
+                $game = $DB->get_record_select( 'game', 'id='.$rec->id, null,'id,name,course ');
+                $grades = NULL;
+                $params = array('itemname'=>$game->name, 'idnumber'=>0);
+                $params['reset'] = true;
+                grade_update('mod/game', $game->course, 'mod', 'game', $game->id, 0, $grades, $params);
+            }
+       }
+        
+        $DB->delete_records_select('game_bookquiz', "id IN ($allgamessql)");
+        $DB->delete_records_select('game_bookquiz_chapters', "attemptid IN ($allattemptssql)");
+        $DB->delete_records_select('game_bookquiz_questions', "gameid IN ($allgamessql)");
+        $DB->delete_records_select('game_cross', "id IN ($allgamessql)");
+        $DB->delete_records_select('game_cryptex', "id IN ($allgamessql)");
+        $DB->delete_records_select('game_export_html', "id IN ($allgamessql)");
+        $DB->delete_records_select('game_export_javame', "id IN ($allgamessql)");
+        $DB->delete_records_select('game_grades', "gameid IN ($allgamessql)");
+        $DB->delete_records_select('game_hangman', "id IN ($allgamessql)");
+        $DB->delete_records_select('game_hiddenpicture', "id IN ($allgamessql)");
+        $DB->delete_records_select('game_millionaire', "id IN ($allgamessql)");
+        $DB->delete_records_select('game_queries', "gameid IN ($allgamessql)");
+        $DB->delete_records_select('game_repetitions', "gameid IN ($allgamessql)");
+        $DB->delete_records_select('game_snakes', "id IN ($allgamessql)");
+        $DB->delete_records_select('game_sudoku', "id IN ($allgamessql)");
+
+        if( $i == 2)
+            $DB->delete_records_select('game_attempts', "NOT EXISTS (SELECT * FROM {game} g WHERE {game_attempts}.gameid=g.id)");
+        else
+            $DB->delete_records_select('game_attempts', "gameid IN ($allgamessql)");        
+        
+        $status[] = $newstatus;
+    }
+    
+    if (empty($data->reset_game_deleted_course))
+        return $status;
+        
+    //Delete data from deleted games
+    $a = array( 'bookquiz', 'cross', 'cryptex', 'grades', 'bookquiz_questions', 'export_html', 'export_javame', 'hangman', 
+            'hiddenpicture', 'millionaire', 'snakes', 'sudoku');
+    foreach( $a as $table)
+        $DB->delete_records_select( 'game_'.$table, "NOT EXISTS( SELECT * FROM {game} g WHERE {game_$table}.id=g.id)");
+    
+    //gameid 
+    $a = array( 'grades', 'queries', 'repetitions');
+    foreach( $a as $table)
+        $DB->delete_records_select( 'game_'.$table, "NOT EXISTS( SELECT * FROM {game} g WHERE {game_$table}.gameid=g.id)");
+    
+    //attempts
+    $a = array( 'bookquiz_chapters');
+    foreach( $a as $table)
+        $DB->delete_records_select( 'game_'.$table, "NOT EXISTS( SELECT * FROM {game_attempts} ga WHERE {game_$table}.attemptid=ga.id)");
+
+    return $status;
+}
+

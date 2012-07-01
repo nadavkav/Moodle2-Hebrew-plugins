@@ -1,9 +1,9 @@
-<?php  // $Id: exportjavame.php,v 1.14 2010/07/26 00:07:13 bdaloukas Exp $
+<?php  // $Id: exportjavame.php,v 1.17 2011/08/03 20:04:32 bdaloukas Exp $
 /**
  * This page export the game to javame for mobile phones
  * 
  * @author  bdaloukas
- * @version $Id: exportjavame.php,v 1.14 2010/07/26 00:07:13 bdaloukas Exp $
+ * @version $Id: exportjavame.php,v 1.17 2011/08/03 20:04:32 bdaloukas Exp $
  * @package game
  **/
     
@@ -144,51 +144,52 @@
         fclose( $fp);
     }
     
-    function game_exmportjavame_getanswers( $game, $export_attachment){
+    function game_exmportjavame_getanswers( $game, $context, $export_attachment, $dest, &$files){
         $map = array();
+        $files = array();
         
         switch( $game->sourcemodule){
         case 'question':
-            return game_exmportjavame_getanswers_question( $game);
+            return game_exmportjavame_getanswers_question( $game, $context, $dest, $files);
         case 'glossary':
             return game_exmportjavame_getanswers_glossary( $game, $export_attachment);
         case 'quiz':
-            return game_exmportjavame_getanswers_quiz( $game);
+            return game_exmportjavame_getanswers_quiz( $game, $context, $dest, $files);
         }
         
         return false;
     }
     
-    function game_exmportjavame_getanswers_question( $game){
+    function game_exmportjavame_getanswers_question( $game, $context, $destdir, &$files){
         $select = 'hidden = 0 AND category='.$game->questioncategoryid;
     
         $select .= game_showanswers_appendselect( $game);
     
-        return game_exmportjavame_getanswers_question_select( $game, 'question', $select, '*', 'questiontext', false, $game->course);        
+        return game_exmportjavame_getanswers_question_select( $game, $context, 'question', $select, '*', $game->course, $destdir, $files);
     }
     
-    function game_exmportjavame_getanswers_quiz( $game)
+    function game_exmportjavame_getanswers_quiz( $game, $context, $destdir, $files)
     {
         global $CFG;
 
 	    $select = "quiz='$game->quizid' ".
-			  " AND qzi.question=q.id".
+			  " AND qqi.question=q.id".
 			  " AND q.hidden=0".
               game_showanswers_appendselect( $game);
-    	$table = "{question} q,{quiz_question_instances} qqi";
+    	$table = "question q,{$CFG->prefix}quiz_question_instances qqi";
 	
-        return game_exmportjavame_getanswers_question_select( $game, $table, $select, "q.*", 'category,questiontext', true, $game->course);
+        return game_exmportjavame_getanswers_question_select( $game, $context, $table, $select, "q.*", $game->course, $destdir, $files);
     }
     
-    function game_exmportjavame_getanswers_question_select( $game, $table, $select, $fields='*', $courseid=0)
+    function game_exmportjavame_getanswers_question_select( $game, $context, $table, $select, $fields, $courseid, $destdir, &$files)
     {
         global $CFG, $DB;
-    
-        if( ($questions = $DB->get_records_select( $table, $select, null, '', $fields)) === false){
+    echo "files1=$files<br>";
+        $sql = "SELECT $fields FROM {$CFG->prefix}$table WHERE $select";
+        if( ($questions = $DB->get_records_sql( $sql)) === false){
             return;
         }
-	                $src = $CFG->dirroot.'/mod/game/export/javame/hangman/simple';
-
+        
         $line = 0;
         $map = array();
         
@@ -196,10 +197,12 @@
             unset( $ret);
             $ret->qtype = $question->qtype;
             $ret->question = $question->questiontext;
+            $ret->question = str_replace( array( '"', '#'), array( "'", ' '), 
+    	                game_export_split_files( $game->course, $context, 'questiontext', $question->id, $ret->question, $destdir, $files));	            
         
             switch( $question->qtype){
             case 'shortanswer':
-	            $rec = $DB->get_record_select( 'question_answers', array( 'question' => $question->id), null, 'id,answer,feedback');
+	            $rec = $DB->get_record( 'question_answers', array( 'question' => $question->id), 'id,answer,feedback');
 	            $ret->answer = $rec->answer;
 	            $ret->feedback = $rec->feedback;
 	            $map[] = $ret;
@@ -244,6 +247,7 @@
             $ret->qtype = 'shortanswer';
             $ret->question = strip_tags( $question->definition);
             $ret->answer = $question->concept;
+            $ret->feedback = '';
             
             if( $export_attachment){
                 if( $question->attachment != ''){

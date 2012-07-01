@@ -1,15 +1,15 @@
-<?php  // $Id: play.php,v 1.13 2010/08/03 20:48:51 bdaloukas Exp $
+<?php  // $Id: play.php,v 1.18 2012/02/19 21:55:11 bdaloukas Exp $
 /**
  * This page plays the cryptex game
  * 
  * @author  bdaloukas
- * @version $Id: play.php,v 1.13 2010/08/03 20:48:51 bdaloukas Exp $
+ * @version $Id: play.php,v 1.18 2012/02/19 21:55:11 bdaloukas Exp $
  * @package game
  **/
 
 require_once( "cryptexdb_class.php");
 
-function game_cryptex_continue( $id, $game, $attempt, $cryptexrec, $endofgame)
+function game_cryptex_continue( $id, $game, $attempt, $cryptexrec, $endofgame, $context)
 {
     global $DB, $USER;
 
@@ -20,7 +20,7 @@ function game_cryptex_continue( $id, $game, $attempt, $cryptexrec, $endofgame)
 	
 	if( $attempt != false and $cryptexrec != false){
         $crossm = $DB->get_record( 'game_cross', array( 'id' => $attempt->id));
-		return game_cryptex_play( $id, $game, $attempt, $cryptexrec, $crossm);
+		return game_cryptex_play( $id, $game, $attempt, $cryptexrec, $crossm, false, false, false, $context);
 	}
 
 	if( $attempt === false){
@@ -37,7 +37,7 @@ function game_cryptex_continue( $id, $game, $attempt, $cryptexrec, $endofgame)
 	$answers = array();
 	$recs = game_questions_shortanswer( $game);
 	if( $recs == false){
-		print_error( get_string( 'cryptex_nowords', 'game'));
+		print_error( get_string( 'no_words', 'game'));
 	}
 
 	$infos = array();
@@ -81,9 +81,8 @@ function game_cryptex_continue( $id, $game, $attempt, $cryptexrec, $endofgame)
 	
 	game_updateattempts( $game, $attempt, 0, 0);
 
-	return game_cryptex_play( $id, $game, $attempt, $cryptexrec, $crossm);
+	return game_cryptex_play( $id, $game, $attempt, $cryptexrec, $crossm, false, false, false, $context);
 }
-
 
 function cryptex_showlegend( $legend, $title)
 {
@@ -97,7 +96,7 @@ function cryptex_showlegend( $legend, $title)
 
 
 //q means game_queries.id
-function game_cryptex_check( $id, $game, $attempt, $cryptexrec, $q, $answer)
+function game_cryptex_check( $id, $game, $attempt, $cryptexrec, $q, $answer, $context)
 {
     global $DB;
 
@@ -129,7 +128,7 @@ function game_cryptex_check( $id, $game, $attempt, $cryptexrec, $q, $answer)
 	if( $equal == false)
 	{
 		game_update_queries( $game, $attempt, $query, 0, $answer2, true);
-		game_cryptex_play( $id, $game, $attempt, $cryptexrec, $crossm, true);
+		game_cryptex_play( $id, $game, $attempt, $cryptexrec, $crossm, true, false, false, $context);
 		return;
 	}
 
@@ -138,7 +137,7 @@ function game_cryptex_check( $id, $game, $attempt, $cryptexrec, $q, $answer)
 	game_cryptex_play( $id, $game, $attempt, $cryptexrec, $crossm, true);
 }
 
-function game_cryptex_play( $id, $game, $attempt, $cryptexrec, $crossm, $updateattempt=false, $onlyshow=false, $showsolution=false)
+function game_cryptex_play( $id, $game, $attempt, $cryptexrec, $crossm, $updateattempt=false, $onlyshow=false, $showsolution=false, $context)
 {
     global $DB;
 
@@ -268,6 +267,8 @@ width:	240pt;
 
 	echo "<br><br>";
 	$i = 0;
+	$else = '';
+	$contextglossary = false;
 	foreach( $questions as $key => $q){
 		$i++;
 		if( $showsolution == false){
@@ -277,16 +278,32 @@ width:	240pt;
 			}	
 		}
 		
-        $question = "$i. ".$q->questiontext;
+        $questiontext = $q->questiontext;
+        if( $q->questionid != 0)
+            $questiontext = game_filterquestion( $questiontext, $q->questionid, $context->id, $game->course);
+        else
+        {
+            if( $contextglossary === false)
+            {
+                $cmglossary = get_coursemodule_from_instance('glossary', $game->glossaryid, $game->course);
+                $contextglossary = get_context_instance(CONTEXT_MODULE, $cmglossary->id);                
+            }
+            $questiontext = game_filterglossary( $questiontext, $q->glossaryentryid, $contextglossary->id, $game->course);
+        }
+        $question = "$i. ".$questiontext;
 		if( ($onlyshow == false) and ($showsolution == false)){
 			if( ($game->param8 == 0) || ($game->param8 > $q->tries))
-				$question .= ' &nbsp;<input type="submit" value="'.get_string( 'answer').'" onclick="OnCheck( '.$q->id.',\''.$question.'\');" />';
+			{
+				$question .= ' &nbsp;<input type="submit" value="'.get_string( 'answer').'" onclick="OnCheck( '.$q->id.');" />';
+				$questiontext=str_replace( array( "\n", "\r"), array( ' ', ' '), $questiontext);
+				if( $else != '')
+				    $else .= "\r\n            else ";
+				$else .= "if (id == {$q->id})\r\n                question=\"$i. {$questiontext}\";";
+			}
 		}
 
-		$question = game_filtertext( $question, 0);
+		$question = str_replace('\"','"',$question);
 		echo $question;
-		$question = strip_tags($question); //ADDED BY DP (AUG 2009) - fixes " breaking the Answer button for this question
-		$question = str_replace("'","\'",$question);
 		if( $showsolution){
 			echo " &nbsp;&nbsp;&nbsp;$q->answertext<B></b>";
 		}
@@ -299,23 +316,28 @@ width:	240pt;
 	
 	?>
 		<script>
-			function OnCheck( id, question)
-			{
-				document.getElementById("q").value = id;
-				document.getElementById("wordclue").innerHTML = question;
+        function OnCheck( id)
+        {
+            var question;
+			    
+            <?php echo $else ?>
+			    
+			    
+            document.getElementById("q").value = id;
+            document.getElementById("wordclue").innerHTML = question;
 
-				// Finally, show the answer box.
-				document.getElementById("answerbox").style.display = "block";
-				try
-				{
-					document.getElementById("answer").focus();
-					document.getElementById("answer").select();
-				}
-				catch (e)
-				{
-				}
-			}
-		</script>
+            // Finally, show the answer box.
+            document.getElementById("answerbox").style.display = "block";
+            try
+            {
+                document.getElementById("answer").focus();
+                document.getElementById("answer").select();
+            }
+            catch (e)
+            {
+            }
+        }
+        </script>
 	<?php
 }
 
@@ -327,7 +349,7 @@ function game_cryptex_onfinished( $id, $game, $attempt, $cryptexrec)
 		print_error( "Course Module ID was incorrect id=$id");
 	}
 
-	echo '<B>'.get_string( 'cryptex_win', 'game').'</B><BR>';	
+	echo '<B>'.get_string( 'win', 'game').'</B><BR>';	
 	echo '<br>';	
 	echo "<a href=\"$CFG->wwwroot/mod/game/attempt.php?id=$id&forcenew=1\">".get_string( 'nextgame', 'game').'</a> &nbsp; &nbsp; &nbsp; &nbsp; ';
 	echo "<a href=\"$CFG->wwwroot/course/view.php?id=$cm->course\">".get_string( 'finish', 'game').'</a> ';

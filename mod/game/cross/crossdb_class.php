@@ -1,9 +1,9 @@
-<?php  // $Id: crossdb_class.php,v 1.12 2011/01/30 12:05:32 bdaloukas Exp $
+<?php  // $Id: crossdb_class.php,v 1.16 2012/02/19 21:55:11 bdaloukas Exp $
 /**
  * This class is a cross that can load and save to a table
  * 
  * @author  bdaloukas
- * @version $Id: crossdb_class.php,v 1.12 2011/01/30 12:05:32 bdaloukas Exp $
+ * @version $Id: crossdb_class.php,v 1.16 2012/02/19 21:55:11 bdaloukas Exp $
  * @package game
  **/
 
@@ -15,11 +15,13 @@ class CrossDB extends Cross
 		
 		$crossm->id = $id;
 		$crossm->sourcemodule = $game->sourcemodule;
+		
+		$this->delete_cross( $id);
 
 		if (!(game_insert_record( "game_cross", $crossm))){
 			print_error( 'Insert page: new page game_cross not inserted');
-		}
-
+		}      
+        
 		foreach( $crossd as $rec)
 		{
 			$rec->attemptid = $id;
@@ -39,7 +41,7 @@ class CrossDB extends Cross
         return true;
 	}
 
-    function delete_records( $id)
+    function delete_cross( $id)
     {
         global $DB;
 
@@ -52,7 +54,7 @@ class CrossDB extends Cross
     }
 
 
-  function load( $g, &$done, &$html, $game, $attempt, $crossrec, $onlyshow, $showsolution, &$finishattempt, $showhtmlsolutions, &$language)
+  function load( $g, &$done, &$html, $game, $attempt, $crossrec, $onlyshow, $showsolution, &$finishattempt, $showhtmlsolutions, &$language, $showstudentguess, $context)
   {
     global $DB;
 
@@ -107,7 +109,7 @@ class CrossDB extends Cross
             }
 		}
 		$info = $this->game_cross_computecheck( $correctletters,  $wrongletters, $restletters, $game, $attempt, $done, $onlyshow, $showsolution, $finishattempt);
-		$html = $this->showhtml_base( $crossrec, $b, $showsolution, $showhtmlsolutions);
+		$html = $this->showhtml_base( $crossrec, $b, $showsolution, $showhtmlsolutions, $showstudentguess, $context, $game);
     }
 	
 	if( $load == false)

@@ -1,22 +1,21 @@
-<?php // $Id: game.php,v 1.2 2010/09/15 21:08:20 bdaloukas Exp $
+<?php // $Id: game.php,v 1.6 2011/08/27 05:37:45 bdaloukas Exp $
       // translation to Shqip (sq) by Gkotslari Orianta
 
 //bookquiz/importodt.php
 $string[ 'bookquiz_import_odt'] = 'Shtim nga një format OpenOffice (odt)';
+$string[ 'bookquiz_not_select_book'] = 'Nuk keni zgjedhur libër ';
 $string[ 'bookquiz_subchapter'] = 'Krijimi i nen vellimeve';
 
 //bookquiz/play.php
 $string[ 'bookquiz_empty'] = 'Libri është bosh ';
+$string[ 'sudoku_submit'] = 'Vlerësim pergjigjesh';
 
 //bookquiz/questions.php
 $string[ 'bookquiz_categories'] = 'Κategori ';
 $string[ 'bookquiz_chapters'] = 'Kapitale ';
-$string[ 'bookquiz_not_select_book'] = 'Nuk keni zgjedhur libër ';
-$string[ 'bookquiz_numquestions'] = 'Pyetje ';
 $string[ 'bookquiz_questions'] = 'Radhitja e katigorive te pyetjeve në vellime libri';
 
 //cross/cross_class.php
-$string[ 'millionaire_letters_answers'] = 'ABCÇDDHEËFGGJHIJKLLLMNNJOPQRRRSSHTTHUVXXHYZZH';
 
 //cross/crossdb_class.php
 $string[ 'and'] = 'dhe';
@@ -26,6 +25,7 @@ $string[ 'cross_error'] = 'gabim';
 $string[ 'cross_errors'] = 'Gabime';
 $string[ 'cross_found_many'] = 'U gjetën';
 $string[ 'cross_found_one'] = 'U gjet';
+$string[ 'grade'] = 'Pikë';
 
 //cross/play.php
 $string[ 'cross_across'] = 'Horizontale';
@@ -35,60 +35,46 @@ $string[ 'cross_endofgamebutton'] = 'Fundi i fjalëkryqit';
 $string[ 'cross_error_containsbadchars'] = 'Fjala qe dhatë përmban karaktere te mos lejueshme.';
 $string[ 'cross_error_wordlength1'] = 'Fjala e sakte përmban ';
 $string[ 'cross_error_wordlength2'] = ' shkronja.';
-$string[ 'cross_new'] = 'Lojë e re';
-$string[ 'cross_nowords'] = 'Nuk u gjet asnjë fjalë';
 $string[ 'cross_pleasewait'] = 'Ju lutem prisni deri sa të ngarkohet fjalëkryqi.';
 $string[ 'cross_welcome'] = '<h3>Mirësevini!</h3><p>Kliko në një fjalë për të filluar.</p>';
-$string[ 'cross_win'] = 'Urime!!!';
+$string[ 'finish'] = 'Fund loje';
 $string[ 'letter'] = 'shkronja';
 $string[ 'letters'] = 'shkronja';
-$string[ 'print'] = 'Printim';
-
-//cryptex/play.php
-$string[ 'cryptex_nowords'] = 'Nuk u gjend asnjë fjalë';
-$string[ 'cryptex_win'] = 'Urime !!!!';
-$string[ 'finish'] = 'Fund loje';
-$string[ 'grade'] = 'Pikë';
 $string[ 'nextgame'] = 'Lojë e re ';
+$string[ 'no_words'] = 'Nuk u gjend asnjë fjalë ';
+$string[ 'print'] = 'Printim';
+$string[ 'win'] = 'Urime!!!';
+
+//db/access.php
 
 //hangman/play.php
-$string[ 'hangman_grade'] = 'Piket e fjales';
+$string[ 'hangman_correct_phrase'] = 'Fjalia e saktë ishte: ';
+$string[ 'hangman_correct_word'] = 'Fjala e saktë ishte: ';
 $string[ 'hangman_gradeinstance'] = 'Shuma e pikeve ne gjithe lojen';
 $string[ 'hangman_letters'] = 'Shkronja : ';
-$string[ 'hangman_loose'] = '<BIG><B>Fund loje</B></BIG>';
-$string[ 'hangman_nowords'] = 'Nuk u gjend asnjë fjalë ';
-$string[ 'hangman_win'] = 'Urime!!!';
+$string[ 'hangman_restletters_many'] = 'Keni <b>$a</b> përpjekje akoma';
+$string[ 'hangman_restletters_one'] = 'Keni akoma <b>VETEM 1</b> përpjekje';
 $string[ 'hangman_wrongnum'] = 'Gabime: %%d out of %%d';
 $string[ 'nextword'] = 'Fjalë tjetër ';
 
 //hiddenpicture/play.php
-$string[ 'hiddenpicture_grade'] = "Pikët";
 $string[ 'hiddenpicture_mainsubmit'] = "Ver pikë në pyetjen kryesore";
 $string[ 'hiddenpicture_nocols'] = 'Duhet te përcaktoni numrin e qelizave horizontalisht';
 $string[ 'hiddenpicture_nomainquestion'] = 'Nuk ka asnjë regjistrim në fjalor $a->name që të përmbajë dhë figurë';
 $string[ 'hiddenpicture_norows'] = 'Duhet te përcaktoni numrin e qelizave vertikalisht';
-$string[ 'hiddenpicture_win'] = "Urime ";
 $string[ 'must_select_glossary'] = 'Duhet te zgjidhni me patjetër një fjalor';
 
 //millionaire/play.php
-$string[ 'millionaire_info_people'] = 'Fjala bosh thotë';
-$string[ 'millionaire_info_telephone'] = 'Mendoj se përgjigjja e saktë është ';
-$string[ 'millionaire_info_wrong_answer'] = 'Përgjigjja juaj është gabim<br>Pergjigjja e saktë është :';
 $string[ 'millionaire_must_select_questioncategory'] = 'Duhet me patjetër te zgjidhni një kategori pyetjesh';
 $string[ 'millionaire_must_select_quiz'] = 'Duhet me patjetër te zgjidhni një kuiz';
-$string[ 'millionaire_nowords'] = 'Nuk u gjend asnjë fjalë';
-$string[ 'millionaire_sourcemodule_must_quiz_question'] = 'Burimi i pyetjeve per milionerin duhet te ishte $a ose Pyetje dhe jo ';
-$string[ 'millionaire_win'] = 'Urime !!!!';
-$string[ 'must_select_questioncategory'] = 'Duhet te zgjedhësh me patjetër një kategori pyetjesh ';
-$string[ 'must_select_quiz'] = 'Duhet te zgjidhni një kuiz';
 
-//report/default.php
-$string[ 'modulename'] = 'Lojë';
-$string[ 'modulenameplural'] = 'Lojra';
+//report/overview/report.php
+$string[ 'feedback'] = 'Përgjigje';
+$string[ 'startedon'] = 'Filloni në';
+$string[ 'timecompleted'] = 'Kompletuar';
+$string[ 'unfinished'] = 'Pafund';
 
 //snakes/play.php
-$string[ 'snakes_new'] = 'Lojë e re';
-$string[ 'snakes_win'] = 'Urime ';
 
 //sudoku/create.php
 $string[ 'sudoku_create_count'] = 'Numuri i sudoku që do krijohet';
@@ -99,17 +85,6 @@ $string[ 'sudoku_creating'] = 'U krijua  <b>$a</b> sudoku';
 $string[ 'sudoku_finishattemptbutton'] = 'Fund loje';
 $string[ 'sudoku_guessnumber'] = 'Supozo numurin ';
 $string[ 'sudoku_noentriesfound'] = 'Nuk u gjendën fjalë në fjalor';
-$string[ 'sudoku_submit'] = 'Vlerësim pergjigjesh';
-$string[ 'sudoku_win'] = 'Urime !!!';
-
-//accessrules.php
-$string[ 'review'] = 'Rikorigjim';
-
-//attempt.php
-$string[ 'useupdategame'] = 'Përdorni butonin  \"Ndryshimi i / e Lojë \" për të përcaktuar parametrat e lojës ';
-
-//attemptlib.php
-$string[ 'startagain'] = 'Përpjekje prap';
 
 //export.php
 $string[ 'export'] = 'Εksport';
@@ -128,16 +103,24 @@ $string[ 'javame_vendor'] = 'Vendor:';
 $string[ 'javame_version'] = 'versioni:';
 
 //exporthtml_hangman.php
+$string[ 'hangman_loose'] = '<BIG><B>Fund loje</B></BIG>';
 $string[ 'html_hangman_new'] = 'E re';
 
-//hangman/play.php
-$string[ 'hangman_correct_phrase'] = 'Fjalia e saktë ishte: ';
-$string[ 'hangman_correct_word'] = 'Fjala e saktë ishte: ';
-$string[ 'hangman_restletters_many'] = 'Keni <b>$a</b> përpjekje akoma';
-$string[ 'hangman_restletters_one'] = 'Keni akoma <b>VETEM 1</b> përpjekje';
+//exporthtml_millionaire.php
+$string[ 'millionaire_info_people'] = 'Fjala bosh thotë';
+$string[ 'millionaire_info_telephone'] = 'Mendoj se përgjigjja e saktë është ';
+$string[ 'millionaire_info_wrong_answer'] = 'Përgjigjja juaj është gabim<br>Pergjigjja e saktë është :';
+$string[ 'millionaire_sourcemodule_must_quiz_question'] = 'Burimi i pyetjeve per milionerin duhet te ishte $a ose Pyetje dhe jo ';
+$string[ 'must_select_questioncategory'] = 'Duhet te zgjedhësh me patjetër një kategori pyetjesh ';
+$string[ 'must_select_quiz'] = 'Duhet te zgjidhni një kuiz';
+
+//exporthtml_snakes.php
+$string[ 'score'] = 'Piket';
 
 //index.php
-$string[ 'game'] = 'lojë';
+$string[ 'modulename'] = 'Lojë';
+$string[ 'modulenameplural'] = 'Lojra';
+$string[ 'pluginname'] = 'Lojë';
 
 //lib.php
 $string[ 'attempt'] = 'Përpjekja $a';
@@ -155,12 +138,15 @@ $string[ 'info'] = 'Informacione';
 $string[ 'noattempts'] = 'Asnjë përpjekje nuk u bë për këtë lojë';
 $string[ 'percent'] = 'Përqindje';
 $string[ 'results'] = 'Përfundime';
+$string[ 'showanswers'] = 'Shfaqja e përgjigjjeve';
 
 //locallib.php
-
-//mod_form.php
 $string[ 'attemptfirst'] = 'Përpjekja e parë';
 $string[ 'attemptlast'] = 'Përpjekja e fundit';
+$string[ 'gradeaverage'] = 'Numuri mesatar';
+$string[ 'gradehighest'] = 'Numuri më i madh';
+
+//mod_form.php
 $string[ 'bottomtext'] = 'Text në pjesën e poshtme të faqes';
 $string[ 'cross_layout'] = 'Mënyrë shfaqjeje';
 $string[ 'cross_layout0'] = 'Përcaktimet poshtë fjalëkryqit';
@@ -170,8 +156,6 @@ $string[ 'cross_maxwords'] = 'Maximumi i fjalëve të fjalëkryqit';
 $string[ 'cryptex_maxcols'] = 'Maximumi i rreshtave / shtyllave të fjalëkryqit';
 $string[ 'cryptex_maxtries'] = 'Maximumi i përpjekjeve';
 $string[ 'cryptex_maxwords'] = 'Maximumi i fjalëve të fjalëkryqit';
-$string[ 'gradeaverage'] = 'Numuri mesatar';
-$string[ 'gradehighest'] = 'Numuri më i madh';
 $string[ 'grademethod'] = 'Μënyrë vleresimi';
 $string[ 'hangman_allowspaces'] = 'Të lejohen vendet bosh në fjalët';
 $string[ 'hangman_allowsub'] = 'Të lejohet simboli - në fjalet';
@@ -206,17 +190,14 @@ $string[ 'preview'] = 'Parashfaq';
 //review.php
 $string[ 'attempts'] = 'Përpjekje';
 $string[ 'completedon'] = 'U përfundua në';
-$string[ 'feedback'] = 'Përgjigje';
 $string[ 'outof'] = '$a->grade nga maksimumi $a->maxgrade';
+$string[ 'review'] = 'Rikorigjim';
 $string[ 'reviewofattempt'] = 'Rikorigjim i mundimit $a';
-$string[ 'score'] = 'Piket';
-$string[ 'startedon'] = 'Filloni në';
+$string[ 'startagain'] = 'Përpjekje prap';
 $string[ 'timetaken'] = 'Koha e duhur';
-$string[ 'unfinished'] = 'Pafund';
 
 //showanswers.php
 $string[ 'feedbacks'] = 'Mesazh përgjigjjeje të saktë';
-$string[ 'showanswers'] = 'Shfaqja e përgjigjjeve';
 
 //showattempts.php
 $string[ 'lastip'] = 'IP studenti';
@@ -226,11 +207,79 @@ $string[ 'timelastattempt'] = 'Përpjekje e fundit';
 $string[ 'timestart'] = 'Fillimi ';
 
 //tabs.php
-$string[ 'overview'] = 'përmbledhje';
 
 //view.php
 $string[ 'attemptgamenow'] = 'Përpjekje loje tani';
 $string[ 'continueattemptgame'] = 'Vazhdim i lojës';
 $string[ 'reattemptgame'] = 'Përpjekje loje përsëri';
-$string[ 'timecompleted'] = 'Kompletuar';
 $string[ 'yourfinalgradeis'] = 'Pikët përfundimtare për këtë kuiz janë $a';
+
+//Untranslated
+//cross/cross_class.php $string[ 'lettersall'] = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+//db/access.php $string[ 'game:attempt'] = 'Play game';
+//db/access.php $string[ 'game:deleteattempts'] = 'Delete attempts';
+//db/access.php $string[ 'game:grade'] = 'Grade games manually';
+//db/access.php $string[ 'game:manage'] = 'Manage';
+//db/access.php $string[ 'game:manageoverrides'] = 'Manage game overrides';
+//db/access.php $string[ 'game:preview'] = 'Preview Games';
+//db/access.php $string[ 'game:reviewmyattempts'] = 'reviewmyattempts';
+//db/access.php $string[ 'game:view'] = 'view';
+//db/access.php $string[ 'game:viewreports'] = 'viewreports';
+//hiddenpicture/play.php $string[ 'no_questions'] = "There are no questions";
+//hiddenpicture/play.php $string[ 'noglossaryentriesfound'] = 'No glossary entries found';
+//report/overview/report.php $string[ 'allattempts'] = 'Show all tries';
+//report/overview/report.php $string[ 'allstudents'] = 'Show all $a';
+//report/overview/report.php $string[ 'attemptsonly'] = 'Show only students with attempts';
+//report/overview/report.php $string[ 'deleteattemptcheck'] = 'Are you absolutely sure you want to completely delete these attempts?';
+//report/overview/report.php $string[ 'displayoptions'] = 'Display options';
+//report/overview/report.php $string[ 'downloadods'] = 'Download in ODS format';
+//report/overview/report.php $string[ 'noattemptsonly'] = 'Show $a with no attempts only';
+//report/overview/report.php $string[ 'numattempts'] = '$a->studentnum $a->studentstring have made $a->attemptnum attempts';
+//report/overview/report.php $string[ 'pagesize'] = 'Questions per page:';
+//report/overview/report.php $string[ 'reportoverview'] = 'Overview';
+//report/overview/report.php $string[ 'selectall'] = 'Select all';
+//report/overview/report.php $string[ 'selectnone'] = 'Deselect all';
+//report/overview/report.php $string[ 'showdetailedmarks'] = 'Show mark details';
+//report/overview/report.php $string[ 'withselected'] = 'With selected';
+//snakes/play.php $string[ 'snakes_dice'] = 'Dice, $a spots.';
+//snakes/play.php $string[ 'snakes_player'] = 'Player, position: $a.';
+//exporthtml_millionaire.php $string[ 'millionaire_helppeople'] = 'Help of people';
+//exporthtml_millionaire.php $string[ 'millionaire_quit'] = 'Quit';
+//exporthtml_millionaire.php $string[ 'millionaire_telephone'] = 'Help of telephone';
+//exporthtml_snakes.php $string[ 'html_snakes_check'] = 'Check';
+//exporthtml_snakes.php $string[ 'html_snakes_correct'] = 'Correct!';
+//exporthtml_snakes.php $string[ 'html_snakes_no_selection'] = 'Have to select something!';
+//exporthtml_snakes.php $string[ 'html_snakes_wrong'] = "Your answer isn't correct. Stay on the same seat.";
+//index.php $string[ 'pluginadministration'] = 'Game administration';
+//lib.php $string[ 'reset_game_all'] = 'Delete tries from all games';
+//lib.php $string[ 'reset_game_deleted_course'] = 'Delete tries from deleted courses';
+//lib.php $string[ 'showattempts'] = 'Show attempts';
+//mod_form.php $string[ 'cross_options'] = 'Crossword options';
+//mod_form.php $string[ 'cryptex_options'] = 'Cryptex options';
+//mod_form.php $string[ 'gameclose'] = 'Close the game';
+//mod_form.php $string[ 'gameopen'] = 'Open the game';
+//mod_form.php $string[ 'hangman_maximum_number_of_errors'] = 'Maximum number or errors (have to be images named hangman_0.jpg, hangman_1.jpg, ...)';
+//mod_form.php $string[ 'hangman_options'] = 'Hangman options';
+//mod_form.php $string[ 'hiddenpicture_options'] = '\'Hidden Picture\' options';
+//mod_form.php $string[ 'millionaire_background'] = 'Background color';
+//mod_form.php $string[ 'millionaire_options'] = 'Millionaire\' options';
+//mod_form.php $string[ 'snakes_cols'] = 'Cols';
+//mod_form.php $string[ 'snakes_data'] = 'Positions of Snakes and Ladders';
+//mod_form.php $string[ 'snakes_file'] = 'File for background';
+//mod_form.php $string[ 'snakes_footerx'] = 'Space at bootom left';
+//mod_form.php $string[ 'snakes_footery'] = 'Space at bottom right';
+//mod_form.php $string[ 'snakes_headerx'] = 'Space at up left';
+//mod_form.php $string[ 'snakes_headery'] = 'Space at up right';
+//mod_form.php $string[ 'snakes_options'] = '\'Snakes and Ladders\' options';
+//mod_form.php $string[ 'snakes_rows'] = 'Rows';
+//mod_form.php $string[ 'sudoku_options'] = 'Sudoku options';
+//mod_form.php $string[ 'toptext'] = 'Text at the top of page';
+//mod_form.php $string[ 'userdefined'] = 'User defined';
+//review.php $string[ 'showall'] = 'Show all';
+//showanswers.php $string[ 'clearrepetitions'] = 'Clear statistics';
+//showanswers.php $string[ 'computerepetitions'] = 'Compute statistics again';
+//showanswers.php $string[ 'repetitions'] = 'Repetitions';
+//view.php $string[ 'gameclosed'] = 'This game closed on {$a}';
+//view.php $string[ 'gamecloseson'] = 'This game will close at {$a}';
+//view.php $string[ 'gamenotavailable'] = 'The game will not be available until {$a}';
+//view.php $string[ 'gameopenedon'] = 'This game opened at {$a}';

@@ -1,9 +1,9 @@
-<?php  // $Id: export.php,v 1.17 2010/07/26 00:07:13 bdaloukas Exp $
+<?php  // $Id: export.php,v 1.21 2011/08/03 20:04:32 bdaloukas Exp $
 /**
  * This page exports a game to another platform e.g. html, jar
  * 
  * @author  bdaloukas
- * @version $Id: export.php,v 1.17 2010/07/26 00:07:13 bdaloukas Exp $
+ * @version $Id: export.php,v 1.21 2011/08/03 20:04:32 bdaloukas Exp $
  * @package game
  **/
 
@@ -35,7 +35,10 @@ class mod_game_exporthtml_form extends moodleform {
             $options[ '0'] = 'Hangman with phrases';
             $options[ 'hangmanp'] = 'Hangman with pictures';
             $mform->addElement('select', 'type', get_string('javame_type', 'game'), $options);
-            $mform->setDefault('type',$html->type);
+            if( $html->type == 0)
+                $mform->setDefault('type', '0');
+            else
+                $mform->setDefault('type', 'hangmanp');
         }
 
     //filename
@@ -105,8 +108,11 @@ class mod_game_exporthtml_form extends moodleform {
             print_error("game_export_html: not updated id=$html->id");
         }
 	            
+        $cm = get_coursemodule_from_instance('game', $game->id, $game->course);
+        $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+	            
         require_once("exporthtml.php");
-        game_OnExportHTML( $game, $html);
+        game_OnExportHTML( $game, $context, $html);
     }
 }
 
@@ -206,6 +212,7 @@ if( $target == 'html'){
         game_insert_record( 'game_export_html', $html);
         $html = $DB->get_record( 'game_export_html', array( 'id' => $game->id));
     }
+    $html->type = 0;
     $mform = new mod_game_exporthtml_form(null, array('id'=>$id, 'html' => $html));
 }else
 {
@@ -245,59 +252,6 @@ echo $OUTPUT->footer();
 
 $OUTPUT->footer();
 
-    function game_create_zip( $srcdir, $courseid, $filename){
-        global $CFG;
-        
-        $dir = $CFG->dataroot . '/' . $courseid;
-        $filezip = $dir . "/export/{$filename}";
-
-        if (file_exists( $filezip)){
-            unlink( $filezip);
-        }
-        
-        if (!file_exists( $dir)){
-            mkdir( $dir);
-        }
-        
-        if (!file_exists( $dir.'/export')){
-            mkdir( $dir.'/export');
-        }
-        
-        $srcfiles = get_directory_list( $srcdir, '', true, true, true);
-        $fullsrcfiles = array();
-        foreach( $srcfiles as $file){
-            $fullsrcfiles[] = $srcdir.'/'.$file;
-        }
-                
-        zip_files( $fullsrcfiles, $filezip);
-            
-        return (file_exists( $filezip) ? $filezip : '');
-    }
-
-    function game_export_createtempdir(){
-        global $CFG;
-        
-        // create a random upload directory in temp
-	    $newdir = $CFG->dataroot."/temp/game";
-        if (!file_exists( $newdir)) 
-		    mkdir( $newdir);
-
-        $i = 1;
-        srand( (double)microtime()*1000000); 
-        while(true)
-        {
-            $r_basedir = "game/$i-".rand(0,10000);
-            $newdir = $CFG->dataroot.'/temp/'.$r_basedir;
-            if (!file_exists( $newdir)) 
-            {
-    		    mkdir( $newdir);
-                return $newdir;
-            }
-            $i++;
-        }
-    }
-
-
 function game_send_stored_file($file) {
     if (file_exists($file)) {
         header('Content-Description: File Transfer');
@@ -313,5 +267,5 @@ function game_send_stored_file($file) {
         readfile($file);
         exit;
     }else
-        die("file does not exists");
+        print_error("export.php: File does not exists ".$file);
 }

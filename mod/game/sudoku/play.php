@@ -1,8 +1,6 @@
-<?php  // $Id: play.php,v 1.15 2011/03/02 14:32:46 bdaloukas Exp $
+<?php  // $Id: play.php,v 1.21 2012/02/19 21:55:11 bdaloukas Exp $
 
-require_once( "../../lib/questionlib.php");
-
-function game_sudoku_continue( $id, $game, $attempt, $sudoku, $endofgame='')
+function game_sudoku_continue( $id, $game, $attempt, $sudoku, $endofgame, $context)
 {
 	global $CFG, $DB, $USER;
 	
@@ -10,9 +8,9 @@ function game_sudoku_continue( $id, $game, $attempt, $sudoku, $endofgame='')
 		game_updateattempts( $game, $attempt, -1, true);
 		$endofgame = false;
 	}	
-	
+
 	if( $attempt != false and $sudoku != false){
-		return game_sudoku_play( $id, $game, $attempt, $sudoku);
+		return game_sudoku_play( $id, $game, $attempt, $sudoku, false, false, $context);
 	}
 	
 	if( $attempt == false){
@@ -42,8 +40,8 @@ function game_sudoku_continue( $id, $game, $attempt, $sudoku, $endofgame='')
 		}
 	}
 	$recs = game_questions_selectrandom( $game, CONST_GAME_TRIES_REPETITION*$n);
-	
 	if( $recs === false){
+	    mysql_execute( "DELETE FROM {game_sudoku} WHERE id={$game->id}");
 		error( get_string( 'no_questions', 'game'));
 	}
 	
@@ -54,7 +52,6 @@ function game_sudoku_continue( $id, $game, $attempt, $sudoku, $endofgame='')
 	if(!game_insert_record('game_sudoku', $newrec)){
 		print_error('error inserting in game_sudoku');
 	}
-	    
 	$i = 0;
     $field = ($game->sourcemodule == 'glossary' ? 'glossaryentryid' : 'questionid');
 	foreach( $recs as $rec)
@@ -75,16 +72,15 @@ function game_sudoku_continue( $id, $game, $attempt, $sudoku, $endofgame='')
 		if( ($query->id = $DB->insert_record( 'game_queries', $query)) == 0){
 			print_error( 'error inserting in game_queries');
 		}
-
         game_update_repetitions($game->id, $USER->id, $query->questionid, $query->glossaryentryid);
 	}
 	
 	game_updateattempts( $game, $attempt, 0, 0);
 
-	game_sudoku_play( $id, $game, $attempt, $newrec);
+	game_sudoku_play( $id, $game, $attempt, $newrec, false, false, $context);
 }
 
-function game_sudoku_play( $id, $game, $attempt, $sudoku, $onlyshow=false, $showsolution=false)
+function game_sudoku_play( $id, $game, $attempt, $sudoku, $onlyshow, $showsolution, $context)
 {
     $offsetquestions = game_sudoku_compute_offsetquestions( $game->sourcemodule, $attempt, $numbers, $correctquestions);
 
@@ -97,7 +93,7 @@ function game_sudoku_play( $id, $game, $attempt, $sudoku, $onlyshow=false, $show
 	{
 	case 'quiz':
 	case 'question':
-		game_sudoku_showquestions_quiz( $id, $game, $attempt, $sudoku, $offsetquestions, $numbers, $correctquestions, $onlyshow, $showsolution);
+		game_sudoku_showquestions_quiz( $id, $game, $attempt, $sudoku, $offsetquestions, $numbers, $correctquestions, $onlyshow, $showsolution, $context);
 		break;
 	case 'glossary':
 		game_sudoku_showquestions_glossary( $id, $game, $attempt, $sudoku, $offsetquestions, $numbers, $correctquestions, $onlyshow, $showsolution);
@@ -112,11 +108,11 @@ function game_sudoku_play( $id, $game, $attempt, $sudoku, $onlyshow=false, $show
 //returns a map with an offset and id of each question
 function game_sudoku_compute_offsetquestions( $sourcemodule, $attempt, &$numbers, &$correctquestions)
 {
-    global $DB;
+    global $CFG,$DB;
 
     $select = "attemptid = $attempt->id";
 
-	$fields = 'id, col, score';				//,glossaryentryid, questionid
+	$fields = 'id, col, score';
 	switch( $sourcemodule)
 	{
 	case 'quiz':
@@ -128,6 +124,7 @@ function game_sudoku_compute_offsetquestions( $sourcemodule, $attempt, &$numbers
 		break;
 	}
     if( ($recs = $DB->get_records_select( 'game_queries', $select, null, '', $fields)) == false){
+  	    $DB->execute( "DELETE FROM {$CFG->prefix}game_sudoku WHERE id={$attempt->id}");
         print_error( 'There are no questions');
     }
     $offsetquestions = array();
@@ -289,9 +286,9 @@ function game_sudoku_showsudoku( $data, $guess, $bShowLegend, $bShowSolution, $o
 		print_error( "Course Module ID was incorrect id=$id");
 	}
 	
-	echo '<B><br>'.get_string( 'sudoku_win', 'game').'</B><BR>';	
+	echo '<B><br>'.get_string( 'win', 'game').'</B><BR>';	
 	echo '<br>';	
-	echo "<a href=\"$CFG->wwwroot/mod/game/attempt.php?id=$id\">".get_string( 'cross_new', 'game').'</a> &nbsp; &nbsp; &nbsp; &nbsp; ';
+	echo "<a href=\"$CFG->wwwroot/mod/game/attempt.php?id=$id\">".get_string( 'nextgame', 'game').'</a> &nbsp; &nbsp; &nbsp; &nbsp; ';
 	echo "<a href=\"$CFG->wwwroot/course/view.php?id=$cm->course\">".get_string( 'finish', 'game').'</a> ';
 	
 	game_updateattempts( $game, $attempt, 1, 1);
@@ -335,7 +332,7 @@ function game_sudoku_getglossaryentries( $game, $offsetentries, &$entrylist, $nu
     return $entries;
 }
 
-function game_sudoku_showquestions_quiz( $id, $game, $attempt, $sudoku, $offsetquestions, $numbers, $correctquestions, $onlyshow, $showsolution)
+function game_sudoku_showquestions_quiz( $id, $game, $attempt, $sudoku, $offsetquestions, $numbers, $correctquestions, $onlyshow, $showsolution, $context)
 {
 	global $CFG;
 
@@ -355,78 +352,54 @@ function game_sudoku_showquestions_quiz( $id, $game, $attempt, $sudoku, $offsetq
 		return;
 	}
 	
-	/// Start the form
-    echo "<form id=\"responseform\" method=\"post\" action=\"{$CFG->wwwroot}/mod/game/attempt.php\" onclick=\"this.autocomplete='off'\">\n";
-	if( ($onlyshow === false) and ($showsolution  === false)){
-		echo "<br><center><input type=\"submit\" name=\"submit\" value=\"".get_string('sudoku_submit', 'game')."\">";
-		
-		echo " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type=\"submit\" name=\"finishattempt\" value=\"".
-		        get_string('sudoku_finishattemptbutton', 'game')."\">";
-	}
-
-    // Add a hidden field with the quiz id
-    echo '<div>';
-    echo '<input type="hidden" name="id" value="' . s($id) . "\" />\n";
-    echo '<input type="hidden" name="action" value="sudokucheck" />';
-
-	/// Print all the questions
-
-    // Add a hidden field with questionids
-    echo '<input type="hidden" name="questionids" value="'.$questionlist."\" />\n";
-
 	$number=0;
+	$found = false;
     foreach ($questions2 as $question) {
         $ofs = $numbers[ $question->id];
         if( array_key_exists( $ofs, $correctquestions)){
             continue;   //I don't show the correct answers
         }
-		$number = "<a name=\"a$ofs\">A$ofs</a>";
-				
-		global $QTYPES;
-		unset( $cmoptions);
-        $cmoptions->course = $game->course;
-        $cmoptions->optionflags->optionflags = 0;
-		$cmoptions->id = 0;
-		$cmoptions->shuffleanswers = 1;
-        $cmoptions->questiondecimalpoints = 0;
-        $cmoptions->cmid = 48;
-        $cmoptions->thispageurl = ' ';
-		$attempt = 0;
-		if (!$QTYPES[$question->qtype]->create_session_and_responses( $question, $state, $cmoptions, $attempt)) {
-			print_error( 'game_sudoku_showquestions_quiz: problem');
-		}
+        
+        if( $found == false)
+        {
+            $found = true;
+    	    // Start the form
+            echo "<form id=\"responseform\" method=\"post\" action=\"{$CFG->wwwroot}/mod/game/attempt.php\" onclick=\"this.autocomplete='off'\">\n";
+	        if( ($onlyshow === false) and ($showsolution  === false)){
+		        echo "<br><center><input type=\"submit\" name=\"submit\" value=\"".get_string('sudoku_submit', 'game')."\">";
 		
-		$state->last_graded = new StdClass;
-		$state->last_graded->event = QUESTION_EVENTOPEN;
-		$state->event = QUESTION_EVENTOPEN;
-        $state->attempt = 0;
-        $state->question = '';
-        $state->manualcommentformat = '';
-		$options->scores->score = 0;
-		$question->maxgrade = 100;
-		$state->manualcomment = '';
-		$cmoptions->optionflags = 0;
-		$options->correct_responses = 0;
-		$options->feedback = 0;
-		$options->readonly = 0;
-        $options->flags = 0;
+		        echo " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type=\"submit\" name=\"finishattempt\" value=\"".
+		            get_string('sudoku_finishattemptbutton', 'game')."\">";
+	        }
 
-		if( $showsolution){
-			$state->responses = $QTYPES[$question->qtype]->get_correct_responses($question, $state);
-		}
+            // Add a hidden field with the quiz id
+            echo '<div>';
+            echo '<input type="hidden" name="id" value="' . s($id) . "\" />\n";
+            echo '<input type="hidden" name="action" value="sudokucheck" />';
+
+	        // Print all the questions
+
+            // Add a hidden field with questionids
+            echo '<input type="hidden" name="questionids" value="'.$questionlist."\" />\n";        
+        }
+                
+		$number = "<a name=\"a$ofs\">A$ofs</a>";
 		
-		print_question($question, $state, $number, $cmoptions, $options);
+		game_print_question( $game, $question, $context);
     }
 
-    echo "</div>";
+    if( $found)
+    {
+        echo "</div>";
 
-    // Finish the form
-    echo '</div>';
-	if( ($onlyshow === false) and ($showsolution === false)){
-		echo "<center><input type=\"submit\" name=\"submit\" value=\"".get_string('sudoku_submit', 'game')."\"></center>\n";
-	}
+        // Finish the form
+        echo '</div>';
+	    if( ($onlyshow === false) and ($showsolution === false)){
+	    	echo "<center><input type=\"submit\" name=\"submit\" value=\"".get_string('sudoku_submit', 'game')."\"></center>\n";
+	    }
 
-    echo "</form>\n";
+        echo "</form>\n";
+    }
 }
 
 //show the sudoku and glossaryentries
@@ -449,31 +422,41 @@ function game_sudoku_showquestions_glossary( $id, $game, $attempt, $sudoku, $off
 		return;
 	}
 	
-	/// Start the form
-    echo "<br><form id=\"responseform\" method=\"post\" action=\"{$CFG->wwwroot}/mod/game/attempt.php\" onclick=\"this.autocomplete='off'\">\n";
-	
-	if( $onlyshow === false){	
-	    echo "<center><input type=\"submit\" name=\"submit\" value=\"".get_string('sudoku_submit', 'game')."\"></center>\n";
-	}
-
-    // Add a hidden field with the quiz id
-    echo '<div>';
-    echo '<input type="hidden" name="id" value="' . s($id) . "\" />\n";
-    echo '<input type="hidden" name="action" value="sudokucheckg" />';
-
-	/// Print all the questions
-
-    // Add a hidden field with questionids
-    echo '<input type="hidden" name="questionids" value="'.$questionlist."\" />\n";
-
 	$number=0;
+	$found = false;
+	
+    $cmglossary = get_coursemodule_from_instance('glossary', $game->glossaryid, $game->course);
+    $contextglossary = get_context_instance(CONTEXT_MODULE, $cmglossary->id);
     foreach ($entries2 as $entry) {
         $ofs = $numbers[ $entry->id];
         if( array_key_exists( $ofs, $correctentries)){
             continue;   //I don't show the correct answers
         }
+        
+        if( $found == false)
+        {
+            $found = true;
+	        // Start the form
+            echo "<br><form id=\"responseform\" method=\"post\" action=\"{$CFG->wwwroot}/mod/game/attempt.php\" onclick=\"this.autocomplete='off'\">\n";
+	
+	        if( $onlyshow === false){	
+    	        echo "<center><input type=\"submit\" name=\"submit\" value=\"".get_string('sudoku_submit', 'game')."\"></center>\n";
+    	    }
 
-		$s = '<b>A'.$ofs.'.</b> '.game_filtertext( $entry->definition, 0).'<br>';
+            // Add a hidden field with the quiz id
+            echo '<div>';
+            echo '<input type="hidden" name="id" value="' . s($id) . "\" />\n";
+            echo '<input type="hidden" name="action" value="sudokucheckg" />';
+
+	        // Print all the questions
+
+            // Add a hidden field with questionids
+            echo '<input type="hidden" name="questionids" value="'.$questionlist."\" />\n";        
+        }
+
+        $text = game_filterglossary(str_replace( '\"', '"',  $entry->definition), $entry->id, $contextglossary->id, $game->course);
+		$s = '<b>A'.$ofs.'.</b> '.$text.'<br>';
+		
 		if( $showsolution){
 			$s .= get_string( 'answer').': ';
 			$s .= "<input type=\"text\" name=\"resp{$entry->id}\" value=\"$entry->concept\"size=30 /><br>";
@@ -484,14 +467,17 @@ function game_sudoku_showquestions_glossary( $id, $game, $attempt, $sudoku, $off
 		echo $s."<hr>\r\n";
     }
 
-    echo "</div>";
+    if( $found)
+    {
+        echo "</div>";
 
-    // Finish the form
-	if( $onlyshow === false){	
-		echo "<center><input type=\"submit\" name=\"submit\" value=\"".get_string('sudoku_submit', 'game')."\"></center>\n";
-	}
+        // Finish the form
+	    if( $onlyshow === false){	
+		    echo "<center><input type=\"submit\" name=\"submit\" value=\"".get_string('sudoku_submit', 'game')."\"></center>\n";
+	    }
 
-    echo "</form>\n";
+        echo "</form>\n";
+    }
 }
 
 function game_sudoku_showquestion_onfinish( $id, $game, $attempt, $sudoku)
@@ -500,7 +486,7 @@ function game_sudoku_showquestion_onfinish( $id, $game, $attempt, $sudoku)
 		print_error( "game_sudoku_showquestion_onfinish: Can't update game_attempts id=$attempt->id");
 	}
 		
-	echo '<B>'.get_string( 'sudoku_win', 'game').'</B><BR>';	
+	echo '<B>'.get_string( 'win', 'game').'</B><BR>';	
 	echo '<br>';	
 	echo "<a href=\"$CFG->wwwroot/mod/game/attempt.php?id=$id\">".get_string( 'nextgame', 'game').'</a> &nbsp; &nbsp; &nbsp; &nbsp; ';
 	echo "<a href=\"$CFG->wwwroot?id=$id\">".get_string( 'finish', 'game').'</a> ';	
@@ -525,33 +511,22 @@ function game_sudoku_check_questions( $id, $game, $attempt, $sudoku, $finishatte
 	
     $questions = game_sudoku_getquestions( $questionlist);
 
-    $actions = question_extract_responses($questions, $responses, QUESTION_EVENTSUBMIT);
-
     foreach($questions as $question) {
-        if( !array_key_exists( $question->id, $actions)){
-            //no answered
-            continue;
-        }
-        unset( $state);
-        unset( $cmoptions);
-        $question->maxgrade = 100;
-        $state->responses = $actions[ $question->id]->responses;
-		$state->event = QUESTION_EVENTGRADE;
-
-		$cmoptions = array();
-        $QTYPES[$question->qtype]->grade_responses( $question, $state, $cmoptions);            
-
 		unset( $query);
 
         $select = "attemptid=$attempt->id";
         $select .= " AND questionid=$question->id";
+        
         if( ($query->id = $DB->get_field_select( 'game_queries', 'id', $select)) == 0){
 			die( "problem game_sudoku_check_questions (select=$select)");
             continue;
         }
 
-		$answertext = $state->responses[ ''];
-        $grade = $state->raw_grade;
+        $name = "resp{$question->id}_";
+        if( !isset( $responses->$name))
+            continue;        
+        
+        $grade = game_grade_responses( $question, $responses, 100, $answertext);
         if( $grade < 50){
 			//wrong answer
 			game_update_queries( $game, $attempt, $query, $grade/100, $answertext);
@@ -627,7 +602,7 @@ function game_sudoku_check_last( $id, $game, $attempt, $sudoku, $finishattempt, 
 	game_updateattempts( $game, $attempt, $grade, $finishattempt);
 }
 
-function game_sudoku_check_number( $id, $game, $attempt, $sudoku, $pos, $num)
+function game_sudoku_check_number( $id, $game, $attempt, $sudoku, $pos, $num, $context)
 {
     global $DB;
 
@@ -637,7 +612,7 @@ function game_sudoku_check_number( $id, $game, $attempt, $sudoku, $pos, $num)
 
 	if( $correct != $num)
 	{
-		game_sudoku_play( $id, $game, $attempt, $sudoku);
+		game_sudoku_play( $id, $game, $attempt, $sudoku, false, false, $context);
 		return;
 	}
 	
@@ -652,5 +627,5 @@ function game_sudoku_check_number( $id, $game, $attempt, $sudoku, $pos, $num)
 		print_error( 'game_sudoku_check_number: Cannot update table game_sudoku');
 	}
 	
-	game_sudoku_play( $id, $game, $attempt, $sudoku);
+	game_sudoku_play( $id, $game, $attempt, $sudoku, false, false, $context);
 }

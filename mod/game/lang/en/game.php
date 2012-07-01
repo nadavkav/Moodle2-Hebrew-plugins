@@ -1,32 +1,22 @@
-<?php // $Id: game.php,v 1.5 2010/09/03 12:41:55 bdaloukas Exp $
+<?php // $Id: game.php,v 1.18 2011/12/18 16:01:36 bdaloukas Exp $
       // translated by Vasilis Daloukas
-
-$string[ 'pluginadministration'] = 'Game activity administration';
-$string[ 'game:attempt'] = 'Play game';
-$string[ 'game:deleteattempts'] = 'Delete attempts';
-$string[ 'game:manage'] = 'Manage';
-$string[ 'game:manageoverrides'] = 'Manage overrides';
-$string[ 'game:reviewmyattempts'] = 'reviewmyattempts';
-$string[ 'game:view'] = 'view';
-$string[ 'game:viewreports'] = 'viewreports';
-
 
 //bookquiz/importodt.php
 $string[ 'bookquiz_import_odt'] = 'Import from an OpenOffice file (odt)';
+$string[ 'bookquiz_not_select_book'] = 'You have not select book';
 $string[ 'bookquiz_subchapter'] = 'Create subchapters';
 
 //bookquiz/play.php
 $string[ 'bookquiz_empty'] = 'The book is empty';
+$string[ 'sudoku_submit'] = 'Grade answers';
 
 //bookquiz/questions.php
 $string[ 'bookquiz_categories'] = 'Categories';
 $string[ 'bookquiz_chapters'] = 'Chapters';
-$string[ 'bookquiz_not_select_book'] = 'You have not select book';
-$string[ 'bookquiz_numquestions'] = 'Questions';
 $string[ 'bookquiz_questions'] = 'Associate question categories to chapter of book';
 
 //cross/cross_class.php
-$string[ 'millionaire_letters_answers'] = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+$string[ 'lettersall'] = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 //cross/crossdb_class.php
 $string[ 'and'] = 'and';
@@ -36,6 +26,7 @@ $string[ 'cross_error'] = 'error';
 $string[ 'cross_errors'] = 'errors';
 $string[ 'cross_found_many'] = 'Found';
 $string[ 'cross_found_one'] = 'Found';
+$string[ 'grade'] = 'Grade';
 
 //cross/play.php
 $string[ 'cross_across'] = 'Across';
@@ -45,64 +36,73 @@ $string[ 'cross_endofgamebutton'] = 'End of crossword game';
 $string[ 'cross_error_containsbadchars'] = 'The word contains illegal characteres';
 $string[ 'cross_error_wordlength1'] = 'The correct word contains ';
 $string[ 'cross_error_wordlength2'] = ' letters.';
-$string[ 'cross_new'] = 'New game';
-$string[ 'cross_nowords'] = 'Not found any word';
 $string[ 'cross_pleasewait'] = 'Please wait while cross is loading';
 $string[ 'cross_welcome'] = '<h3>Welcome!</h3><p>Click on a word to begin.</p>';
-$string[ 'cross_win'] = 'Congratulations !!!';
+$string[ 'finish'] = 'End of game';
 $string[ 'letter'] = 'letter';
 $string[ 'letters'] = 'letters';
-$string[ 'print'] = 'Print';
-
-//cryptex/play.php
-$string[ 'cryptex_nowords'] = 'Not found any word';
-$string[ 'cryptex_win'] = 'Congratulations !!!!';
-$string[ 'finish'] = 'End of game';
-$string[ 'grade'] = 'Grade';
 $string[ 'nextgame'] = 'New game';
+$string[ 'no_words'] = 'There are no words';
+$string[ 'print'] = 'Print';
+$string[ 'win'] = 'Congratulations !!!';
+
+//db/access.php
+$string[ 'game:attempt'] = 'Play game';
+$string[ 'game:deleteattempts'] = 'Delete attempts';
+$string[ 'game:grade'] = 'Grade games manually';
+$string[ 'game:manage'] = 'Manage';
+$string[ 'game:manageoverrides'] = 'Manage game overrides';
+$string[ 'game:preview'] = 'Preview Games';
+$string[ 'game:reviewmyattempts'] = 'reviewmyattempts';
+$string[ 'game:view'] = 'view';
+$string[ 'game:viewreports'] = 'viewreports';
 
 //hangman/play.php
-$string[ 'hangman_grade'] = 'Grade';
+$string[ 'hangman_correct_phrase'] = 'The correct phrase was: ';
+$string[ 'hangman_correct_word'] = 'The correct word was: ';
 $string[ 'hangman_gradeinstance'] = 'Grade in whole game';
 $string[ 'hangman_letters'] = 'Letters: ';
-$string[ 'hangman_loose'] = '<BIG><B>Game over</B></BIG>';
-$string[ 'hangman_nowords'] = 'No words found';
-$string[ 'hangman_win'] = 'Congratulations';
+$string[ 'hangman_restletters_many'] = 'You have <b>{$a}</b> tries';
+$string[ 'hangman_restletters_one'] = 'You have <b>ONLY 1</b> try';
 $string[ 'hangman_wrongnum'] = 'Wrong: %d out of %d';
 $string[ 'nextword'] = 'Next word';
 
 //hiddenpicture/play.php
-$string[ 'hiddenpicture_grade'] = 'Grade';
 $string[ 'hiddenpicture_mainsubmit'] = 'Grade main answer';
 $string[ 'hiddenpicture_nocols'] = 'Have to specify the number of cols horizontaly';
 $string[ 'hiddenpicture_nomainquestion'] = 'There are no glossary entries on glossary {$a->name} with an attached picture';
 $string[ 'hiddenpicture_norows'] = 'Have to specify the number of cols verticaly';
-$string[ 'hiddenpicture_win'] = 'Congratulations';
 $string[ 'must_select_glossary'] = 'You must select a glossary';
+$string[ 'no_questions'] = "There are no questions";
 $string[ 'noglossaryentriesfound'] = 'No glossary entries found';
 
 //millionaire/play.php
-$string[ 'millionaire_helppeople'] = 'Help of people';
-$string[ 'millionaire_info_people'] = 'People say';
-$string[ 'millionaire_info_telephone'] = 'I think that the correct answer is ';
-$string[ 'millionaire_info_wrong_answer'] = 'Your answer is wrong<br>The right answer is:';
 $string[ 'millionaire_must_select_questioncategory'] = 'You must select one question category';
 $string[ 'millionaire_must_select_quiz'] = 'You must select one quiz';
-$string[ 'millionaire_nowords'] = 'Not found any word';
-$string[ 'millionaire_quit'] = 'Quit';
-$string[ 'millionaire_sourcemodule_must_quiz_question'] = 'For the millionaire the source must be {$a} or questions and not';
-$string[ 'millionaire_telephone'] = 'Help of telephone';
-$string[ 'millionaire_win'] = 'Congratulations !!!!';
-$string[ 'must_select_questioncategory'] = 'You must select a question category';
-$string[ 'must_select_quiz'] = 'You must select a quiz';
 
-//report/default.php
-$string[ 'modulename'] = 'Game';
-$string[ 'modulenameplural'] = 'Games';
+//report/overview/report.php
+$string[ 'allattempts'] = 'Show all tries';
+$string[ 'allstudents'] = 'Show all $a';
+$string[ 'attemptsonly'] = 'Show only students with attempts';
+$string[ 'deleteattemptcheck'] = 'Are you absolutely sure you want to completely delete these attempts?';
+$string[ 'displayoptions'] = 'Display options';
+$string[ 'downloadods'] = 'Download in ODS format';
+$string[ 'feedback'] = 'Feedback';
+$string[ 'noattemptsonly'] = 'Show $a with no attempts only';
+$string[ 'numattempts'] = '$a->studentnum $a->studentstring have made $a->attemptnum attempts';
+$string[ 'pagesize'] = 'Questions per page:';
+$string[ 'reportoverview'] = 'Overview';
+$string[ 'selectall'] = 'Select all';
+$string[ 'selectnone'] = 'Deselect all';
+$string[ 'showdetailedmarks'] = 'Show mark details';
+$string[ 'startedon'] = 'Started on';
+$string[ 'timecompleted'] = 'Completed';
+$string[ 'unfinished'] = 'open';
+$string[ 'withselected'] = 'With selected';
 
 //snakes/play.php
-$string[ 'snakes_new'] = 'New game';
-$string[ 'snakes_win'] = 'Congratulations';
+$string[ 'snakes_dice'] = 'Dice, $a spots.';
+$string[ 'snakes_player'] = 'Player, position: $a.';
 
 //sudoku/create.php
 $string[ 'sudoku_create_count'] = 'Number of sudokus that will be created';
@@ -110,16 +110,9 @@ $string[ 'sudoku_create_start'] = 'Start creating sudokus';
 $string[ 'sudoku_creating'] = 'Creating <b>{$a}</b> sudoku';
 
 //sudoku/play.php
-$string[ 'sudoku_finishattemptbutton'] = 'End of sudoku game';
+$string[ 'sudoku_finishattemptbutton'] = 'End of game';
 $string[ 'sudoku_guessnumber'] = 'Guess the correct number';
 $string[ 'sudoku_noentriesfound'] = 'No words found in glossary';
-$string[ 'sudoku_submit'] = 'Grade answers';
-$string[ 'sudoku_win'] = 'Congratulations !!!';
-
-//attempt.php
-
-//attemptlib.php
-$string[ 'startagain'] = 'Start again';
 
 //export.php
 $string[ 'export'] = 'Export';
@@ -138,15 +131,32 @@ $string[ 'javame_vendor'] = 'Vendor:';
 $string[ 'javame_version'] = 'Version:';
 
 //exporthtml_hangman.php
+$string[ 'hangman_loose'] = '<BIG><B>Game over</B></BIG>';
+$string[ 'html_hangman_new'] = 'New';
 
-//hangman/play.php
-$string[ 'hangman_correct_phrase'] = 'The correct phrase was: ';
-$string[ 'hangman_correct_word'] = 'The correct word was: ';
-$string[ 'hangman_restletters_many'] = 'You have <b>{$a}</b> tries';
-$string[ 'hangman_restletters_one'] = 'You have <b>ONLY 1</b> try';
+//exporthtml_millionaire.php
+$string[ 'millionaire_helppeople'] = 'Help of people';
+$string[ 'millionaire_info_people'] = 'People say';
+$string[ 'millionaire_info_telephone'] = 'I think that the correct answer is ';
+$string[ 'millionaire_info_wrong_answer'] = 'Your answer is wrong<br>The right answer is:';
+$string[ 'millionaire_quit'] = 'Quit';
+$string[ 'millionaire_sourcemodule_must_quiz_question'] = 'For the millionaire the source must be {$a} or questions and not';
+$string[ 'millionaire_telephone'] = 'Help of telephone';
+$string[ 'must_select_questioncategory'] = 'You must select a question category';
+$string[ 'must_select_quiz'] = 'You must select a quiz';
+
+//exporthtml_snakes.php
+$string[ 'html_snakes_check'] = 'Check';
+$string[ 'html_snakes_correct'] = 'Correct!';
+$string[ 'html_snakes_no_selection'] = 'Have to select something!';
+$string[ 'html_snakes_wrong'] = "Your answer isn't correct. Stay on the same seat.";
+$string[ 'score'] = 'Score';
 
 //index.php
-$string[ 'game'] = 'Game';
+$string[ 'modulename'] = 'Game';
+$string[ 'modulenameplural'] = 'Games';
+$string[ 'pluginadministration'] = 'Game administration';
+$string[ 'pluginname'] = 'Game';
 
 //lib.php
 $string[ 'attempt'] = 'Attempt';
@@ -163,15 +173,21 @@ $string[ 'game_sudoku'] = 'Sudoku';
 $string[ 'info'] = 'Info';
 $string[ 'noattempts'] = 'No attempts have been made on this game';
 $string[ 'percent'] = 'Percent';
+$string[ 'reset_game_all'] = 'Delete tries from all games';
+$string[ 'reset_game_deleted_course'] = 'Delete tries from deleted courses';
 $string[ 'results'] = 'Results';
+$string[ 'showanswers'] = 'Show answers';
 $string[ 'showattempts'] = 'Show attempts';
 
 //locallib.php
-$string[ 'lettersall'] = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-
-//mod_form.php
 $string[ 'attemptfirst'] = 'First attempt';
 $string[ 'attemptlast'] = 'Last attempt';
+$string[ 'convertfrom'] = '-';
+$string[ 'convertto'] = '-';
+$string[ 'gradeaverage'] = 'Average grade';
+$string[ 'gradehighest'] = 'Highest grade';
+
+//mod_form.php
 $string[ 'bottomtext'] = 'Text at the bottom of page';
 $string[ 'cross_layout'] = 'Layout';
 $string[ 'cross_layout0'] = 'Phrases on the bottom of cross';
@@ -183,13 +199,14 @@ $string[ 'cryptex_maxcols'] = 'Maximum number of cols/rows in cryptex';
 $string[ 'cryptex_maxtries'] = 'Max tries';
 $string[ 'cryptex_maxwords'] = 'Maximum number of words in cryptex';
 $string[ 'cryptex_options'] = 'Cryptex options';
-$string[ 'gradeaverage'] = 'Average grade';
-$string[ 'gradehighest'] = 'Highest grade';
+$string[ 'gameclose'] = 'Close the game';
+$string[ 'gameopen'] = 'Open the game';
 $string[ 'grademethod'] = 'Grading method';
 $string[ 'hangman_allowspaces'] = 'Allow spaces in words';
 $string[ 'hangman_allowsub'] = 'Allow the symbol - in words';
 $string[ 'hangman_imageset'] = 'Select the images of hangman';
 $string[ 'hangman_language'] = 'Language of words';
+$string[ 'hangman_maximum_number_of_errors'] = 'Maximum number or errors (have to be images named hangman_0.jpg, hangman_1.jpg, ...)';
 $string[ 'hangman_maxtries'] = 'Number of words per game';
 $string[ 'hangman_options'] = 'Hangman options';
 $string[ 'hangman_showcorrectanswer'] = 'Show the correct answer after the end';
@@ -203,11 +220,11 @@ $string[ 'hiddenpicture_options'] = '\'Hidden Picture\' options';
 $string[ 'hiddenpicture_pictureglossary'] = 'The glossary for main question and picture';
 $string[ 'hiddenpicture_width'] = 'Set width of picture to';
 $string[ 'millionaire_background'] = 'Background color';
-$string[ 'millionaire_options'] = 'Millioanaire\' options';
+$string[ 'millionaire_options'] = 'Millionaire\' options';
 $string[ 'millionaire_shuffle'] = 'Randomize questions';
 $string[ 'snakes_background'] = 'Background';
-$string[ 'snakes_board'] = 'Board';
 $string[ 'snakes_cols'] = 'Cols';
+$string[ 'snakes_data'] = 'Positions of Snakes and Ladders';
 $string[ 'snakes_file'] = 'File for background';
 $string[ 'snakes_footerx'] = 'Space at bootom left';
 $string[ 'snakes_footery'] = 'Space at bottom right';
@@ -235,21 +252,18 @@ $string[ 'preview'] = 'Preview';
 //review.php
 $string[ 'attempts'] = 'Attempts';
 $string[ 'completedon'] = 'Completed on';
-$string[ 'feedback'] = 'Feedback';
 $string[ 'outof'] = '{$a->grade} out of a maximum of {$a->maxgrade}';
 $string[ 'review'] = 'Review';
 $string[ 'reviewofattempt'] = 'Review of Attempt {$a}';
-$string[ 'score'] = 'Score';
-$string[ 'startedon'] = 'Started on';
+$string[ 'showall'] = 'Show all';
+$string[ 'startagain'] = 'Start again';
 $string[ 'timetaken'] = 'Time taken';
-$string[ 'unfinished'] = 'open';
 
 //showanswers.php
 $string[ 'clearrepetitions'] = 'Clear statistics';
 $string[ 'computerepetitions'] = 'Compute statistics again';
 $string[ 'feedbacks'] = 'Messages correct answer';
 $string[ 'repetitions'] = 'Repetitions';
-$string[ 'showanswers'] = 'Show answers';
 
 //showattempts.php
 $string[ 'lastip'] = 'IP student';
@@ -259,14 +273,13 @@ $string[ 'timelastattempt'] = 'Last attempt';
 $string[ 'timestart'] = 'Start';
 
 //tabs.php
-$string[ 'overview'] = 'Overview';
 
 //view.php
 $string[ 'attemptgamenow'] = 'Attempt game now';
 $string[ 'continueattemptgame'] = 'Continue a previous attempt of game';
+$string[ 'gameclosed'] = 'This game closed on {$a}';
+$string[ 'gamecloseson'] = 'This game will close at {$a}';
+$string[ 'gamenotavailable'] = 'The game will not be available until {$a}';
+$string[ 'gameopenedon'] = 'This game opened at {$a}';
 $string[ 'reattemptgame'] = 'Reattempt game';
-$string[ 'timecompleted'] = 'Completed';
 $string[ 'yourfinalgradeis'] = 'Your final grade for this game is {$a}.';
-
-$string['gameadministration'] = 'Game administration';
-

@@ -1,9 +1,9 @@
-<?php  // $Id: showanswers.php,v 1.2 2010/08/03 20:48:51 bdaloukas Exp $
+<?php  // $Id: showanswers.php,v 1.5 2011/07/29 22:23:50 bdaloukas Exp $
 /**
  * This page shows the answers of the current game
  * 
  * @author  bdaloukas
- * @version $Id: showanswers.php,v 1.2 2010/08/03 20:48:51 bdaloukas Exp $
+ * @version $Id: showanswers.php,v 1.5 2011/07/29 22:23:50 bdaloukas Exp $
  * @package game
  **/
  
@@ -71,10 +71,6 @@ function game_showusers($game)
             }
         </script>
     <?php
-    //choose_from_menu($users, 'user', $USER->id, get_string("allparticipants"), 'javascript:onselectuser();');
-//function choose_from_menu ($options, $name, $selected='', $nothing='choose', $script='',
-//                           $nothingvalue='0', $return=false, $disabled=false, $tabindex=0,
-//                           $id='', $listbox=false, $multiple=false, $class='') 
 
     $attributes = 'onchange="javascript:onselectuser();"';
     $name = 'user';
@@ -368,6 +364,15 @@ function game_showanswers_glossary( $game)
     echo "</tr>\r\n";
     $line = 0;
     foreach( $questions as $question){
+        if( $game->param7 == 0){        //Not allowed spaces
+            if(!( strpos( $question->concept, ' ') === false))
+                continue;
+        }
+        if( $game->param8 == 0){        //Not allowed -
+            if(!( strpos( $question->concept, '-') === false))
+                continue;
+        }
+    
         echo '<tr>';
         echo '<td>'.(++$line);
         echo '</td>';
@@ -392,9 +397,9 @@ function game_showanswers_bookquiz( $game)
     global $CFG;
     
 	$select = "gbq.questioncategoryid=q.category ".
-			  " AND gbq.bookid = $game->bookid".
+			  " AND gbq.gameid = $game->id".
 			  " AND bc.id = gbq.chapterid";
 	$table = "{question} q,{game_bookquiz_questions} gbq,{book_chapters} bc";
 	
-    game_showanswers_question_select( $game, $table, $select, "q.*", "bc.pagenum,questiontext");
+    game_showanswers_question_select( $game, $table, $select, "DISTINCT q.*", "bc.pagenum,questiontext");
 }

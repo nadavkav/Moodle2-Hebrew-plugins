@@ -20,7 +20,7 @@
         }
     } else {
         if (! $game = $DB->get_record('game', array('id' => $q))) {
-            print_error('invalidgameid', 'game');
+            print_error('invalidgameid q='.$q, 'game');
         }
         if (! $course = $DB->get_record('course', array('id' => $game->course))) {
             print_error('invalidcourseid');
@@ -38,7 +38,6 @@
 /// Cache some other capabilites we use several times.
     $canattempt = has_capability('mod/game:attempt', $context);
     $canreviewmine = has_capability('mod/game:reviewmyattempts', $context);
-    $canpreview = has_capability('mod/game:preview', $context);
 
 /// Create an object to manage all the other (non-roles) access rules.
     $timenow = time();

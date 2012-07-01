@@ -1,9 +1,9 @@
-<?php  // $Id: showattempts.php,v 1.2 2010/07/26 00:41:16 bdaloukas Exp $
+<?php  // $Id: showattempts.php,v 1.5 2012/02/27 17:34:32 bdaloukas Exp $
 /**
  * This page shows the answers of the current game
  * 
  * @author  bdaloukas
- * @version $Id: showattempts.php,v 1.2 2010/07/26 00:41:16 bdaloukas Exp $
+ * @version $Id: showattempts.php,v 1.5 2012/02/27 17:34:32 bdaloukas Exp $
  * @package game
  **/
  
@@ -20,13 +20,141 @@
     if( $action == 'delete'){
         game_ondeleteattempt( $game);
     }
-    
+
+    echo get_string( 'group').': ';
+    game_showgroups( $game);
+    echo ' &nbsp; '.get_string('user').': ';
+    game_showusers( $game);echo '<br><br>';
+     
     game_showattempts( $game);
 
     echo $OUTPUT->footer();
+    
+    
+    function game_showusers($game)
+    {
+        global $CFG, $USER, $DB;
+
+        $users = array();
+
+        $context = get_context_instance(CONTEXT_COURSE, $game->course);
+
+        $groupid = optional_param('groupid',0, PARAM_INT);
+        $sql =  "SELECT DISTINCT ra.userid,u.lastname,u.firstname FROM {role_assignments} ra, {user} u ".
+                " WHERE ra.contextid={$context->id} AND ra.userid=u.id";
+        if( $groupid != 0)
+            $sql .= " AND ra.userid IN (SELECT gm.userid FROM {groups_members} gm WHERE gm.groupid=$groupid)";
+		if( ($recs = $DB->get_records_sql( $sql))){
+			foreach( $recs as $rec){
+				$users[ $rec->userid] = $rec->lastname.' '.$rec->firstname;
+			}
+		}
+        
+        
+        if ($guest = guest_user()) {
+            $users[$guest->id] = fullname($guest);
+        }
+        ?>
+            <script type="text/javascript">
+                function onselectuser()
+                {
+                    window.location.href = "<?php echo $CFG->wwwroot.'/mod/game/showattempts.php?q='.$game->id.'&userid=';?>" + document.getElementById('menuuser').value + '&groupid=' + document.getElementById('menugroup').value;
+                }
+            </script>
+        <?php
+
+        $attributes = 'onchange="javascript:onselectuser();"';
+        $name = 'user';
+        $id = 'menu'.$name;
+        $class = 'menu'.$name;
+        $class = 'select ' . $class; /// Add 'select' selector always
+        $nothing = get_string("allparticipants");
+        $nothingvalue='0';
+        $options = $users;
+        $selected = optional_param('userid',0, PARAM_INT);
+    
+        $output = '<select id="'. $id .'" class="'. $class .'" name="'. $name .'" '. $attributes .'>' . "\n";
+        $output .= '   <option value="'. s($nothingvalue) .'"'. "\n";
+        if ($nothingvalue === $selected) {
+            $output .= ' selected="selected"';
+        }
+        $output .= '>'. $nothing .'</option>' . "\n";
+
+        if (!empty($options)) {
+            foreach ($options as $value => $label) {
+                $output .= '   <option value="'. s($value) .'"';
+                if ((string)$value == (string)$selected ||
+                    (is_array($selected) && in_array($value, $selected))) {
+                    $output .= ' selected="selected"';
+                }
+                if ($label === '') {
+                    $output .= '>'. $value .'</option>' . "\n";
+                } else {
+                    $output .= '>'. $label .'</option>' . "\n";
+                }
+            }
+        }
+        echo $output . '</select>' . "\n";
+    }
+
+    function game_showgroups($game)
+    {
+        global $CFG, $USER, $DB;
+
+        $groups = array();
+		if( ($recs = $DB->get_records_sql( "SELECT id,name FROM {groups} WHERE courseid=$game->course ORDER BY name"))){
+			foreach( $recs as $rec){
+				$groups[ $rec->id] = $rec->name;
+			}
+		}
+
+        ?>
+            <script type="text/javascript">
+                function onselectgroup()
+                {
+                    window.location.href = "<?php echo $CFG->wwwroot.'/mod/game/showattempts.php?q='.$game->id.'&groupid=';?>" + document.getElementById('menugroup').value;
+                }
+            </script>
+        <?php
+
+        $attributes = 'onchange="javascript:onselectgroup();"';
+        $name = 'group';
+        $id = 'menu'.$name;
+        $class = 'menu'.$name;
+        $class = 'select ' . $class; /// Add 'select' selector always
+        $nothing = get_string("allgroups");
+        $nothingvalue='0';
+        $options = $groups;
+        $selected = optional_param('groupid',0, PARAM_INT);
+    
+        $output = '<select id="'. $id .'" class="'. $class .'" name="'. $name .'" '. $attributes .'>' . "\n";
+        $output .= '   <option value="'. s($nothingvalue) .'"'. "\n";
+        if ($nothingvalue === $selected) {
+            $output .= ' selected="selected"';
+        }
+        $output .= '>'. $nothing .'</option>' . "\n";
+
+        if (!empty($options)) {
+            foreach ($options as $value => $label) {
+                $output .= '   <option value="'. s($value) .'"';
+                if ((string)$value == (string)$selected ||
+                    (is_array($selected) && in_array($value, $selected))) {
+                    $output .= ' selected="selected"';
+                }
+                if ($label === '') {
+                    $output .= '>'. $value .'</option>' . "\n";
+                } else {
+                    $output .= '>'. $label .'</option>' . "\n";
+                }
+            }
+        }
+        echo $output . '</select>' . "\n";
+    }
 
     function game_showattempts($game){
         global $CFG, $DB;
+
+        $userid = optional_param('userid',0,PARAM_INT);
 
         $gamekind = $game->gamekind;
         $update = get_coursemodule_from_instance( 'game', $game->id, $game->course)->id;
@@ -36,6 +164,8 @@
         $select = "ga.userid=u.id AND ga.gameid={$game->id} AND g.id={$game->id}";
         $fields = "ga.id, u.lastname, u.firstname, ga.attempts,".
           "timestart, timefinish, timelastattempt, score, ga.lastip, ga.lastremotehost";
+        if( $userid != 0)
+            $select .= ' AND u.id='.$userid;
         $sql = "SELECT COUNT(*) AS c FROM $table WHERE $select";
         $count = $DB->count_records_sql( $sql);
         $limitfrom = 0;
@@ -53,7 +183,7 @@
                     echo ($i+1).' ';
                 }else
                 {
-                    echo "<A HREF=\"{$CFG->wwwroot}/mod/game/preview.php?action=showattempts&amp;update=$update&amp;q={$game->id}&amp;limitfrom=$i&\">".($i+1)."</a>";
+                    echo "<A HREF=\"{$CFG->wwwroot}/mod/game/showattempts.php?q={$game->id}&amp;limitfrom=$i&\">".($i+1)."</a>";
                     echo ' &nbsp;';
                 }
             }
@@ -118,7 +248,7 @@
         $attemptid  = required_param('attemptid', PARAM_INT);
 		
 		$attempt = $DB->get_record( 'game_attempts', array( 'id' => $attemptid));
-		$game = $DB->get_record( 'game', array( 'id' => $attempt->gameid));
+		//$game = $DB->get_record( 'game', array( 'id' => $attempt->gameid));
 				
 		switch( $game->gamekind)
 		{

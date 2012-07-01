@@ -1,23 +1,23 @@
-<?php // $Id: game.php,v 1.2 2010/09/15 21:08:20 bdaloukas Exp $
+<?php // $Id: game.php,v 1.6 2011/08/27 05:37:45 bdaloukas Exp $
       // game.php - created with Moodle 1.9.5
       // translated to Italiano (it) by Aristogeiton Ferentinos, Myrto Papakonstantinoy and Orianta Gkotslari
 
 //bookquiz/importodt.php
 $string[ 'bookquiz_import_odt'] = 'Uvezi iz OpenOffice datoteke (odt)';
+$string[ 'bookquiz_not_select_book'] = 'Niste odabrali knjigu';
 $string[ 'bookquiz_subchapter'] = 'Napravi podpoglavlje';
 
 //bookquiz/play.php
 $string[ 'bookquiz_empty'] = 'Knjiga je prazna';
+$string[ 'sudoku_submit'] = 'Ocjeni odgovore';
 
 //bookquiz/questions.php
 $string[ 'bookquiz_categories'] = 'Kategorije';
 $string[ 'bookquiz_chapters'] = 'Poglavlja';
-$string[ 'bookquiz_not_select_book'] = 'Niste odabrali knjigu';
-$string[ 'bookquiz_numquestions'] = 'Pitanja';
 $string[ 'bookquiz_questions'] = 'Pridruži kategorije pitanja poglavlju knjige';
 
 //cross/cross_class.php
-$string[ 'millionaire_letters_answers'] = 'ABCČĆDĐEFGHIJKLMNOPRSŠTUVZŽ';
+$string[ 'lettersall'] = 'ABCČĆDĐEFGHIJKLMNOPRSŠTUVZŽ';
 
 //cross/crossdb_class.php
 $string[ 'and'] = 'i';
@@ -27,6 +27,7 @@ $string[ 'cross_error'] = 'greška';
 $string[ 'cross_errors'] = 'grešaka';
 $string[ 'cross_found_many'] = 'Pronađeno';
 $string[ 'cross_found_one'] = 'Pronađena';
+$string[ 'grade'] = 'Ocjena';
 
 //cross/play.php
 $string[ 'cross_across'] = 'Vodoravno';
@@ -36,63 +37,61 @@ $string[ 'cross_endofgamebutton'] = 'Kraj igre';
 $string[ 'cross_error_containsbadchars'] = 'Riječ sadrži nedozvoljene znakove';
 $string[ 'cross_error_wordlength1'] = 'Točna riječ sadrži ';
 $string[ 'cross_error_wordlength2'] = ' slova.';
-$string[ 'cross_new'] = 'Nova igra';
-$string[ 'cross_nowords'] = 'Nije pronađena ni jedna riječ';
 $string[ 'cross_pleasewait'] = 'Molimo pričekajte dok se križaljka učita';
 $string[ 'cross_welcome'] = '<h3>Dobrodošli!</h3><p>Za početak igre odaberite riječ.</p>';
-$string[ 'cross_win'] = 'Čestitamo !!!';
+$string[ 'finish'] = 'Kraj igre';
 $string[ 'letter'] = 'slovo';
 $string[ 'letters'] = 'slova';
-$string[ 'print'] = 'Ispiši';
-
-//cryptex/play.php
-$string[ 'cryptex_nowords'] = 'Nije pronađena ni jedna riječ';
-$string[ 'cryptex_win'] = 'Čestitamo !!!!';
-$string[ 'finish'] = 'Kraj igre';
-$string[ 'grade'] = 'Ocjena';
 $string[ 'nextgame'] = 'Nova igra';
+$string[ 'no_words'] = 'una o più parole non sono state trovate';
+$string[ 'print'] = 'Ispiši';
+$string[ 'win'] = 'congratulazioni!!!';
+
+//db/access.php
 
 //hangman/play.php
-$string[ 'hangman_grade'] = 'Ocjena';
+$string[ 'hangman_correct_phrase'] = 'la frase giusta era: ';
+$string[ 'hangman_correct_word'] = 'la parola giusta era: ';
 $string[ 'hangman_gradeinstance'] = 'Ocjena u cijeloj igri';
 $string[ 'hangman_letters'] = 'Slova: ';
-$string[ 'hangman_loose'] = '<BIG><B>Kraj igre</B></BIG>';
-$string[ 'hangman_nowords'] = 'Riječi nisu pronađene';
-$string[ 'hangman_win'] = 'Čestitamo';
+$string[ 'hangman_restletters_many'] = 'Imate još <b>{$a}</b> pokušaja';
+$string[ 'hangman_restletters_one'] = 'Imate još <b>SAMO 1</b> pokušaj';
 $string[ 'hangman_wrongnum'] = 'Krivo: %%d od %%d';
 $string[ 'nextword'] = 'Sljedeća riječ';
 
 //hiddenpicture/play.php
-$string[ 'hiddenpicture_grade'] = 'Ocjena';
 $string[ 'hiddenpicture_mainsubmit'] = 'Ocjeni glavni odgovor';
 $string[ 'hiddenpicture_nocols'] = 'Treba zadati broj stupaca vodoravno';
 $string[ 'hiddenpicture_nomainquestion'] = 'Nije pronađen ni jedan zapis u rječniku {$a->name} sa pridruženom slikom';
 $string[ 'hiddenpicture_norows'] = 'Treba zadati broj stupaca okomito';
-$string[ 'hiddenpicture_win'] = 'Čestitamo';
 $string[ 'must_select_glossary'] = 'Morate odabrati rječnik';
+$string[ 'noglossaryentriesfound'] = 'Non sono state trovate voci di glossario';
 
 //millionaire/play.php
-$string[ 'millionaire_helppeople'] = 'Pitaj publiku';
-$string[ 'millionaire_info_people'] = 'Publika kaže';
-$string[ 'millionaire_info_telephone'] = 'Mislim da je točan odgovor ';
-$string[ 'millionaire_info_wrong_answer'] = 'Vaš odgovor je pogrešan<br>Točan odgovor je:';
 $string[ 'millionaire_must_select_questioncategory'] = 'Morate odabrati kategoriju pitanja';
 $string[ 'millionaire_must_select_quiz'] = 'Morate odabrati tip igre';
-$string[ 'millionaire_nowords'] = 'Nije pronađena ni jedna riječ';
-$string[ 'millionaire_quit'] = 'Kraj';
-$string[ 'millionaire_sourcemodule_must_quiz_question'] = 'Za Milijunaša izvor mora biti {$a} ili pitanja i ne';
-$string[ 'millionaire_telephone'] = 'Pomoć zovi';
-$string[ 'millionaire_win'] = 'Čestitamo !!!!';
-$string[ 'must_select_questioncategory'] = 'Morate odabrati kategoriju pitanja';
-$string[ 'must_select_quiz'] = 'Morate odabrati igru';
 
-//report/default.php
-$string[ 'modulename'] = 'igru';
-$string[ 'modulenameplural'] = 'Igre';
+//report/overview/report.php
+$string[ 'allattempts'] = 'mostra tutti i tentativi';
+$string[ 'allstudents'] = 'mostra tutti $a';
+$string[ 'attemptsonly'] = 'indica solo gli studenti che hanno svolto tentativi';
+$string[ 'deleteattemptcheck'] = 'Sei sicbookquiz_emptyuro che tu vuoi eliminare completamente questi tentativi?';
+$string[ 'displayoptions'] = 'mostrare i fattori';
+$string[ 'downloadods'] = 'salvare in formato ODS';
+$string[ 'feedback'] = 'risposta';
+$string[ 'noattemptsonly'] = 'mostra solo $a che non presentano tentativi';
+$string[ 'numattempts'] = '$a->studentnum $a->studentstring Hanno fatto $a->attemptnum tentativi';
+$string[ 'pagesize'] = 'domande per pagina:';
+$string[ 'reportoverview'] = 'sommario';
+$string[ 'selectall'] = 'seleziona tutti';
+$string[ 'selectnone'] = 'deseleziona tutti';
+$string[ 'showdetailedmarks'] = 'mostra i dettagli delle valutazioni';
+$string[ 'startedon'] = 'Započeto';
+$string[ 'timecompleted'] = 'Završeno';
+$string[ 'unfinished'] = 'nije završeno';
+$string[ 'withselected'] = 'con i file selezionati';
 
 //snakes/play.php
-$string[ 'snakes_new'] = 'Nova igra';
-$string[ 'snakes_win'] = 'Čestitamo';
 
 //sudoku/create.php
 $string[ 'sudoku_create_count'] = 'Broju sudoku zadataka koji će se napraviti';
@@ -103,20 +102,6 @@ $string[ 'sudoku_creating'] = 'Pravim <b>{$a}</b> sudoku';
 $string[ 'sudoku_finishattemptbutton'] = 'Kraj igre';
 $string[ 'sudoku_guessnumber'] = 'Pogodite točan broj';
 $string[ 'sudoku_noentriesfound'] = 'U rječniku nije pronađena ni jedna riječ';
-$string[ 'sudoku_submit'] = 'Ocjeni odgovore';
-$string[ 'sudoku_win'] = 'Čestitamo !!!';
-
-//accessrules.php
-$string[ 'confirmstartattemptlimit'] = 'Ova igra dopušta {$a} pokušaj(a). Započet ćete novi pokušaj. Želite li nastaviti?';
-$string[ 'confirmstartattempttimelimit'] = 'Ova igra ima vremensko ograničenje i dopušta {$a} pokušaj(a). Započet ćete novi pokušaj. Želite li nastaviti?';
-$string[ 'confirmstarttimelimit'] = 'Ova igra ima vremensko ograničenje. Želite li započeti?';
-$string[ 'review'] = 'Pregled';
-
-//attempt.php
-$string[ 'useupdategame'] = 'Koristite tipku \"Osvježi igru\" za promjenu postavki igre';
-
-//attemptlib.php
-$string[ 'startagain'] = 'Ponovo igraj';
 
 //export.php
 $string[ 'export'] = 'Izvoz';
@@ -135,15 +120,27 @@ $string[ 'javame_vendor'] = 'Prodavač:';
 $string[ 'javame_version'] = 'Verzija:';
 
 //exporthtml_hangman.php
+$string[ 'hangman_loose'] = '<BIG><B>Kraj igre</B></BIG>';
+$string[ 'html_hangman_new'] = 'nuovo';
 
-//hangman/play.php
-$string[ 'hangman_correct_phrase'] = 'Tražena fraza je: ';
-$string[ 'hangman_correct_word'] = 'Tražena riječ je: ';
-$string[ 'hangman_restletters_many'] = 'Imate još <b>{$a}</b> pokušaja';
-$string[ 'hangman_restletters_one'] = 'Imate još <b>SAMO 1</b> pokušaj';
+//exporthtml_millionaire.php
+$string[ 'millionaire_helppeople'] = 'Pitaj publiku';
+$string[ 'millionaire_info_people'] = 'Publika kaže';
+$string[ 'millionaire_info_telephone'] = 'Mislim da je točan odgovor ';
+$string[ 'millionaire_info_wrong_answer'] = 'Vaš odgovor je pogrešan<br>Točan odgovor je:';
+$string[ 'millionaire_quit'] = 'Kraj';
+$string[ 'millionaire_sourcemodule_must_quiz_question'] = 'Za Milijunaša izvor mora biti {$a} ili pitanja i ne';
+$string[ 'millionaire_telephone'] = 'Pomoć zovi';
+$string[ 'must_select_questioncategory'] = 'Morate odabrati kategoriju pitanja';
+$string[ 'must_select_quiz'] = 'Morate odabrati igru';
+
+//exporthtml_snakes.php
+$string[ 'score'] = 'Rezultat';
 
 //index.php
-$string[ 'game'] = 'Igra';
+$string[ 'modulename'] = 'igru';
+$string[ 'modulenameplural'] = 'Igre';
+$string[ 'pluginname'] = 'igru';
 
 //lib.php
 $string[ 'attempt'] = 'Pokušaj';
@@ -161,29 +158,34 @@ $string[ 'info'] = 'Informacije';
 $string[ 'noattempts'] = 'Ovu igru nitko još nije pokušao igrati';
 $string[ 'percent'] = 'Postotak';
 $string[ 'results'] = 'Rezultati';
+$string[ 'showanswers'] = 'Prikaži odgovore';
+$string[ 'showattempts'] = 'mostra i tentativi';
 
 //locallib.php
-$string[ 'lettersall'] = 'ABCČĆDĐEFGHIJKLMNOPRSŠTUVZŽ';
-
-//mod_form.php
 $string[ 'attemptfirst'] = 'Prvi pokušaj';
 $string[ 'attemptlast'] = 'Zadnji pokušaj';
+$string[ 'gradeaverage'] = 'Prosječna ocjena';
+$string[ 'gradehighest'] = 'Najveća ocjena';
+
+//mod_form.php
 $string[ 'bottomtext'] = 'Tekst na dnu';
 $string[ 'cross_layout'] = 'Raspored';
 $string[ 'cross_layout0'] = 'Fraze ispod križaljke';
 $string[ 'cross_layout1'] = 'Fraze desno od križaljke';
 $string[ 'cross_maxcols'] = 'Maksimaln broj stupaca u križaljci';
 $string[ 'cross_maxwords'] = 'Maksimalan broj riječi u križaljci';
+$string[ 'cross_options'] = 'opzioni di incrocio';
 $string[ 'cryptex_maxcols'] = 'Maksimalan broj stupaca/redova cryptexa';
+$string[ 'cryptex_maxtries'] = 'massimo numero di tentativi';
 $string[ 'cryptex_maxwords'] = 'Maksimalan broj riječi cryptexa';
-$string[ 'gradeaverage'] = 'Prosječna ocjena';
-$string[ 'gradehighest'] = 'Najveća ocjena';
+$string[ 'cryptex_options'] = 'opzioni nel criptoverba';
 $string[ 'grademethod'] = 'Metoda ocjenjivanja';
 $string[ 'hangman_allowspaces'] = 'Dozvoli razmake u riječima';
 $string[ 'hangman_allowsub'] = 'Dozvoli znak - u riječima';
 $string[ 'hangman_imageset'] = 'Odaberite sliku vješala';
 $string[ 'hangman_language'] = 'Jezik riječi';
 $string[ 'hangman_maxtries'] = 'Broj riječi po igri';
+$string[ 'hangman_options'] = 'opzioni del gioco dell\'impiccato';
 $string[ 'hangman_showcorrectanswer'] = 'Prikaži ispravan odgovor nakon završetka';
 $string[ 'hangman_showfirst'] = 'Prikaži prvo slovo vješala';
 $string[ 'hangman_showlast'] = 'Prikaži zadnje slovo vješala';
@@ -191,11 +193,14 @@ $string[ 'hangman_showquestion'] = 'Prikaži pitanje?';
 $string[ 'hiddenpicture_across'] = 'Ćelije vodoravno';
 $string[ 'hiddenpicture_down'] = 'Ćelije okomito';
 $string[ 'hiddenpicture_height'] = 'Postavi visinu slike na';
+$string[ 'hiddenpicture_options'] = 'opzioni della figura nascosta';
 $string[ 'hiddenpicture_pictureglossary'] = 'Rječnik za glavno pitanje i sliku';
 $string[ 'hiddenpicture_width'] = 'Postavi širinu slike na';
 $string[ 'millionaire_background'] = 'Boja pozadine';
+$string[ 'millionaire_options'] = 'opzioni del gioco del milionario';
 $string[ 'millionaire_shuffle'] = 'Izmješaj pitanja';
 $string[ 'snakes_background'] = 'Pozadina';
+$string[ 'snakes_options'] = 'opzioni del gioco delle serpentine';
 $string[ 'sourcemodule'] = 'Izvor pitanja';
 $string[ 'sourcemodule_book'] = 'Odaberite knjigu';
 $string[ 'sourcemodule_glossary'] = 'Odaberite rječnik';
@@ -205,6 +210,8 @@ $string[ 'sourcemodule_question'] = 'Pitanja';
 $string[ 'sourcemodule_questioncategory'] = 'Kategorija pitanja';
 $string[ 'sourcemodule_quiz'] = 'Odaberite igru';
 $string[ 'sudoku_maxquestions'] = 'Maksimalan broj pitanja';
+$string[ 'sudoku_options'] = 'opzioni del gioco del Sudoku';
+$string[ 'toptext'] = 'testo in cima';
 
 //preview.php
 $string[ 'only_teachers'] = 'Samo učitelj može vidjeti ovu stranicu';
@@ -213,17 +220,17 @@ $string[ 'preview'] = 'Pregled';
 //review.php
 $string[ 'attempts'] = 'Pokušaji';
 $string[ 'completedon'] = 'Završeno';
-$string[ 'feedback'] = 'Povratna informacija';
 $string[ 'outof'] = '{$a->grade} od maksimalno {$a->maxgrade}';
+$string[ 'review'] = 'Pregled';
 $string[ 'reviewofattempt'] = 'Pregled pokušaja {$a}';
-$string[ 'score'] = 'Rezultat';
-$string[ 'startedon'] = 'Započeto';
+$string[ 'startagain'] = 'Ponovo igraj';
 $string[ 'timetaken'] = 'Proteklo vrijeme';
-$string[ 'unfinished'] = 'nije završeno';
 
 //showanswers.php
+$string[ 'clearrepetitions'] = 'Clear statistics';
+$string[ 'computerepetitions'] = 'ricalcola le statistiche';
 $string[ 'feedbacks'] = 'Poruke ispravnih odgovora';
-$string[ 'showanswers'] = 'Prikaži odgovore';
+$string[ 'repetitions'] = 'ripetizioni';
 
 //showattempts.php
 $string[ 'lastip'] = 'Adresa računala';
@@ -233,12 +240,47 @@ $string[ 'timelastattempt'] = 'Posljednji pokušaj';
 $string[ 'timestart'] = 'Početak';
 
 //tabs.php
-$string[ 'overview'] = 'Pregled';
 
 //view.php
 $string[ 'attemptgamenow'] = 'Pokušaj ponovo';
 $string[ 'continueattemptgame'] = 'Nastavi sa prethodnim pokušajem ove igre';
 $string[ 'reattemptgame'] = 'Ponovni pokušaj igre';
-$string[ 'timecompleted'] = 'Završeno';
 $string[ 'yourfinalgradeis'] = 'Vaša konačna ocjena za ovu igru je {$a}.';
 
+//Untranslated
+//db/access.php $string[ 'game:attempt'] = 'Play game';
+//db/access.php $string[ 'game:deleteattempts'] = 'Delete attempts';
+//db/access.php $string[ 'game:grade'] = 'Grade games manually';
+//db/access.php $string[ 'game:manage'] = 'Manage';
+//db/access.php $string[ 'game:manageoverrides'] = 'Manage game overrides';
+//db/access.php $string[ 'game:preview'] = 'Preview Games';
+//db/access.php $string[ 'game:reviewmyattempts'] = 'reviewmyattempts';
+//db/access.php $string[ 'game:view'] = 'view';
+//db/access.php $string[ 'game:viewreports'] = 'viewreports';
+//hiddenpicture/play.php $string[ 'no_questions'] = "There are no questions";
+//snakes/play.php $string[ 'snakes_dice'] = 'Dice, $a spots.';
+//snakes/play.php $string[ 'snakes_player'] = 'Player, position: $a.';
+//exporthtml_snakes.php $string[ 'html_snakes_check'] = 'Check';
+//exporthtml_snakes.php $string[ 'html_snakes_correct'] = 'Correct!';
+//exporthtml_snakes.php $string[ 'html_snakes_no_selection'] = 'Have to select something!';
+//exporthtml_snakes.php $string[ 'html_snakes_wrong'] = "Your answer isn't correct. Stay on the same seat.";
+//index.php $string[ 'pluginadministration'] = 'Game administration';
+//lib.php $string[ 'reset_game_all'] = 'Delete tries from all games';
+//lib.php $string[ 'reset_game_deleted_course'] = 'Delete tries from deleted courses';
+//mod_form.php $string[ 'gameclose'] = 'Close the game';
+//mod_form.php $string[ 'gameopen'] = 'Open the game';
+//mod_form.php $string[ 'hangman_maximum_number_of_errors'] = 'Maximum number or errors (have to be images named hangman_0.jpg, hangman_1.jpg, ...)';
+//mod_form.php $string[ 'snakes_cols'] = 'Cols';
+//mod_form.php $string[ 'snakes_data'] = 'Positions of Snakes and Ladders';
+//mod_form.php $string[ 'snakes_file'] = 'File for background';
+//mod_form.php $string[ 'snakes_footerx'] = 'Space at bootom left';
+//mod_form.php $string[ 'snakes_footery'] = 'Space at bottom right';
+//mod_form.php $string[ 'snakes_headerx'] = 'Space at up left';
+//mod_form.php $string[ 'snakes_headery'] = 'Space at up right';
+//mod_form.php $string[ 'snakes_rows'] = 'Rows';
+//mod_form.php $string[ 'userdefined'] = 'User defined';
+//review.php $string[ 'showall'] = 'Show all';
+//view.php $string[ 'gameclosed'] = 'This game closed on {$a}';
+//view.php $string[ 'gamecloseson'] = 'This game will close at {$a}';
+//view.php $string[ 'gamenotavailable'] = 'The game will not be available until {$a}';
+//view.php $string[ 'gameopenedon'] = 'This game opened at {$a}';

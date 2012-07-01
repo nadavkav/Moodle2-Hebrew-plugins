@@ -1,4 +1,4 @@
-<?php  // $Id: mod_form.php,v 1.15 2010/09/03 12:41:55 bdaloukas Exp $
+<?php  // $Id: mod_form.php,v 1.24 2012/02/12 13:58:51 bdaloukas Exp $
 /**
  * Form for creating and modifying a game 
  *
@@ -8,6 +8,7 @@
  */
 
 require_once ($CFG->dirroot.'/course/moodleform_mod.php');
+require( 'locallib.php');
 
 class mod_game_mod_form extends moodleform_mod {
     
@@ -31,7 +32,7 @@ class mod_game_mod_form extends moodleform_mod {
 
         //Hidden elements
         $mform->addElement('hidden', 'gamekind', $gamekind);
-        $mform->setDefault('gamekind',$gamekind);
+        $mform->setDefault('gamekind', $gamekind);
         $mform->addElement('hidden', 'type', $gamekind);
         $mform->setDefault('type', $gamekind);
 
@@ -99,6 +100,7 @@ class mod_game_mod_form extends moodleform_mod {
         // Question Category - Short Answer
 
         if( $gamekind != 'bookquiz'){
+/*        
             $context = get_context_instance(50, $COURSE->id);
             $select = " contextid in ($context->id)";
 
@@ -114,6 +116,10 @@ class mod_game_mod_form extends moodleform_mod {
             }
             
             $mform->addElement('select', 'questioncategoryid', get_string('sourcemodule_questioncategory', 'game'), $a);
+            $mform->disabledIf('questioncategoryid', 'sourcemodule', 'neq', 'question');
+*/
+            $contexts = game_get_contexts();
+            $mform->addElement('questioncategory', 'questioncategoryid', get_string('sourcemodule_questioncategory', 'game'), compact('contexts'));
             $mform->disabledIf('questioncategoryid', 'sourcemodule', 'neq', 'question');
 
             //subcategories
@@ -153,8 +159,8 @@ class mod_game_mod_form extends moodleform_mod {
 // Grade options 
 
         $mform->addElement('header', 'gradeoptions', get_string('grades', 'grades'));
-        $mform->addElement('text', 'grade', get_string( 'grademax', 'grades'));
-        $mform->setType('numwords', PARAM_INT);
+        $mform->addElement('text', 'grade', get_string( 'grademax', 'grades'), array('size' => 4));
+        $mform->setType('grade', PARAM_INT);
         $gradingtypeoptions = array();
         $gradingtypeoptions[0] = get_string('gradehighest','game');
         $gradingtypeoptions[1] = get_string('gradeaverage','game');
@@ -162,20 +168,31 @@ class mod_game_mod_form extends moodleform_mod {
         $gradingtypeoptions[3] = get_string('attemptlast','game');
         $mform->addElement('select', 'grademethod', get_string('grademethod','game'), $gradingtypeoptions);
         
+        // Open and close dates.
+        $mform->addElement('date_time_selector', 'timeopen', get_string('gameopen', 'game'),
+                array('optional' => true, 'step' => 1));
+        $mform->addHelpButton('timeopen', 'quizopenclose', 'quiz');
+
+        $mform->addElement('date_time_selector', 'timeclose', get_string('gameclose', 'game'),
+                array('optional' => true, 'step' => 1));        
+        
 //---------------------------------------------------------------------------
 // Hangman options
 
         if($gamekind == 'hangman'){
             $mform->addElement('header', 'hangman', get_string( 'hangman_options', 'game'));
-            $mform->addElement('text', 'param4', get_string('hangman_maxtries', 'game'));
+            $mform->addElement('text', 'param4', get_string('hangman_maxtries', 'game'), array('size' => 4));
             $mform->setType('param4', PARAM_INT);
             $mform->addElement('selectyesno', 'param1', get_string('hangman_showfirst', 'game'));
             $mform->addElement('selectyesno', 'param2', get_string('hangman_showlast', 'game'));
             $mform->addElement('selectyesno', 'param7', get_string('hangman_allowspaces','game'));
             $mform->addElement('selectyesno', 'param8', get_string('hangman_allowsub', 'game'));
 
+            $mform->addElement('text', 'param10', get_string( 'hangman_maximum_number_of_errors', 'game'), array('size' => 4));
+            $mform->setType('param10', PARAM_INT);
+
             $a = array( 1 => 1);
-            $mform->addElement('select', 'param', get_string('hangman_imageset','game'), $a);
+            $mform->addElement('select', 'param3', get_string('hangman_imageset','game'), $a);
 
             $mform->addElement('selectyesno', 'param5', get_string('hangman_showquestion', 'game'));
             $mform->setDefault('param5', 1);
@@ -264,17 +281,21 @@ class mod_game_mod_form extends moodleform_mod {
                     }
                 }
             }
-            //$snakesandladdersbackground[ 0] = get_string( 'userdefined', 'game');
+            $snakesandladdersbackground[ 0] = get_string( 'userdefined', 'game');
             ksort( $snakesandladdersbackground);
             $mform->addElement('select', 'param3', get_string('snakes_background', 'game'), $snakesandladdersbackground);
 
             //param4 = itemid for file_storage
-/*
-            $attachmentoptions = array('subdirs'=>false, 'maxfiles'=>1);
-            $mform->addElement('filepicker', 'snakes_file', get_string('snakes_file', 'game'), $attachmentoptions);
+            //param5 (=1 means dirty file and and have to be computed again)
+            //param6 = width of autogenerated picture
+            //param7 = height of autogenerated picture
 
-            $mform->addElement('textarea', 'snakes_board', get_string('snakes_board', 'game'), 'rows="2" cols="70"');
-            $mform->disabledIf('snakes_board', 'param3', 'neq', '0');
+            $attachmentoptions = array('subdirs'=>false, 'maxfiles'=>1);
+            $mform->addElement('filepicker', 'param4', get_string('snakes_file', 'game'), $attachmentoptions);
+            $mform->disabledIf('param4', 'param3', 'neq', '0');
+
+            $mform->addElement('textarea', 'snakes_data', get_string('snakes_data', 'game'), 'rows="2" cols="70"');
+            $mform->disabledIf('snakes_data', 'param3', 'neq', '0');
 
             $mform->addElement('text', 'snakes_cols', get_string('snakes_cols', 'game'), array('size' => 4));
             $mform->disabledIf('snakes_cols', 'param3', 'neq', '0');
@@ -292,7 +313,13 @@ class mod_game_mod_form extends moodleform_mod {
             $mform->disabledIf('snakes_footerx', 'param3', 'neq', '0');
 
             $mform->addElement('text', 'snakes_footery', get_string('snakes_footery', 'game'), array('size' => 4));
-            $mform->disabledIf('snakes_footery', 'param3', 'neq', '0');*/
+            $mform->disabledIf('snakes_footery', 'param3', 'neq', '0');
+
+            $mform->addElement('text', 'snakes_width', get_string('hiddenpicture_width', 'game'), array('size' => 6));
+            $mform->setType('snakes_width', PARAM_INT);
+
+            $mform->addELement('text', 'snakes_height', get_string('hiddenpicture_height', 'game'), array('size' => 6));
+            $mform->setType('snakes_height', PARAM_INT);
         }
 
 //---------------------------------------------------------------------------
@@ -321,10 +348,8 @@ class mod_game_mod_form extends moodleform_mod {
 
             $mform->addElement('text', 'param4', get_string('hiddenpicture_width', 'game'));
             $mform->setType('param4', PARAM_INT);
-            $mform->setDefault('param4',3);
             $mform->addELement('text', 'param5', get_string('hiddenpicture_height', 'game'));
             $mform->setType('param5', PARAM_INT);
-            $mform->setDefault('param5',3);
             $mform->addElement('selectyesno', 'param7', get_string('hangman_allowspaces','game'));
         }
 
@@ -347,18 +372,50 @@ class mod_game_mod_form extends moodleform_mod {
 
     function validation($data, $files){
         $errors = parent::validation($data, $files);
+        
+        // Check open and close times are consistent.
+        if ($data['timeopen'] != 0 && $data['timeclose'] != 0 &&
+                $data['timeclose'] < $data['timeopen']) {
+            $errors['timeclose'] = get_string('closebeforeopen', 'quiz');
+        }
+        
         return $errors;
     }
 
 
     function set_data($default_values) {
         global $DB;
+        
+        if( isset( $default_values->type))
+        {
+            //Default values for every game.
+            if( $default_values->type == 'hangman')
+            {
+                $default_values->param10 = 6;    //maximum number of wrongs
+            }else if( $default_values->type == 'snakes')
+            {
+                $default_values->gamekind = $default_values->type;
+                $default_values->param3 = 1;
+                $default_values->questioncategoryid = 0;
+            }else if( $default_values->type == 'millionaire')
+            {
+                $default_values->shuffle = 1;
+            }            
+        }        
 
         if( isset( $default_values->gamekind)){
-            if( $default_values->gamekind == 'millionaire'){
+            if( $default_values->gamekind == 'hangman'){
+                if( $default_values->param10 == 0)
+                    $default_values->param10 = 6;
+            }else if( $default_values->gamekind == 'millionaire'){
                 if( isset( $default_values->param8))
-                    $default_values->param8 = '#'.strtoupper( dechex( $default_values->param8));
+                    $default_values->param8 = '#'.substr( '000000'.strtoupper( dechex( $default_values->param8)),-6);
             }
+            
+            //repair questioncategoryid
+            $categoryid = $default_values->questioncategoryid;
+            $contextid = $DB->get_field( 'question_categories', 'contextid', array( 'id' => $categoryid));
+            $default_values->questioncategoryid = $categoryid.','.$contextid;            
 
             if( $default_values->gamekind == 'snakes'){
                 if( isset( $default_values->param9)){
@@ -378,7 +435,7 @@ class mod_game_mod_form extends moodleform_mod {
             $board = $default_values->param3;
             if( $board != 0){
                 $rec = $DB->get_record( 'game_snakes_database', array( 'id' => $board));
-                $default_values->snakes_board = $rec->data;
+                $default_values->snakes_data = $rec->data;
                 $default_values->snakes_cols = $rec->cols;
                 $default_values->snakes_rows = $rec->rows;
                 $default_values->snakes_headerx = $rec->headerx;

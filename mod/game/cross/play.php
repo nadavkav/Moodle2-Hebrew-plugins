@@ -1,14 +1,12 @@
-<?php  // $Id: play.php,v 1.17 2011/03/02 14:32:46 bdaloukas Exp $
+<?php  // $Id: play.php,v 1.21 2011/08/02 15:50:35 bdaloukas Exp $
 
 // This files plays the game "Crossword"
 
 require( "cross_class.php");
 require( "crossdb_class.php");
 
-function game_cross_continue( $id, $game, $attempt, $cross, $g='', $endofgame='')
+function game_cross_continue( $id, $game, $attempt, $cross, $g, $endofgame, $context)
 {
-    global $DB, $USER;
-
 	if( $endofgame){
 		if( $g == ''){
 			game_updateattempts( $game, $attempt, -1, true);
@@ -17,12 +15,22 @@ function game_cross_continue( $id, $game, $attempt, $cross, $g='', $endofgame=''
 	}
 
 	if( $attempt != false and $cross != false){
-		return game_cross_play( $id, $game, $attempt, $cross, $g, false, false, $endofgame, false, false, false, false);
+		return game_cross_play( $id, $game, $attempt, $cross, $g, false, false, $endofgame, false, false, false, false, true, $context);
 	}
 	
 	if( $attempt == false){
 		$attempt = game_addattempt( $game);
 	}
+	
+    game_cross_new( $game, $attempt->id, $crossm);		
+    game_updateattempts( $game, $attempt, 0, 0);		
+    return game_cross_play( $id, $game, $attempt, $crossm, '', false, false, false, false, false, false, false, true, $context);
+}
+
+function game_cross_new( $game, $attemptid, &$crossm)
+{
+    global $DB, $USER;
+    
 	$textlib = textlib_get_instance();
 
 	$cross = new CrossDB();
@@ -33,7 +41,7 @@ function game_cross_continue( $id, $game, $attempt, $cross, $g='', $endofgame=''
 	$answers = array();
 	$recs = game_questions_shortanswer( $game);
 	if( $recs == false){
-		print_error( 'game_cross_continue: '.get_string( 'cross_nowords', 'game'));
+		print_error( 'game_cross_continue: '.get_string( 'no_words', 'game'));
 	}
 	$infos = array();
     $reps = array();
@@ -45,7 +53,7 @@ function game_cross_continue( $id, $game, $attempt, $cross, $g='', $endofgame=''
 	    }
 		
 		$rec->answertext = game_upper( $rec->answertext);
-		$answers[ $rec->answertext] = game_repairquestion( $rec->questiontext);
+		$answers[ $rec->answertext] = $rec->questiontext;
 		$infos[ $rec->answertext] = array( $game->sourcemodule, $rec->questionid, $rec->glossaryentryid, $rec->attachment);
 
         $a = array( 'gameid' => $game->id, 'userid' => $USER->id, 'questionid' => $rec->questionid, 'glossaryentryid' => $rec->glossaryentryid);
@@ -69,16 +77,12 @@ function game_cross_continue( $id, $game, $attempt, $cross, $g='', $endofgame=''
 			}
 			$new_crossd[] = $rec;
 		}
-		$cross->save( $game, $crossm, $new_crossd, $attempt->id);	
-		
-		game_updateattempts( $game, $attempt, 0, 0);
-		
-		return game_cross_play( $id, $game, $attempt, $crossm, '', false, false, false, false, false, false, false);
+		$cross->save( $game, $crossm, $new_crossd, $attemptid);
 	}
 	
 	if( count( $crossd) == 0){
-		print_error( 'game_cross_continue: '.get_string( 'cross_nowords', 'game'));
-	}		
+		print_error( 'game_cross_continue: '.get_string( 'no_words', 'game'));
+	}
 }
 
 function showlegend( $legend, $title)
@@ -91,14 +95,14 @@ function showlegend( $legend, $title)
         echo game_filtertext( "$key: $line<br>", 0);
 }
 
-function game_cross_play( $id, $game, $attempt, $crossrec, $g, $onlyshow, $showsolution, $endofgame, $print, $checkbutton, $showhtmlsolutions, $showhtmlprintbutton)
+function game_cross_play( $id, $game, $attempt, $crossrec, $g, $onlyshow, $showsolution, $endofgame, $print, $checkbutton, $showhtmlsolutions, $showhtmlprintbutton,$showstudentguess, $context)
 {
 	global $CFG, $DB;
 
 	$cross = new CrossDB();
 
     $language = $attempt->language;
-	$info = $cross->load( $g, $done, $html, $game, $attempt, $crossrec, $onlyshow, $showsolution, $endofgame, $showhtmlsolutions, $attempt->language);
+	$info = $cross->load( $g, $done, $html, $game, $attempt, $crossrec, $onlyshow, $showsolution, $endofgame, $showhtmlsolutions, $attempt->language,$showstudentguess, $context);
 
     if( $language != $attempt->language){
         if( !$DB->set_field( 'game_attempts', 'language', $attempt->language, array( 'id' => $attempt->id))){
@@ -112,10 +116,10 @@ function game_cross_play( $id, $game, $attempt, $crossrec, $g, $onlyshow, $shows
 		}
 		
 		if( $endofgame == false){
-			echo '<B>'.get_string( 'cross_win', 'game').'</B><BR>';
+			echo '<B>'.get_string( 'win', 'game').'</B><BR>';
 		}
 		echo '<br>';	
-		echo "<a href=\"$CFG->wwwroot/mod/game/attempt.php?id=$id&forcenew=1\">".get_string( 'cross_new', 'game').'</a> &nbsp; &nbsp; &nbsp; &nbsp; ';
+		echo "<a href=\"$CFG->wwwroot/mod/game/attempt.php?id=$id&forcenew=1\">".get_string( 'nextgame', 'game').'</a> &nbsp; &nbsp; &nbsp; &nbsp; ';
 		//echo "<a href=\"$CFG->wwwroot/course/view.php?id=$cm->course\">".get_string( 'finish', 'game').'</a> ';
 	}else if( $info != ''){
 		echo "<br>$info<br>";

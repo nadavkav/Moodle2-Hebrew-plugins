@@ -1,4 +1,4 @@
-<?PHP
+<?php
 
 /*
 Crossing Words for
@@ -119,7 +119,7 @@ class Cross
         for(;;)
         {
             //selects the size of the cross
-            $N20 = mt_rand( $this->m_N20min, $this->m_N20max);
+            $N20 = max( 6, mt_rand( $this->m_N20min, $this->m_N20max));
       
             if( !$this->computenextcross( $N20, $t1, $ctries, $maxwords, $nochange))
                 break;
@@ -607,10 +607,10 @@ class Cross
 		if( $pos > 0)
 			$ret .= $textlib->substr( $s, 0, $pos);
 		
-		$s = $ret . $char . $textlib->substr( $s, $pos+1);
+		$s = $ret . $char . $textlib->substr( $s, $pos+1, $textlib->strlen( $s)-$pos-1);
 	}
 	
-	function showhtml_base( $crossm, $crossd, $showsolution, $showhtmlsolutions)
+	function showhtml_base( $crossm, $crossd, $showsolution, $showhtmlsolutions, $showstudentguess, $context, $game)
 	{
 		$textlib = textlib_get_instance();
 		
@@ -633,6 +633,11 @@ class Cross
 		$LegendV = array();
 		$LegendH = array();
 
+        if( $game->glossaryid)
+        {
+            $cmglossary = get_coursemodule_from_instance('glossary', $game->glossaryid, $game->course);
+            $contextglossary = get_context_instance(CONTEXT_MODULE, $cmglossary->id);
+        }
 		foreach ($crossd as $rec)
 		{
 			if( $rec->horizontal == false and $LastHorizontalWord == -1){
@@ -642,8 +647,22 @@ class Cross
 			$i++;
 
 			$sWordLength .= ",".$textlib->strlen( $rec->answertext);
+			if( $rec->questionid != 0)
+			{
+    			$q = game_filterquestion(str_replace( '\"', '"', $rec->questiontext), $rec->questionid, $context->id, $game->course);
+                $rec->questiontext = game_repairquestion( $q);
+    	    }else
+    	    {
+    	        //glossary
+    			$q = game_filterglossary(str_replace( '\"', '"', $rec->questiontext), $rec->glossaryentryid, $contextglossary->id, $game->course);
+                $rec->questiontext = game_repairquestion( $q);
+            }
+    	    
 			$sClue .= ',"'.game_tojavascriptstring( game_filtertext( $rec->questiontext, 0))."\"\r\n";
-			$sguess .= ',"'.$rec->studentanswer.'"';
+			if( $showstudentguess)
+    			$sguess .= ',"'.$rec->studentanswer.'"';
+            else
+    			$sguess .= ",''";  
 			$sWordX .= ",".($rec->col-1);
 			$sWordY .= ",".($rec->row-1);
 			if( $showsolution){
@@ -681,10 +700,10 @@ class Cross
 			}
 		}
 		
-		$letters = get_string( 'millionaire_letters_answers', 'game');
+		$letters = get_string( 'lettersall', 'game');
 		$textlib = textlib_get_instance();
 		
-		unset( $this->m_LegendH);
+		$this->m_LegendV = array();
 		foreach( $LegendH as $key => $value)
 		{
 		    if( count( $value) == 1)
@@ -698,7 +717,7 @@ class Cross
 		    }
 		}
 		
-		unset( $this->m_LegendV);
+		$this->m_LegendV = array();
 		foreach( $LegendV as $key => $value)
 		{
 		    if( count( $value) == 1)
@@ -711,20 +730,21 @@ class Cross
                 }
 		    }
 		}
-		
 		ksort( $this->m_LegendH);
-		ksort( $this->m_LegendV);
+    	ksort( $this->m_LegendV);
+    	
+    	$sClue = $textlib->substr( $sClue, 1, $textlib->strlen( $sClue) - 1);
 
-		$sRet .= "WordLength = new Array( ".$textlib->substr( $sWordLength, 1).");\n";
-		$sRet .= "Clue = new Array( ".$textlib->substr( $sClue, 1).");\n";
+		$sRet .= "WordLength = new Array( ".$textlib->substr( $sWordLength, 1, $textlib->strlen( $sWordLength) - 1).");\n";
+		$sRet .= "Clue = new Array( ".$sClue.");\n";
 		$sguess = str_replace( ' ', '_', $sguess);
-		$sRet .= "Guess = new Array( ".$textlib->substr( $sguess, 1).");\n";
-		$sRet .= "Solutions = new Array( ".$textlib->substr( $ssolutions, 1).");\n";
+		$sRet .= "Guess = new Array( ".$textlib->substr( $sguess, 1, $textlib->strlen( $sguess) - 1).");\n";
+		$sRet .= "Solutions = new Array( ".$textlib->substr( $ssolutions, 1, $textlib->strlen( $ssolutions) - 1).");\n";
 		if( $showhtmlsolutions){
-		    $sRet .= "HtmlSolutions = new Array( ".$textlib->substr( $shtmlsolutions, 1).");\n";
+		    $sRet .= "HtmlSolutions = new Array( ".$textlib->substr( $shtmlsolutions, 1, $textlib->strlen( $shtmlsolutions) - 1).");\n";
 		}
-		$sRet .= "WordX = new Array( ".$textlib->substr( $sWordX, 1).");\n";
-		$sRet .= "WordY = new Array( ".$textlib->substr( $sWordY, 1).");\n";
+		$sRet .= "WordX = new Array( ".$textlib->substr( $sWordX, 1, $textlib->strlen( $sWordX) - 1).");\n";
+		$sRet .= "WordY = new Array( ".$textlib->substr( $sWordY, 1, $textlib->strlen( $sWordY) - 1).");\n";
 		$sRet .= "LastHorizontalWord = $LastHorizontalWord;\n";
 
 		return $sRet;

@@ -1,33 +1,22 @@
-<?php // $Id: game.php,v 1.3 2010/10/05 21:02:52 bdaloukas Exp $
+<?php // $Id: game.php,v 1.8 2011/10/25 04:42:41 bdaloukas Exp $
       // translated to Euskara (eu) by Juan Ezeiza
-
-$string[ 'game:attempt'] = 'Jolastu';
-$string[ 'game:deleteattempts'] = 'Saiakerak ezabatu';
-$string[ 'game:manage'] = 'Kudeatu';
-$string[ 'game:manageoverrides'] = 'Saiakera berriak kudeatu';
-$string[ 'game:reviewmyattempts'] = 'nire saiakerak berriro ikusi';
-$string[ 'game:view'] = 'ikusi';
-$string[ 'game:viewreports'] = 'txostenak ikusi';
-$string[ 'gameadministration'] = 'Jolasen kudeaketa';
-$string[ 'lettersall'] = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-$string[ 'pluginadministration'] = 'Jolas jardueraren kudeaketa';
 
 //bookquiz/importodt.php
 $string[ 'bookquiz_import_odt'] = 'OpenOffice (odt) fitxategitik inportatu';
+$string[ 'bookquiz_not_select_book'] = 'Ez duzu libururik aukeratu';
 $string[ 'bookquiz_subchapter'] = 'Azpikapituluak sortu';
 
 //bookquiz/play.php
 $string[ 'bookquiz_empty'] = 'Liburua hutsik dago';
+$string[ 'sudoku_submit'] = 'Erantzunak aztertu';
 
 //bookquiz/questions.php
 $string[ 'bookquiz_categories'] = 'Kategoriak';
 $string[ 'bookquiz_chapters'] = 'Kapituluak';
-$string[ 'bookquiz_not_select_book'] = 'Ez duzu libururik aukeratu';
-$string[ 'bookquiz_numquestions'] = 'Galderak';
 $string[ 'bookquiz_questions'] = 'Galdera-kategoriak liburuaren azpikapituluekin lotu';
 
 //cross/cross_class.php
-$string[ 'millionaire_letters_answers'] = 'ABCD';
+$string[ 'lettersall'] = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 //cross/crossdb_class.php
 $string[ 'and'] = 'eta';
@@ -37,6 +26,7 @@ $string[ 'cross_error'] = 'errorea';
 $string[ 'cross_errors'] = 'erroreak';
 $string[ 'cross_found_many'] = 'Aurkitu dira';
 $string[ 'cross_found_one'] = 'Aurkitu da';
+$string[ 'grade'] = 'Emaitza';
 
 //cross/play.php
 $string[ 'cross_across'] = 'Horizontala';
@@ -46,63 +36,72 @@ $string[ 'cross_endofgamebutton'] = 'Gurutzegrama bukatu da';
 $string[ 'cross_error_containsbadchars'] = 'Hitzak onartzen ez diren karaktereak dauzka';
 $string[ 'cross_error_wordlength1'] = 'Hitz zuzenak ';
 $string[ 'cross_error_wordlength2'] = ' letra ditu.';
-$string[ 'cross_new'] = 'Jolas berria';
-$string[ 'cross_nowords'] = 'Ez da hitzik aurkitu';
 $string[ 'cross_pleasewait'] = 'Gurutzegrama kargatu bitartean itxaron, mesedez';
 $string[ 'cross_welcome'] = '<h3>Ongi etorri!</h3><p>Hasteko hitz batean klik egin.</p>';
-$string[ 'cross_win'] = 'Zorionak!!!';
+$string[ 'finish'] = 'Jolasa bukatu da';
 $string[ 'letter'] = 'letra';
 $string[ 'letters'] = 'letrak';
-$string[ 'print'] = 'Imprimatu';
-
-//cryptex/play.php
-$string[ 'cryptex_nowords'] = 'Ez da hitzik aurkitu';
-$string[ 'cryptex_win'] = 'Zorionak!!!!';
-$string[ 'finish'] = 'Jolasa bukatu da';
-$string[ 'grade'] = 'Emaitza';
 $string[ 'nextgame'] = 'Hurrengo jolasa';
+$string[ 'no_words'] = 'Ez da hitzik aurkitu';
+$string[ 'print'] = 'Imprimatu';
+$string[ 'win'] = 'Zorionak!!!';
+
+//db/access.php
+$string[ 'game:attempt'] = 'Jolastu';
+$string[ 'game:deleteattempts'] = 'Saiakerak ezabatu';
+$string[ 'game:grade'] = 'Jolasak eskuz baloratu';
+$string[ 'game:manage'] = 'Kudeatu';
+$string[ 'game:preview'] = 'Jolasak aurreikusi';
+$string[ 'game:reviewmyattempts'] = 'nire saiakerak berriro ikusi';
+$string[ 'game:view'] = 'ikusi';
+$string[ 'game:viewreports'] = 'txostenak ikusi';
 
 //hangman/play.php
-$string[ 'hangman_grade'] = 'Maila';
+$string[ 'hangman_correct_phrase'] = 'Hauxe da esaldi zuzena: ';
+$string[ 'hangman_correct_word'] = 'Hauxe da hitz zuzena: ';
 $string[ 'hangman_gradeinstance'] = 'Maila jolas osoan';
 $string[ 'hangman_letters'] = 'Letrak: ';
-$string[ 'hangman_loose'] = '<BIG><B>Jolasa bukatu da</B></BIG>';
-$string[ 'hangman_nowords'] = 'Ez da hitzik aurkitu';
-$string[ 'hangman_win'] = 'Zorionak';
+$string[ 'hangman_restletters_many'] = '<b>{$a}</b> saiakera dituzu';
+$string[ 'hangman_restletters_one'] = '<b>Saiakera bakarra</b> daukazu';
 $string[ 'hangman_wrongnum'] = 'Desegokiak: %%d %%d(e)tik';
 $string[ 'nextword'] = 'Hurrengo hitza';
 
 //hiddenpicture/play.php
-$string[ 'hiddenpicture_grade'] = 'Puntuazioa';
 $string[ 'hiddenpicture_mainsubmit'] = 'Galdera nagusiaren erantzuna ebaluatu';
 $string[ 'hiddenpicture_nocols'] = 'Lerro horizontalen kopurua zehaztu behar duzu';
 $string[ 'hiddenpicture_nomainquestion'] = '{$a->name} glosategian ez dago irudia duen hitzik';
 $string[ 'hiddenpicture_norows'] = 'Zutabeen kopurua zehaztu behar duzu';
-$string[ 'hiddenpicture_win'] = 'Zorionak!';
 $string[ 'must_select_glossary'] = 'Glosategia aukeratu behar duzu';
+$string[ 'no_questions'] = "Ez dago galderarik";
+$string[ 'noglossaryentriesfound'] = 'Ez da glosategi-sarrerarik aurkitu';
 
 //millionaire/play.php
-$string[ 'millionaire_helppeople'] = 'Publikoaren laguntza';
-$string[ 'millionaire_info_people'] = 'Jendeak zera dio: ';
-$string[ 'millionaire_info_telephone'] = 'Nire ustez, erantzun zuzena hau da: ';
-$string[ 'millionaire_info_wrong_answer'] = 'Erantzun zuzena ezkerraldean markatuta dago.<br>Zure erantzun hau desegokia da:';
 $string[ 'millionaire_must_select_questioncategory'] = 'Galdera-kategoria aukeratu behar duzu';
 $string[ 'millionaire_must_select_quiz'] = 'Galdetegi bat aukeratu beharko';
-$string[ 'millionaire_nowords'] = 'Ez da hitzik aurkitu';
-$string[ 'millionaire_sourcemodule_must_quiz_question'] = 'Aberatsa jolaserako iturria {$a} edo galderak izango dira eta ez';
-$string[ 'millionaire_win'] = 'Zorionak!!!!';
-$string[ 'must_select_questioncategory'] = 'Galdera-kategoria bat aukeratu behar duzu';
-$string[ 'millionaire_quit'] = 'Irten';
-$string[ 'must_select_quiz'] = 'Galdetegi bat aukeratu behar duzu';
-$string[ 'millionaire_telephone'] = 'Telefono-deia';
 
-//report/default.php
-$string[ 'modulename'] = 'Jolasa';
-$string[ 'modulenameplural'] = 'Jolasak';
+//report/overview/report.php
+$string[ 'allattempts'] = 'saiakera guztiak erakutsi';
+$string[ 'allstudents'] = '$a guztiak erakutsi';
+$string[ 'attemptsonly'] = 'Saiatu diren ikasleak soilik erakutsi';
+$string[ 'deleteattemptcheck'] = 'Saiakera hauek guztiak ezabatu nahi dituzula ziur al zaude?';
+$string[ 'displayoptions'] = 'Aukerak erakutsi';
+$string[ 'downloadods'] = 'ODS formatuan behera kargatu';
+$string[ 'feedback'] = 'Feedback';
+$string[ 'noattemptsonly'] = '$a saiakerarik gabekoak soilik erakutsi';
+$string[ 'numattempts'] = '$a->studentnum $a->studentstring $a->attemptnum saiakeren egilea da';
+$string[ 'pagesize'] = 'Galderak orriko:';
+$string[ 'reportoverview'] = 'zerrenda';
+$string[ 'selectall'] = 'Denak aukeratu';
+$string[ 'selectnone'] = 'Ezein ez aukeratu';
+$string[ 'showdetailedmarks'] = 'Marka-zehaztapenak erakutsi';
+$string[ 'startedon'] = 'Noiz hasia';
+$string[ 'timecompleted'] = 'Osaturik';
+$string[ 'unfinished'] = 'irekia';
+$string[ 'withselected'] = 'Aukeratutakoekin';
 
 //snakes/play.php
-$string[ 'snakes_new'] = 'Jolas berria';
-$string[ 'snakes_win'] = 'Zorionak';
+$string[ 'snakes_dice'] = 'Dadoak, $a puntuak.';
+$string[ 'snakes_player'] = 'Jokalaria, kokapena: $a.';
 
 //sudoku/create.php
 $string[ 'sudoku_create_count'] = 'Sortuko den sudoku-kopurua';
@@ -110,24 +109,9 @@ $string[ 'sudoku_create_start'] = 'Sudokuak sortzen hasi';
 $string[ 'sudoku_creating'] = '<b>{$a}</b> sudokua sortzen';
 
 //sudoku/play.php
-$string[ 'noglossaryentriesfound'] = 'Ez da glosategi-sarrerarik aurkitu';
 $string[ 'sudoku_finishattemptbutton'] = 'Sudokua bukatu da';
 $string[ 'sudoku_guessnumber'] = 'Zenbaki zuzena asmatu';
 $string[ 'sudoku_noentriesfound'] = 'Glosategian ez da hitzik aurkitu';
-$string[ 'sudoku_submit'] = 'Erantzunak aztertu';
-$string[ 'sudoku_win'] = 'Zorionak!!!';
-
-//accessrules.php
-$string[ 'confirmstartattemptlimit'] = 'Jolas honek soilik {$a} saiakera onartzen ditu. aiakera berria hastear zaude. Jarraitu nahi al duzu?';
-$string[ 'confirmstartattempttimelimit'] = 'Jolas honek denbora mugatua dauka eta {$a} saiakera baino ez du onartzen. Saiakera berria hastear zaude. Jarraitu nahi al duzu?';
-$string[ 'confirmstarttimelimit'] = 'Jolasak denbora mugatua dauka. Hasi nahi duzula ziur al zaude? ';
-$string[ 'review'] = 'Berriro aztertu';
-
-//attempt.php
-$string[ 'useupdategame'] = ' \"Jolas hau eguneratu\" botoia jolasaren zehaztapenak ikusteko erabili';
-
-//attemptlib.php
-$string[ 'startagain'] = 'Berriz hasi';
 
 //export.php
 $string[ 'export'] = 'Esportatu';
@@ -146,15 +130,31 @@ $string[ 'javame_vendor'] = 'Vendor:';
 $string[ 'javame_version'] = 'Bertsioa:';
 
 //exporthtml_hangman.php
+$string[ 'hangman_loose'] = '<BIG><B>Jolasa bukatu da</B></BIG>';
+$string[ 'html_hangman_new'] = 'Berria';
 
-//hangman/play.php
-$string[ 'hangman_correct_phrase'] = 'Hauxe da esaldi zuzena: ';
-$string[ 'hangman_correct_word'] = 'Hauxe da hitz zuzena: ';
-$string[ 'hangman_restletters_many'] = '<b>{$a}</b> saiakera dituzu';
-$string[ 'hangman_restletters_one'] = '<b>Saiakera bakarra</b> daukazu';
+//exporthtml_millionaire.php
+$string[ 'millionaire_helppeople'] = 'Publikoaren laguntza';
+$string[ 'millionaire_info_people'] = 'Jendeak zera dio: ';
+$string[ 'millionaire_info_telephone'] = 'Nire ustez, erantzun zuzena hau da: ';
+$string[ 'millionaire_info_wrong_answer'] = 'Erantzun zuzena ezkerraldean markatuta dago.<br>Zure erantzun hau desegokia da:';
+$string[ 'millionaire_quit'] = 'Irten';
+$string[ 'millionaire_sourcemodule_must_quiz_question'] = 'Aberatsa jolaserako iturria {$a} edo galderak izango dira eta ez';
+$string[ 'millionaire_telephone'] = 'Telefono-deia';
+$string[ 'must_select_questioncategory'] = 'Galdera-kategoria bat aukeratu behar duzu';
+$string[ 'must_select_quiz'] = 'Galdetegi bat aukeratu behar duzu';
+
+//exporthtml_snakes.php
+$string[ 'html_snakes_check'] = 'Konprobatu';
+$string[ 'html_snakes_correct'] = 'Ongi!';
+$string[ 'html_snakes_no_selection'] = 'Zerbait aukeratu behar duzu!';
+$string[ 'html_snakes_wrong'] = "Zure erantzuna ez da zuzena. Leku berean geratu behar duzu.";
+$string[ 'score'] = 'Puntuazioak';
 
 //index.php
-$string[ 'game'] = 'Jolasa';
+$string[ 'modulename'] = 'Jolasa';
+$string[ 'modulenameplural'] = 'Jolasak';
+$string[ 'pluginname'] = 'Jolasa';
 
 //lib.php
 $string[ 'attempt'] = 'saiakera';
@@ -172,12 +172,16 @@ $string[ 'info'] = 'Info';
 $string[ 'noattempts'] = 'Galdetegi honetan ez da saiakerarik egin';
 $string[ 'percent'] = 'Portzentaia';
 $string[ 'results'] = 'Emaitza';
+$string[ 'showanswers'] = 'Erantzunak erakutsi';
+$string[ 'showattempts'] = 'Saiakerak erakutsi';
 
 //locallib.php
-
-//mod_form.php
 $string[ 'attemptfirst'] = 'Lehen saiakera';
 $string[ 'attemptlast'] = 'Azken saiakera';
+$string[ 'gradeaverage'] = 'Batezbesteko emaitza';
+$string[ 'gradehighest'] = 'Emaitza altuena';
+
+//mod_form.php
 $string[ 'bottomtext'] = 'Bukaerako testua';
 $string[ 'cross_layout'] = 'Kokapena';
 $string[ 'cross_layout0'] = 'Definizioak behealdean';
@@ -189,8 +193,6 @@ $string[ 'cryptex_maxcols'] = 'Zutabe/lerroen gehienezko kopurua Hitz Zopan';
 $string[ 'cryptex_maxtries'] = 'Saiakeren gehinezko kopurua';
 $string[ 'cryptex_maxwords'] = 'Gehienezko hitz-kopurua Hitz Zopan';
 $string[ 'cryptex_options'] = 'Hitz Zoparen aukerak';
-$string[ 'gradeaverage'] = 'Batezbesteko emaitza';
-$string[ 'gradehighest'] = 'Emaitza altuena';
 $string[ 'grademethod'] = 'Kalifikazio-metodoa';
 $string[ 'hangman_allowspaces'] = 'Hitzen arteko hutsuneak onartu';
 $string[ 'hangman_allowsub'] = 'Baimendu sinboloak - hitzetan';
@@ -212,8 +214,9 @@ $string[ 'millionaire_background'] = 'Hondoko kolorea';
 $string[ 'millionaire_options'] = 'Aberatsaren aukerak';
 $string[ 'millionaire_shuffle'] = 'Galderak nahastu';
 $string[ 'snakes_background'] = 'Hondoa';
-$string[ 'snakes_board'] = 'Taula';
 $string[ 'snakes_cols'] = 'Zutabeak';
+$string[ 'snakes_data'] = 'Taula';
+$string[ 'snakes_file'] = 'Hondorako fitxategia';
 $string[ 'snakes_footerx'] = 'Beheko ezker aldeko espazioa';
 $string[ 'snakes_footery'] = 'Beheko eskuin aldeko espazioa';
 $string[ 'snakes_headerx'] = 'Goiko ezker aldeko espazioa';
@@ -240,35 +243,43 @@ $string[ 'preview'] = 'Aurreikusi';
 //review.php
 $string[ 'attempts'] = 'Saiakerak';
 $string[ 'completedon'] = 'Osatua';
-$string[ 'feedback'] = 'Feedback';
 $string[ 'outof'] = '{$a->grade} emaitza {$a->maxgrade} gehienezko puntuaziotik';
+$string[ 'review'] = 'Berriro aztertu';
 $string[ 'reviewofattempt'] = '{$a} saiakerak berrikusi';
-$string[ 'score'] = 'Puntuazioak';
-$string[ 'startedon'] = 'Noiz hasia';
+$string[ 'showall'] = 'Dena erakutsi';
+$string[ 'startagain'] = 'Berriz hasi';
 $string[ 'timetaken'] = 'Erabilitako denbora';
-$string[ 'unfinished'] = 'irekia';
 
 //showanswers.php
 $string[ 'clearrepetitions'] = 'Estatistikak garbitu';
 $string[ 'computerepetitions'] = 'Estatistikak berriro kalkulatu';
 $string[ 'feedbacks'] = 'Erantzun zuzeneko mezuak';
 $string[ 'repetitions'] = 'Errepikapenak';
-$string[ 'showanswers'] = 'Erantzunak erakutsi';
 
 //showattempts.php
 $string[ 'lastip'] = 'Ikaslearen IPa';
-$string[ 'showattempts'] = 'Saiakerak erakutsi';
 $string[ 'showsolution'] = 'soluzioa';
 $string[ 'timefinish'] = 'Jolasa bukatu da';
 $string[ 'timelastattempt'] = 'Azken saiakera';
 $string[ 'timestart'] = 'Hasiera';
 
 //tabs.php
-$string[ 'overview'] = 'Zerrenda';
 
 //view.php
 $string[ 'attemptgamenow'] = 'Orain jolasten saiatu';
 $string[ 'continueattemptgame'] = 'Aurreko jolas-saiakerarekin jarraitu';
 $string[ 'reattemptgame'] = 'Saiakera berriko jolasa';
-$string[ 'timecompleted'] = 'Osaturik';
 $string[ 'yourfinalgradeis'] = 'Jolas honetarako zure azken nota hauxe da: {$a}.';
+
+//Untranslated
+//db/access.php $string[ 'game:manageoverrides'] = 'Manage game overrides';
+//index.php $string[ 'pluginadministration'] = 'Game administration';
+//lib.php $string[ 'reset_game_all'] = 'Delete tries from all games';
+//lib.php $string[ 'reset_game_deleted_course'] = 'Delete tries from deleted courses';
+//mod_form.php $string[ 'gameclose'] = 'Close the game';
+//mod_form.php $string[ 'gameopen'] = 'Open the game';
+//mod_form.php $string[ 'hangman_maximum_number_of_errors'] = 'Maximum number or errors (have to be images named hangman_0.jpg, hangman_1.jpg, ...)';
+//view.php $string[ 'gameclosed'] = 'This game closed on {$a}';
+//view.php $string[ 'gamecloseson'] = 'This game will close at {$a}';
+//view.php $string[ 'gamenotavailable'] = 'The game will not be available until {$a}';
+//view.php $string[ 'gameopenedon'] = 'This game opened at {$a}';

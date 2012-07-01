@@ -1,8 +1,8 @@
-<?php  // $Id: play.php,v 1.18 2010/07/26 13:38:44 bdaloukas Exp $
+<?php  // $Id: play.php,v 1.26 2012/02/27 17:34:33 bdaloukas Exp $
 
 // This file plays the game hangman
 
-function game_hangman_continue( $id, $game, $attempt, $hangman, $newletter, $action)
+function game_hangman_continue( $id, $game, $attempt, $hangman, $newletter, $action, $context)
 {
 	global $DB, $USER;
 
@@ -14,7 +14,7 @@ function game_hangman_continue( $id, $game, $attempt, $hangman, $newletter, $act
 			}
 		}else
 		{
-			return game_hangman_play( $id, $game, $attempt, $hangman);
+			return game_hangman_play( $id, $game, $attempt, $hangman, false, false, $context);
 		}
 	}
 	
@@ -37,6 +37,11 @@ function game_hangman_continue( $id, $game, $attempt, $hangman, $newletter, $act
 		}
 
         $answer = game_upper( $rec->answertext, $game->language);
+        if( $game->language == '')
+        {
+            $game->language = game_detectlanguage( $answer);
+            $answer = game_upper( $rec->answertext, $game->language);
+        }
         
         $answer2 = $answer;
         if( $game->param7){
@@ -48,16 +53,12 @@ function game_hangman_continue( $id, $game, $attempt, $hangman, $newletter, $act
             $answer2 = str_replace( '-', '', $answer2);
         }
 
-        if( $game->language == ''){
-            $game->language = game_detectlanguage( $answer2);
-        }
-
         $allletters = game_getallletters( $answer2, $game->language);
 		
         if( $allletters == ''){
             continue;
         }
-        
+
         if( $game->param7){
             $allletters .= '_';
         }        
@@ -95,7 +96,7 @@ function game_hangman_continue( $id, $game, $attempt, $hangman, $newletter, $act
             $min->answerid = $rec->answerid;
             $min->answer = $answer;
             $min->language = $game->language;
-            
+            $min->allletters = $allletters;
             if( $min_num == 0)
                 break;  //We found an unused word
         }else
@@ -107,9 +108,9 @@ function game_hangman_continue( $id, $game, $attempt, $hangman, $newletter, $act
                 break;
         }
 	}
-		
+	
 	if( $found == false){
-	    print_error( get_string( 'hangman_nowords', 'game'));
+	    print_error( get_string( 'no_words', 'game'));
 	}
 	
 	//Found one word for hangman
@@ -148,7 +149,7 @@ function game_hangman_continue( $id, $game, $attempt, $hangman, $newletter, $act
 		$newrec->corrects = 0;
 	}
 		
-	$newrec->allletters = $allletters;
+	$newrec->allletters = $min->allletters;
 		
 	$letters = '';
 	if( $game->param1){
@@ -173,7 +174,7 @@ function game_hangman_continue( $id, $game, $attempt, $hangman, $newletter, $act
 		
 	game_update_repetitions( $game->id, $USER->id, $query->questionid, $query->glossaryentryid);
 		
-    game_hangman_play( $id, $game, $attempt, $newrec);
+    game_hangman_play( $id, $game, $attempt, $newrec, false, false, $context);
 }
 
 function game_hangman_onfinishgame( $game, $attempt, $hangman)
@@ -189,7 +190,7 @@ function game_hangman_onfinishgame( $game, $attempt, $hangman)
 	}
 }
 
-function game_hangman_play( $id, $game, $attempt, $hangman, $onlyshow=false, $showsolution=false)
+function game_hangman_play( $id, $game, $attempt, $hangman, $onlyshow, $showsolution, $context)
 {
 	global $CFG, $DB;
 	
@@ -205,13 +206,15 @@ function game_hangman_play( $id, $game, $attempt, $hangman, $onlyshow=false, $sh
 		echo $game->toptext.'<br>';
 	}
 
-    $max=6;		// maximum number of wrong
-    hangman_showpage( $done, $correct, $wrong, $max, $word_line, $word_line2, $links,  $game, $attempt, $hangman, $query, $onlyshow, $showsolution);
+    $max=$game->param10;		// maximum number of wrong
+    if( $max <= 0)
+        $max = 6;
+    hangman_showpage( $done, $correct, $wrong, $max, $word_line, $word_line2, $links,  $game, $attempt, $hangman, $query, $onlyshow, $showsolution, $context);
 	
     if (!$done)
     {
-        if ($wrong>6){
-            $wrong=6;
+        if ($wrong > $max){
+            $wrong = $max;
         }
 		if( $game->param3 == 0){
 			$game->param3 = 1;
@@ -254,7 +257,7 @@ function game_hangman_play( $id, $game, $attempt, $hangman, $onlyshow=false, $sh
 		hangman_oncorrect( $id, $word_line, $game, $attempt, $hangman, $query);
 	}
 	
-	echo "<br/><br/>".get_string( 'hangman_grade', 'game').' : '.round( $query->percent * 100).' %';
+	echo "<br/><br/>".get_string( 'grade', 'game').' : '.round( $query->percent * 100).' %';
 	if( $hangman->maxtries > 1){
 		echo '<br/><br/>'.get_string( 'hangman_gradeinstance', 'game').' : '.round( $hangman->corrects / $hangman->maxtries * 100).' %';
 	}
@@ -264,7 +267,7 @@ function game_hangman_play( $id, $game, $attempt, $hangman, $onlyshow=false, $sh
 	}
 }
 
-function hangman_showpage(&$done, &$correct, &$wrong, $max, &$word_line, &$word_line2, &$links, $game, &$attempt, &$hangman, &$query, $onlyshow, $showsolution)
+function hangman_showpage(&$done, &$correct, &$wrong, $max, &$word_line, &$word_line2, &$links, $game, &$attempt, &$hangman, &$query, $onlyshow, $showsolution, $context)
 {
 	global	$USER, $CFG, $DB;
 
@@ -292,6 +295,16 @@ function hangman_showpage(&$done, &$correct, &$wrong, $max, &$word_line, &$word_
     $alpha = $hangman->allletters;
     $wrong = 0;
 		
+	if( $query->questionid)
+	{
+        $query->questiontext = game_filterquestion(str_replace( '\"', '"', $query->questiontext), $query->questionid, $context->id, $game->course);
+    }else
+    {
+        $cmglossary = get_coursemodule_from_instance('glossary', $game->glossaryid, $game->course);
+        $contextglossary = get_context_instance(CONTEXT_MODULE, $cmglossary->id);        
+        $query->questiontext = game_filterglossary(str_replace( '\"', '"', $query->questiontext), $query->glossaryentryid, $contextglossary->id, $game->course);
+    }
+		
     if( $game->param5){
         $s = trim( game_filtertext( $query->questiontext, $game->course));
         if( $s != '.' and $s <> ''){
@@ -310,6 +323,7 @@ function hangman_showpage(&$done, &$correct, &$wrong, $max, &$word_line, &$word_
 	
 	$done = 1;
 	$answer = '';
+    $correct = 0;
     for ($x=0; $x < $len; $x++)
     {
 		$char = $textlib->substr( $word, $x, 1);
@@ -327,10 +341,9 @@ function hangman_showpage(&$done, &$correct, &$wrong, $max, &$word_line, &$word_
 		{
 			$word_line .= ( $char == " " ? '&nbsp; ' : $char);
 			$answer .= $char;
+			$correct++;
 		}
     }
-
-    $correct = 0;
 
     $len_alpha = $textlib->strlen($alpha);
 	$fontsize = 5;
@@ -359,11 +372,10 @@ function hangman_showpage(&$done, &$correct, &$wrong, $max, &$word_line, &$word_
 		}else
 		{
 			$links .= "\r\n<B><font size=\"$fontsize\">$char </font></B> ";
-			$correct++;
 		}
 	}
 
-	$finishedword = ($done or $wrong >= 6);
+	$finishedword = ($done or $wrong >= $max);
 	$finished = false;
 
 	$updrec->id = $hangman->id;
@@ -386,7 +398,7 @@ function hangman_showpage(&$done, &$correct, &$wrong, $max, &$word_line, &$word_
 		
 	}
 
-	$query->percent = ($correct -$wrong/6) /  $textlib->strlen( $word);
+	$query->percent = ($correct -$wrong/$max) /  $textlib->strlen( $word);
 	if( $query->percent < 0){
 		$query->percent = 0;
 	}
@@ -401,7 +413,7 @@ function hangman_showpage(&$done, &$correct, &$wrong, $max, &$word_line, &$word_
 	
 	if( $done){
 		$score = 1;
-	}else if( $wrong >= 6){
+	}else if( $wrong >= $max){
 		$score = 0;
 	}else
 	{
@@ -419,7 +431,7 @@ function hangman_oncorrect( $id, $word_line, $game, $attempt, $hangman, $query)
 
 	echo "<BR/><BR/><font size=\"5\">\n$word_line</font>\r\n";
 	
-	echo '<p><BR/><font size="5" color="green">'.get_string( 'hangman_win', 'game').'</font><BR/><BR/></p>';
+	echo '<p><BR/><font size="5" color="green">'.get_string( 'win', 'game').'</font><BR/><BR/></p>';
 	if( $query->answerid){
 		$feedback = $DB->get_field( 'question_answers', 'feedback', array( 'id' => $query->answerid));
 		if( $feedback != ''){
@@ -440,8 +452,11 @@ function hangman_oninncorrect( $id, $word_line, $word, $game, $attempt, $hangman
 	
 	if( $game->param6){
 		//show the correct answer
-		$term=( $textlib->strpos($word, ' ') != false ? 'phrase' : 'word');
-		echo '<br/>'.get_string( 'hangman_correct_'.$term, 'game');
+		if( $textlib->strpos($word, ' ') != false)
+		    echo '<br/>'.get_string( 'hangman_correct_phrase', 'game');
+        else
+		    echo '<br/>'.get_string( 'hangman_correct_word', 'game');
+        		
 		echo '<B>'.$word."</B><BR/><BR/>\r\n";
 	}
 	

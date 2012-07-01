@@ -6,7 +6,7 @@ class CryptexDB extends CrossDB
 	{
 		global $USER;
 
-        CrossDB::delete_records( $id);
+        CrossDB::delete_cross( $id);
 
 		if( (CrossDB::save( $game, $crossm, $crossd, $id)) == false){
 			return false;

@@ -1,4 +1,4 @@
-<?php  // $Id: view.php,v 1.10 2010/07/28 06:59:36 bdaloukas Exp $
+<?php  // $Id: view.php,v 1.13 2012/02/19 04:41:52 bdaloukas Exp $
 
 // This page prints a particular instance of game
 
@@ -23,10 +23,29 @@
     $context = get_context_instance(CONTEXT_MODULE, $cm->id);
     require_capability('mod/game:view', $context);
 
+    $timenow = time();
+
 /// Cache some other capabilites we use several times.
     $canattempt = true;
-
-    $timenow = time();
+    $strtimeopenclose = '';
+    if ($timenow < $game->timeopen) {
+        $canattempt = false;
+        $strtimeopenclose = get_string('gamenotavailable', 'game', userdate($game->timeopen));
+    } else if ($game->timeclose && $timenow > $game->timeclose) {
+        $strtimeopenclose = get_string("gameclosed", "game", userdate($game->timeclose));
+        $canattempt = false;
+    } else {
+        if ($game->timeopen) {
+            $strtimeopenclose = get_string('gameopenedon', 'game', userdate($game->timeopen));
+        }
+        if ($game->timeclose) {
+            $strtimeopenclose = get_string('gamecloseson', 'game', userdate($game->timeclose));
+        }
+    }
+    if (has_capability('mod/game:manage', $context)) {
+        $canattempt = true;
+    }
+    
 
 /// Log this request.
     add_to_log($course->id, 'game', 'view', "view.php?id=$cm->id", $game->id, $cm->id);
@@ -251,6 +270,9 @@
     }
 
 /// Now actually print the appropriate button.
+
+    echo $strtimeopenclose;
+
     if ($buttontext) {
 
         global $OUTPUT;

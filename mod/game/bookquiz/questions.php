@@ -1,19 +1,18 @@
-<?php // $Id: questions.php,v 1.3 2010/07/26 00:13:31 bdaloukas Exp $
+<?php // $Id: questions.php,v 1.5 2011/07/27 10:48:17 bdaloukas Exp $
 /**
  * The script supports book
  *
- * @version $Id: questions.php,v 1.3 2010/07/26 00:13:31 bdaloukas Exp $
+ * @version $Id: questions.php,v 1.5 2011/07/27 10:48:17 bdaloukas Exp $
  * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
  * @package game
  **/
 
-    require_once("../../../config.php");
-	require_once( "../header.php");
-    require_once("../locallib.php");
+    require("../../../config.php");
+	require( "../header.php");
 
 	$attempt = game_getattempt( $game, $detail);
     if( $game->bookid == 0){
-        error( get_string( 'bookquiz_not_select_book', 'game'));
+        print_error( get_string( 'bookquiz_not_select_book', 'game'));
     }
 
     if ($form = data_submitted())
@@ -24,11 +23,9 @@
 		redirect( "$CFG->wwwroot/mod/game/bookquiz/questions.php?id=$cm->id", '', 0);
     }
 
-    /// Print upload form
+    $PAGE->navbar->add(get_string('bookquiz_questions', 'game'));
 
-    print_heading_with_help( get_string( 'bookquiz_questions', 'game'), 'questions', 'game');
-	
-    print_simple_box_start( 'center');
+    /// Print upload form
 	
 	$select = "gameid={$game->id}";
 	$categories = array();
@@ -38,39 +35,25 @@
 		}
 	}
 	
-	$recs = $DB->get_records( 'question_categories', null, '*', 0, 1);
     $context = get_context_instance(50, $COURSE->id);
     $select = " contextid in ($context->id)";
-
-	$a = array();
-        if( $recs = $DB->get_records_select( 'question_categories', $select, null, 'id,name')){
-            foreach( $recs as $rec){
-                $s = $rec->name;
-                if( ($count = $DB->count_records( 'question', array( 'category' => $rec->id))) != 0){
+      
+    $a = array();
+    if($recs = $DB->get_records_select('question_categories', $select, null, 'id,name')){
+        foreach($recs as $rec){
+            $s = $rec->name;
+                if(($count = $DB->count_records('question', array( 'category' => $rec->id))) != 0){
                     $s .= " ($count)";
                 }
-                $a[ $rec->id] = $s;
-            }
+            $a[$rec->id] = $s;
         }
+    }	
 	
-	$sql = "SELECT chapterid, COUNT(*) as c ".
-				"FROM {game_bookquiz_questions} gbq,{question} q ".
-				"WHERE gbq.questioncategoryid=q.category ".
-				"AND gameid=$game->id ".
-				"GROUP BY chapterid";
-	$numbers = array();
-	if( ($recs = $DB->get_records_sql( $sql)) != false){
-		foreach( $recs as $rec){
-			$numbers[ $rec->chapterid] = $rec->c;
-		}
-	}
-	
-	echo '<form name="form" method="post" action="questions.php">';
+	echo '<center><form name="form" method="post" action="questions.php">';
 	echo '<table border=1>';
 	echo '<tr>';
 	echo '<td><center>'.get_string( 'bookquiz_chapters', 'game').'</td>';
 	echo '<td><center>'.get_string( 'bookquiz_categories', 'game').'</td>';
-	echo '<td><center>'.get_string( 'bookquiz_numquestions', 'game').'</td>';
 	echo "</tr>\r\n";
 	$ids = '';
 	if( ($recs =$DB->get_records( 'book_chapters', array('bookid' => $game->bookid), 'pagenum', 'id,title')) != false)
@@ -86,15 +69,6 @@
 			echo game_showselectcontrol( 'categoryid_'.$rec->id, $a, $categoryid, ''); 
 			echo '</td>';
 			
-			echo '<td>';
-			if( array_key_exists( $rec->id, $numbers)){
-				echo '<center>'.$numbers[ $rec->id].'</center>';
-			}else
-			{
-				echo '&nbsp;';
-			}
-			echo '</td>';
-			
 			echo "</tr>\r\n";
 			
 			$ids .= ','.$rec->id;
@@ -104,8 +78,8 @@
 </table>
 <br>
 <!-- These hidden variables are always the same -->
-<input type="hidden" name=id       value="<?php  p($id) ?>" />
-<input type="hidden" name=ids       value="<?php  p( substr( $ids, 1)) ?>" />
+<input type="hidden" name=q   value="<?php  echo $game->id; ?>" />
+<input type="hidden" name=ids value="<?php  p( substr( $ids, 1)) ?>" />
 <center>
 <input type="submit" value="<?php  print_string("savechanges") ?>" />
 </center>
@@ -113,7 +87,7 @@
 </form>
 <?php
 
-	print_footer($course);
+	echo $OUTPUT->footer();
 
 function game_bookquiz_save( $gameid, $bookid, $ids, $form)
 {
@@ -158,7 +132,7 @@ function game_bookquiz_save( $gameid, $bookid, $ids, $form)
 		
 		if( $categoryid == 0){
 			if( !delete_records( 'game_bookquiz_questions', 'id', $recids[ $chapterid])){
-				error( "Can't delete game_bookquiz_questions");
+				print_error( "Can't delete game_bookquiz_questions");
 			}
 		}else
 		{

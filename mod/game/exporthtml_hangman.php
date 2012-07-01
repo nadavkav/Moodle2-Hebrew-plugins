@@ -1,9 +1,9 @@
-<?php  // $Id: exporthtml_hangman.php,v 1.6 2010/07/26 00:07:13 bdaloukas Exp $
+<?php  // $Id: exporthtml_hangman.php,v 1.9 2011/08/03 20:04:32 bdaloukas Exp $
 /**
  * This page export the game hangman to html
  * 
  * @author  bdaloukas
- * @version $Id: exporthtml_hangman.php,v 1.6 2010/07/26 00:07:13 bdaloukas Exp $
+ * @version $Id: exporthtml_hangman.php,v 1.9 2011/08/03 20:04:32 bdaloukas Exp $
  * @package game
  **/
 
@@ -15,13 +15,13 @@
 
 var can_play = true;
 <?php
-        $destdir = game_export_createtempdir();
+        //$destdir = game_export_createtempdir();
 
-        $export_attachment = ( $html->type == 'hangmanp');
-        $map = game_exmportjavame_getanswers( $game, $export_attachment);
-        if( $map == false){
-            error( 'No Questions');
-        }
+        //$export_attachment = ( $html->type == 'hangmanp');
+        //$map = game_exmportjavame_getanswers( $game, $export_attachment, $dest, $files);
+        //if( $map == false){
+        //    error( 'No Questions');
+        //}
         
         $questions = '';
         $words = '';
@@ -31,15 +31,25 @@ var can_play = true;
         foreach( $map as $line)
         {
             $answer = game_upper( $line->answer);
+            if( $game->param7){
+                //Have to delete space
+                $answer = str_replace(' ', '', $answer);
+            }
+            if( $game->param8){
+                //Have to delete -
+                $answer = str_replace('-', '', $answer);
+            }                    
+            
             if( $lang == ''){
                 $lang = $game->language;
+                
                 if( $lang == '')
                     $lang = game_detectlanguage( $answer);
                 if( $lang == '')
                     $lang = current_language();
                 $allletters = game_getallletters( $answer, $lang);
             }  
-        
+
             if( game_getallletters( $answer, $lang) != $allletters)
                 continue;
             
@@ -61,8 +71,8 @@ var can_play = true;
                 $questions .= ', ';
             if( $words != '')
                 $words .= ', ';
-            $questions .= '"'.$line->question.'"';
-            $words .= '"'.base64_encode( $answer).'"';            
+            $questions .= '"'.base64_encode( $line->question).'"';
+            $words .= '"'.base64_encode( $line->answer).'"';            
             
             if( $html->type == 'hangmanp'){
                 $file = $line->id.substr( $file, $pos);
@@ -73,6 +83,14 @@ var can_play = true;
                 $images .= '"'.$file.'"';
             }
         }
+
+        if($game->param7){
+            $allletters .= '_';
+        }        
+        if($game->param8){
+            $allletters .= '-';
+        }
+        
         echo "var questions = new Array($questions);\r";
         echo "var words = new Array($words);\r";
         if( $html->type == 'hangmanp')
@@ -118,7 +136,8 @@ function selectLetter(l)
     {
         // correct letter guess
         pos = 0;
-        temp_mask = display_word;
+        temp_mask = display_word;
+
         while (to_guess.indexOf(l, pos) != -1)
         {
             pos = to_guess.indexOf(l, pos);			
@@ -137,7 +156,7 @@ function selectLetter(l)
         if (display_word.indexOf("#") == -1)
         {
             // won
-            alert( "<?php echo game_get_string_lang( 'hangman_win', 'game', $lang); ?>");
+            alert( "<?php echo game_get_string_lang( 'win', 'game', $lang); ?>");
             can_play = false;
             reset();
         }
@@ -152,7 +171,7 @@ function selectLetter(l)
 <?php        
     }
 ?>
-        if (wrong_guesses == 7)
+        if (wrong_guesses == <?php echo $game->param10 + 1;?>)
         {
             // lost
             alert( "<?php echo strip_tags( game_get_string_lang( 'hangman_loose', 'game', $lang)); ?>");
@@ -174,7 +193,8 @@ function reset()
 {
     selectWord();
 
-    document.getElementById('usedLetters').innerHTML = "&nbsp;";    used_letters = "";
+    document.getElementById('usedLetters').innerHTML = "&nbsp;";
+    used_letters = "";
     used_letters_all = "";
     wrong_guesses = 0;
     showallletters();
@@ -215,7 +235,9 @@ function selectWord()
 {
     can_play = true;
     random_number = Math.round(Math.random() * (words.length - 1));
-    to_guess =  Base64.decode( words[random_number]);    to_question = questions[random_number];	
+    to_guess =  Base64.decode( words[random_number]);
+    to_question = Base64.decode( questions[random_number]);
+	
     // display masked word
     masked_word = createMask(to_guess);
     document.getElementById('displayWord').innerHTML=masked_word;

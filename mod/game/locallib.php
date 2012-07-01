@@ -1,4 +1,4 @@
-<?php  // $Id: locallib.php,v 1.33 2010/08/03 20:48:51 bdaloukas Exp $
+<?php  // $Id: locallib.php,v 1.56 2012/02/22 18:39:47 bdaloukas Exp $
 
 if (!defined('MOODLE_INTERNAL')) {
     die('Direct access to this script is forbidden.'); /// It must be included from a Moodle page.
@@ -35,7 +35,7 @@ function game_upper( $str, $lang='')
 	$textlib = textlib_get_instance();
     $str = $textlib->strtoupper( $str);
 
-    $strings = get_string_manager()->load_component_strings( 'game', $lang);
+    $strings = get_string_manager()->load_component_strings( 'game', ($lang == '' ? 'en' : $lang));
     if( !isset( $strings[ 'convertfrom']))
         return $str;
     if( !isset( $strings[ 'convertto']))
@@ -47,7 +47,6 @@ function game_upper( $str, $lang='')
     for($i=0; $i < $len; $i++){
         $str = str_replace( $textlib->substr( $from, $i, 1), $textlib->substr( $to, $i, 1), $str);
     }
-	
     return $str;
 }
 
@@ -179,8 +178,9 @@ function game_question_shortanswer_question( $game, $allowspaces, $use_repetitio
     $select = 'category='.$game->questioncategoryid;        
     if( $game->subcategories){
         $cats = question_categorylist( $game->questioncategoryid);
-        if( strpos( $cats, ',') > 0){
-            $select = 'category in ('.$cats.')';
+        if( count( $cats) > 0){
+            $s = implode( ',', $cats);
+            $select = 'category in ('.$s.')';
         }
     }
 	$select .= " AND qtype='shortanswer'";
@@ -212,8 +212,12 @@ function game_question_shortanswer_question( $game, $allowspaces, $use_repetitio
 function game_question_selectrandom( $game, $table, $select, $id_fields='id', $use_repetitions=true)
 {
     global $DB, $USER; 
-
+    
     $count = $DB->get_field_sql( "SELECT COUNT(*) FROM $table WHERE $select");
+    
+    if( $count == 0)
+        return false;
+    
     $min_num = 0;
     $min_id = 0;
     for($i=1; $i <= CONST_GAME_TRIES_REPETITION; $i++){
@@ -349,9 +353,8 @@ function game_questions_selectrandom( $game, $count=1)
         $select = 'category='.$game->questioncategoryid;        
         if( $game->subcategories){
             $cats = question_categorylist( $game->questioncategoryid);
-            if( strpos( $cats, ',') > 0){
-                $select = 'category in ('.$cats.')';
-            }
+            if( count( $cats))
+                $select = 'category in ('.implode( ',', $cats).')';
         }    		
 		
 		$select .= " AND q.qtype in ('shortanswer', 'truefalse', 'multichoice') ".
@@ -399,7 +402,7 @@ function game_questions_selectrandom_detail( $table, $select, $id_field="id", $c
     $sql = "SELECT $id_field FROM $table WHERE $select";
 	if( ($recs=$DB->get_records_sql( $sql)) == false)
         return false;
-    	
+
 	//the array contains the ids of all questions
 	$a = array();
     foreach( $recs as $rec){
@@ -421,8 +424,23 @@ function game_detectlanguage( $word){
     
     $langs = get_string_manager()->get_list_of_translations();
     
+    //English has more priority
+    if( array_key_exists( 'en', $langs))
+    {
+        unset( $langs[ 'en']);
+        $langs[ ''] = '';
+    }
+    ksort( $langs);
+    $langs_installed = get_string_manager()->get_list_of_translations();       
+    
     foreach( $langs as $lang => $name)
     {
+        if( $lang == '')
+            $lang = 'en';
+            
+        if( !array_key_exists( $lang, $langs_installed))
+            continue;
+            
         $strings = get_string_manager()->load_component_strings( 'game', $lang);
         if( isset( $strings[ 'lettersall']))
         {
@@ -443,7 +461,7 @@ function game_getallletters( $word, $lang='')
 {
     for(;;)
     {
-        $strings = get_string_manager()->load_component_strings( 'game', $lang);
+        $strings = get_string_manager()->load_component_strings( 'game', ($lang == '' ? 'en' : $lang));
         if( isset( $strings[ 'lettersall']))
         {
             $letters = $strings[ 'lettersall'];
@@ -640,7 +658,7 @@ function game_questions_shortanswer_question_fraction( $table, $fields, $select)
 	{
         global $DB, $USER;
 
-	    if( $attempt != false){	    
+	    if( $attempt != false){
 		    $updrec->id = $attempt->id;
     		$updrec->timelastattempt = time();
     		$updrec->lastip = getremoteaddr();
@@ -650,6 +668,7 @@ function game_questions_shortanswer_question_fraction( $table, $fields, $select)
 	    	else{
 	    		$updrec->lastremotehost = gethostbyaddr( $updrec->lastip);
 	    	}
+	    	$updrec->lastremotehost = substr( $updrec->lastremotehost, 0, 50);
 
 	    	if( $score >= 0){
 	    		$updrec->score = $score;
@@ -664,16 +683,9 @@ function game_questions_shortanswer_question_fraction( $table, $fields, $select)
 	    	if( !$DB->update_record( 'game_attempts', $updrec)){
 	    		show_error( "game_updateattempts: Can't update game_attempts id=$updrec->id");
 	    	}
-	    	
-            // update grade item and send all grades to gradebook
-            game_grade_item_update( $game);
-            game_update_grades( $game);    
+	    		    	
+	    	game_save_best_score( $game);
 	    }
-		
-		//Update table game_grades
-		if( $finished){
-			game_save_best_score( $game);
-		}
 	}
 	
 
@@ -748,7 +760,7 @@ function game_questions_shortanswer_question_fraction( $table, $fields, $select)
 	}
 	
 
-	function game_getattempt( $game, &$detail)
+	function game_getattempt( $game, &$detail, $autoadd=false)
 	{
 		global $DB, $USER;
 		
@@ -772,6 +784,12 @@ function game_questions_shortanswer_question_fraction( $table, $fields, $select)
 
 				return $attempt;
 			}
+		};
+		
+		if( $autoadd)
+		{
+		    game_addattempt( $game);
+		    return game_getattempt( $game, $detail, false);
 		}
 		
 		return false;
@@ -976,8 +994,8 @@ function game_save_best_score($game) {
     global $DB, $USER;
 
     // Get all the attempts made by the user
-    if (!$attempts = game_get_user_attempts( $game->id, $USER->id)) {
-        print_error( 'Could not find any user attempts');
+    if (!$attempts = game_get_user_attempts( $game->id, $USER->id, 'all')) {
+        print_error( 'Could not find any user attempts gameid='.$game->id.' userid='.$USER->id);
     }
 
     // Calculate the best grade
@@ -999,6 +1017,13 @@ function game_save_best_score($game) {
             print_error( 'Could not insert new best grade');
         }
     }
+    
+    // update gradebook
+    $grades = new stdClass();
+    $grades->userid = $USER->id;
+    $grades->rawgrade = game_score_to_grade($bestscore, $game);
+    $grades->datesubmitted = time();
+    game_grade_item_update( $game, $grades);
 
     return true;
 }
@@ -1148,6 +1173,92 @@ function game_sudoku_getquestions( $questionlist)
     return $questions;
 }
 
+function game_filterglossary( $text, $entryid, $contextid, $courseid)
+{
+    global $CFG, $DB;
+
+    for(;;)
+    {
+        $find='@@PLUGINFILE@@';
+        $pos = strpos( $text, $find);
+        if( $pos === false)
+            break;
+        
+        $pos2 = strpos( $text,'/', $pos);
+        if( $pos2 === false)
+            break;
+            
+        $pos3 = strpos( $text,'"', $pos);
+        if( $pos3 === false)
+            break;
+            
+        $file = substr( $text, $pos2+1, $pos3-$pos2-1);
+       
+        $new = $CFG->wwwroot."/pluginfile.php/$contextid/mod_glossary/entry/$entryid/$file";
+        $text = substr( $text, 0, $pos).$new.substr( $text,$pos3);
+    }
+    $questiontext = str_replace( '$$'.'\\'.'\\'.'frac', '$$\\'.'frac', $text);
+    return game_filtertext( $text, $courseid);
+    
+}
+
+function game_filterquestion( $questiontext, $questionid, $contextid, $courseid)
+{
+    global $CFG, $DB;
+
+    for(;;)
+    {
+        $find='@@PLUGINFILE@@';
+        $pos = strpos( $questiontext, $find);
+        if( $pos === false)
+            break;
+        
+        $pos2 = strpos( $questiontext,'/', $pos);
+        if( $pos2 === false)
+            break;
+            
+        $pos3 = strpos( $questiontext,'"', $pos);
+        if( $pos3 === false)
+            break;
+            
+        $file = substr( $questiontext, $pos2+1, $pos3-$pos2-1);
+       
+        $new = $CFG->wwwroot."/pluginfile.php/$contextid/mod_game/questiontext/$questionid/$file";
+        $questiontext = substr( $questiontext, 0, $pos).$new.substr( $questiontext,$pos3);
+    }
+    $questiontext = str_replace( '$$'.'\\'.'\\'.'frac', '$$\\'.'frac', $questiontext);
+    return game_filtertext( $questiontext, $courseid);
+    
+}
+
+function game_filterquestion_answer( $questiontext, $questionid, $contextid, $courseid)
+{
+    global $CFG, $DB;
+
+    for(;;)
+    {
+        $find='@@PLUGINFILE@@';
+        $pos = strpos( $questiontext, $find);
+        if( $pos === false)
+            break;
+        
+        $pos2 = strpos( $questiontext,'/', $pos);
+        if( $pos2 === false)
+            break;
+            
+        $pos3 = strpos( $questiontext,'"', $pos);
+        if( $pos3 === false)
+            break;
+            
+        $file = substr( $questiontext, $pos2+1, $pos3-$pos2-1);
+       
+        $new = $CFG->wwwroot."/pluginfile.php/$contextid/mod_game/answer/$questionid/$file";
+        $questiontext = substr( $questiontext, 0, $pos).$new.substr( $questiontext,$pos3);
+    }
+    
+    return game_filtertext( $questiontext, $courseid);
+}
+
 function game_filtertext( $text, $courseid){
     $formatoptions->noclean = true;
     $formatoptions->filter = 1;
@@ -1224,7 +1335,6 @@ function game_delete_attempt($attempt, $game) {
     }
 
     $DB->delete_records('game_attempts', array( 'id' => $attempt->id));
-    delete_attempt( $attempt->id);
 
     // Search game_attempts for other instances by this user.
     // If none, then delete record for this game, this user from game_grades
@@ -1296,13 +1406,18 @@ function game_select_from_repetitions( $game, $recs, $need){
 
     $ret = array();
 
+    $field = ($game->sourcemodule == 'glossary' ? 'glossaryentryid' : 'questionid');
+
     if( count($recs) <= $need){
-        foreach( $recs as $id => $rec)
+        foreach( $recs as $rec)
+        {
+            $a = array( 'gameid' => $game->id, 'userid' => $USER->id, 'questionid' => $rec->questionid, 'glossaryentryid' => $rec->glossaryentryid);
+            $id = $rec->$field;        
             $ret[ $id] = 1;
+        }
+        
         return $ret;
     }
-
-    $field = ($game->sourcemodule == 'glossary' ? 'glossaryentryid' : 'questionid');
 
     $countzero = 0;
     foreach( $recs as $rec){
@@ -1325,4 +1440,397 @@ function game_select_from_repetitions( $game, $recs, $need){
     }
 
     return $ret;
+}
+
+function game_grade_responses( $question, $responses, $maxgrade, &$answertext)
+{
+    if( $question->qtype == 'multichoice')
+    {
+        $name = "resp{$question->id}_";
+        $value = $responses->$name;
+        $answer = $question->options->answers[ $value];
+        $answertext = $answer->answer;
+    
+        return $answer->fraction * $maxgrade;
+    }else
+    {
+        $name = "resp{$question->id}_";
+        $answertext = game_upper( $responses->$name);
+        
+        foreach( $question->options->answers as $answer)
+        {
+            if( game_upper( $answer->answer) == $answertext)
+                return $answer->fraction * $maxgrade;                    
+        }
+        
+        return 0;
+    }
+}
+
+function game_print_question( $game, $question, $context)
+{
+    if( $question->qtype == 'multichoice')
+        game_print_question_multichoice( $game, $question, $context);
+    else if( $question->qtype == 'shortanswer')
+        game_print_question_shortanswer( $game, $question, $context);
+}
+
+function game_print_question_multichoice( $game, $question, $context)
+{
+    global $CFG;
+
+    $i=0;
+    $questiontext = $question->questiontext;
+    $answerprompt = get_string( 'singleanswer', 'quiz');
+    $feedback = '';
+    $anss = array();
+    foreach( $question->options->answers as $a)
+    {
+        $answer = new stdClass();
+        if( substr( $a->answer, 0, 3) == '<p>' or substr( $a->answer, 0, 3) == '<P>')
+        {
+            $a->answer = substr( $a->answer, 3);
+            $s = rtrim( $a->answer);
+            if( substr( $s, 0, -3) == '<p>' or substr( $s, 0, -3) == '<P>')
+                $a->answer = substr( $a->answer, 0, -3);
+        }
+        $a->answer = game_filterquestion_answer(str_replace( '\"', '"', $a->answer), $a->id, $context->id, $game->course);
+        $answer->control = "<input  id=\"resp{$question->id}_{$a->id}\" name=\"resp{$question->id}_\"  type=\"radio\" value=\"{$a->id}\" /> ".$a->answer;
+        $answer->class = 'radio';
+        $answer->id = $a->id;
+        $answer->text = $a->answer;
+        $answer->feedbackimg = '';
+        $answer->feedback = '';
+        $anss[] = $answer;
+    }
+?>
+<div class="qtext">
+    <?php echo game_filterquestion(str_replace( '\"', '"', $questiontext), $question->id, $context->id, $game->course); ?>
+</div>
+
+
+<div class="ablock clearfix">
+    <div class="prompt">
+        <?php echo $answerprompt; ?>
+    </div>
+
+    <table class="answer">
+        <?php $row = 1; foreach ($anss as $answer) { ?>
+        <tr class="<?php echo 'r'.$row = $row ? 0 : 1; ?>">
+            <td>
+                <?php echo $answer->control; ?>
+            </td>
+        </tr>
+        <?php } ?>        
+    </table>
+</div>
+<?php
+}
+
+function game_print_question_shortanswer( $game, $question, $context)
+{
+    $questiontext = $question->questiontext;
+    
+?>
+<div class="qtext">
+  <?php echo game_filterquestion(str_replace( '\"', '"', $questiontext), $question->id, $context->id, $game->course); ?>
+</div>
+
+<div class="ablock clearfix">
+  <div class="prompt">
+    <?php echo get_string("answer", "quiz").': '; ?>
+  </div>
+  <div class="answer">
+    <input type="text" name="resp<?php echo $question->id; ?>_" size="80"/>
+  </div>
+</div>
+<?php
+}
+
+function game_snakes_get_board( $game)
+{
+    global $CFG, $DB;
+
+    if( $game->param3 != 0)
+    {
+	    $board = $DB->get_record( 'game_snakes_database', array( 'id' => $game->param3));
+        if( $board == false)
+        {
+            require_once(dirname(__FILE__) . '/../db/importsnakes.php');
+        	$board = $DB->get_record( 'game_snakes_database', array( 'id' => $game->param3));
+        }
+        if( $board == false)
+            print_error( 'No board');
+        $board->imagesrc = $CFG->wwwroot.'/mod/game/snakes/boards/'.$board->fileboard;
+        list( $board->width, $board->height) = getimagesize( $board->imagesrc);
+    }else
+    {
+        //user defined board
+        $board = game_snakes_create_user_defined_board( $game);
+    }
+
+    return $board;
+}
+
+function game_snakes_create_user_defined_board( &$game)
+{
+    global $CFG, $DB;
+
+    $board = game_snakes_get_board_params( $game);
+
+    $cmg = get_coursemodule_from_instance('game', $game->id, $game->course);
+    $modcontext = get_context_instance(CONTEXT_MODULE, $cmg->id);
+        
+    if( $game->param5)
+    {
+        //param5 means dirty image. Create it again
+        require("snakes/createboard.php");
+        $fs = get_file_storage();
+        $files = $fs->get_area_files($modcontext->id, 'mod_game', 'snakes_file', $game->id);
+        foreach ($files as $f) {
+            if( $f->is_directory())
+                continue;
+            break;
+        }
+        $im=game_createsnakesboard($f->get_content(), $board->cols, $board->rows, $board->headery, $board->headery, $board->footerx, $board->headerx, $board->data, $board->width, $board->height);
+        ob_start();
+        imagepng($im);
+        $data = ob_get_contents();
+        ob_end_clean();
+        $fileinfo = array(
+            'contextid' => $modcontext->id, // ID of context
+            'component' => 'mod_game',      // usually = table name
+            'filearea' => 'snakes_board',   // usually = table name
+            'itemid' => $game->id,          // usually = ID of row in table
+            'filepath' => '/',              // any path beginning and ending in /
+            'filename' => 'board.png');     // any filename 
+        $fs->delete_area_files($modcontext->id, 'mod_game', 'snakes_board', $game->id);
+        $file=$fs->create_file_from_string($fileinfo, $data);
+        $imageinfo = $file->get_imageinfo();
+        $game->param6 = $imageinfo[ 'width'];
+        $game->param7 = $imageinfo[ 'height'];
+        $sql = "UPDATE {$CFG->prefix}game SET param5=0,param6=$game->param6,param7=$game->param7 WHERE id=$game->id";
+        if( !$DB->execute( $sql))
+            error('problem in '.$sql);
+    }
+    
+    $board->imagesrc = "{$CFG->wwwroot}/pluginfile.php/{$modcontext->id}/mod_game/{$game->id}/snakes_board/board.png";
+    $board->width = $game->param6;
+    $board->height = $game->param7;
+    $board->direction = 1;
+    $board->fileboard = 'board.png';
+
+    return $board;
+}
+
+function game_snakes_get_board_params( $game)
+{
+    $board = new stdClass();
+
+    $a = explode( '#',$game->param9);
+    foreach( $a as $s){
+        $pos = strpos( $s, ':');
+        if( $pos){
+            $name = substr( $s, 0, $pos);
+            if( substr( $name, 0, 7) == 'snakes_')
+                $name = substr( $name, 7);
+            $board->$name = substr( $s, $pos+1);
+        }
+     }
+
+    return $board;
+}
+
+function game_export_createtempdir(){
+    global $CFG;
+        
+    // create a random upload directory in temp
+    $newdir = $CFG->dataroot."/temp/game";
+    if (!file_exists( $newdir)) 
+        mkdir( $newdir);
+
+    srand( (double)microtime()*1000000); 
+    while(true)
+    {
+        $r_basedir = "game/". date("Y-m-d H.i.s-").rand(0,10000);
+        $newdir = $CFG->dataroot.'/temp/'.$r_basedir;
+        if (!file_exists( $newdir)) 
+        {
+            mkdir( $newdir);
+            return $newdir;
+        }
+    }
+}
+
+function game_create_zip( $srcdir, $courseid, $filename){
+    global $CFG;
+        
+    $dir = $CFG->dataroot . '/' . $courseid;
+    $filezip = $dir . "/export/{$filename}";
+
+    if (file_exists( $filezip)){
+        unlink( $filezip);
+    }
+        
+    if (!file_exists( $dir)){
+        mkdir( $dir);
+    }
+        
+    if (!file_exists( $dir.'/export')){
+        mkdir( $dir.'/export');
+    }
+        
+    $srcfiles = get_directory_list( $srcdir, '', true, true, true);
+    $fullsrcfiles = array();
+    foreach( $srcfiles as $file){
+        $fullsrcfiles[] = $srcdir.'/'.$file;
+    }
+                
+    zip_files( $fullsrcfiles, $filezip);
+
+    return (file_exists( $filezip) ? $filezip : '');
+}
+
+function game_get_string_lang( $identifier, $module, $lang)
+{
+    global $CFG;
+    
+    $langfile = "{$CFG->dirroot}/mod/game/lang/$lang/game.php";
+
+    if ($result = get_string_from_file( $identifier, $langfile, "\$ret")) {
+        eval($result);
+        if( $ret != '')
+            return $ret;
+    }
+
+    return get_string( $identifier, $module);
+}
+
+function get_string_from_file($identifier, $langfile, $destination) {
+    static $strings;    // Keep the strings cached in memory.
+
+    if (empty($strings[$langfile])) {
+        $string = array();
+        include ($langfile);
+        $strings[$langfile] = $string;
+    } else {
+        $string = &$strings[$langfile];
+    }
+
+    if (!isset ($string[$identifier])) {
+        return false;
+    }
+
+    return $destination .'= sprintf("'. $string[$identifier] .'");';
+}
+
+	
+//inserts a record to game_attempts
+function game_addattempt( $game)
+{
+    global $DB, $USER;
+		
+    $newrec->gamekind = $game->gamekind;
+    $newrec->gameid = $game->id;
+    $newrec->userid = $USER->id;
+    $newrec->timestart = time();
+    $newrec->timefinish = 0;
+    $newrec->timelastattempt = 0;
+    $newrec->preview = 0;
+    $params = array( 'gameid' => $game->id, 'userid' => $USER->id);
+    $newrec->attempt = $DB->get_field( 'game_attempts', 'max(attempt)', $params) + 1;
+    $newrec->score = 0;
+
+    if (!($newid = $DB->insert_record( 'game_attempts', $newrec))){
+		error("Insert game_attempts: new rec not inserted");
+	}
+		
+	if( $USER->username == 'guest'){
+		$key = 'mod/game:instanceid'.$game->id;
+		$_SESSION[ $key] = $newid;
+	}
+
+	return $DB->get_record_select( 'game_attempts', 'id='.$newid);
+}
+
+function game_print_r( $title, $a)
+{
+    echo "\r\n<hr><b>$title</b><br>";print_r( $a);echo "<hr>\r\n";
+}
+
+function game_get_contexts(){
+    global $CFG, $COURSE;
+
+    require( $CFG->dirroot.'/question/editlib.php');
+    $thiscontext = get_context_instance(CONTEXT_COURSE, $COURSE->id);
+    $contexts = new question_edit_contexts( $thiscontext);
+    $caps = array( 'moodle/question:viewmine', 'moodle/question:viewall');
+
+    return $contexts->having_one_cap( $caps);
+}
+
+function game_export_split_files( $courseid, $context, $filearea, $id, $line, $destdir, &$files)
+{
+    global $CFG, $DB;
+
+    $contextcourse = false;
+    
+    $fs = get_file_storage();
+    
+    for(;;)
+    {
+        $pos1 = strpos( $line, '@@PLUGINFILE@@');
+        if( $pos1 === false)
+            break;
+            
+        $pos2 = strpos( $line, '"', $pos1);
+        if( $pos2 === false)
+            break;
+
+        $file = urldecode( substr( $line, $pos1+15, $pos2-$pos1-15));
+        
+        $posext = strrpos( $file, '.');
+        $filenoext = substr( $file, $posext);
+        $ext = substr( $file, $posext+1);
+        $oldfile = $CFG->wwwroot."/pluginfile.php/$context->id/mod_game/$filearea/$id/$file";
+        for($i=0;;$i++)
+        {
+            $newfile = $filenoext.$i;
+            $newfile = md5( $newfile).'.'.$ext;
+            if( !array_search( $newfile, $files))
+                break;
+        }
+        
+        $line = substr( $line, 0, $pos1).'images/'.$newfile.substr( $line, $pos2);
+        $files[ $oldfile] = $newfile;
+        
+        //Have to copy the files
+        if( count( $files) == 1)
+            mkdir( $destdir.'/images');
+
+        if( $contextcourse === false)
+        {
+            if (!$contextcourse = get_context_instance(CONTEXT_COURSE, $courseid)) {
+                print_error('nocontext');
+            }
+        }
+        $params = array( 'component' => 'question', 'filearea' => $filearea, 
+            'itemid' => $id, 'filename' => $file, 'contextid' => $contextcourse->id);
+        $rec = $DB->get_record( 'files', $params);
+        if( $rec == false)
+            print_r( $params);            
+
+        if (!$file = $fs->get_file_by_hash($rec->pathnamehash) or $file->is_directory())
+            continue;
+        $file->copy_content_to( $destdir.'/images/'.$newfile);
+    }
+
+    return $line;
+}
+
+function game_debug_array( $title, $a)
+{
+    echo '<br>'.$title.' ';
+    print_r( $a);
+    echo '<br>';
 }

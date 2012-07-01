@@ -1,14 +1,39 @@
-<?php  // $Id: createboard.php,v 1.1 2010/08/29 11:16:21 bdaloukas Exp $
+<?php  // $Id: createboard.php,v 1.4 2011/07/22 11:56:19 bdaloukas Exp $
+// This file creates a board for "Snakes and Ladders"
+/*
+require( "../../../config.php");
 
-// This files create a board for "Snakes and Ladders"
+$im=game_createsnakesboard( $_GET[ 'file'], $_GET[ 'colsx'], $_GET[ 'colsy'], $_GET[ 'ofstop'], $_GET[ 'ofsbottom'], $_GET[ 'ofsright'], $_GET[ 'ofsleft'], $_GET[ 'aboard']);
 
-$file='DSC04418.JPG';
-$colsx = 8; $colsy = 8; $board = 'S18-48,L1-20';$ofstop=8; $ofsbottom = 8; $ofsright = 8; $ofsleft = 8;
-$dir = $CFG->wwwroot.'/mod/game/snakes/1';
+header('Content-type: image/jpg');
+imagejpeg($im);
+imagedestroy($im);
+*/
 
-function game_createsnakesboard($file, $dir, $colsx, $colsy, $ofstop, $ofsbottom, $ofsright, $ofsleft)
+function game_createsnakesboard($imageasstring, $colsx, $colsy, $ofstop, $ofsbottom, $ofsright, $ofsleft, $board, $setwidth, $setheight)
 {
-    $im = imagecreatefromjpeg($file);
+    global $CFG;
+
+    $dir = $CFG->dirroot.'/mod/game/snakes/1';
+
+    $im = imagecreatefromstring($imageasstring);
+
+    //check if need resize
+    if( $setwidth >0 or $setheight > 0)
+    {
+        $source = $im;
+        $width = imagesx($source);
+        $height = imagesy($source);
+        $factorx = $setwidth / $width;
+        $factory = $setheight / $height;
+        $factor = ($factorx < $factory || $factory == 0 ? $factorx : $factory);
+
+        $newwidth = $width * $factor;
+        $newheight = $height * $factor;
+
+        $im = imagecreatetruecolor($newwidth, $newheight);
+        imagecopyresized($im, $source, 0, 0, 0, 0, $newwidth, $newheight, $width, $height);
+    }
 
     $cx = imagesx($im) - $ofsright - $ofsleft;
     $cy = imagesy($im) - $ofstop - $ofsbottom;
@@ -24,8 +49,8 @@ function game_createsnakesboard($file, $dir, $colsx, $colsy, $ofstop, $ofsbottom
         imageline( $im, $ofsleft, $ofstop+$i * $cy / $colsy, $cx+$ofsleft, $ofstop+$i * $cy / $colsy, $color);
     }
 
-    $filenamenumbers=$dir.'/numbers.gif';
-    $img_numbers = imageCreateFromgif( $filenamenumbers);
+    $filenamenumbers=$dir.'/numbers.png';
+    $img_numbers = imageCreateFrompng( $filenamenumbers);
     $size_numbers = getimagesize ($filenamenumbers);
 
     for( $iy=0; $iy < $colsy; $iy++)
@@ -91,7 +116,6 @@ function makeboardL( $im, $dir, $cx, $cy, $s, $colsx, $colsy, $ofsleft, $ofstop)
     $letter = ( $movex * $movey < 0 ? 'b' : 'a');
 
     $_startx = $startx; $_movex=$movex; $_starty = $starty; $_movey=$movey;
-
             if( $movex < 0)
             {
                 $startx += $movex;
@@ -102,39 +126,37 @@ function makeboardL( $im, $dir, $cx, $cy, $s, $colsx, $colsy, $ofsleft, $ofstop)
                 $starty += $movey;
                 $movey = -$movey;
             }
-
+    $stamp = 0;
     if( $letter == 'b'){
-        $file = $dir.'/l'.$letter.$movey.$movex.'.gif';
+        $file = $dir.'/l'.$letter.$movey.$movex.'.png';
         if( file_exists( $file)){
-            $stamp = game_imagecreatefromgif( $file);
+            $stamp = game_imagecreatefrompng( $file);
         }else
         {
-            $file = $dir.'/la'.$movey.$movex.'.gif';
+            $file = $dir.'/la'.$movey.$movex.'.png';
 
-            $source = game_imagecreatefromgif( $file);
+            $source = game_imagecreatefrompng( $file);
             if( $source != 0)
                 $stamp = imagerotate($source, 90, 0);
         }
     }else
     {
-        $file = $dir.'/la'.$movex.$movey.'.gif';
-        $stamp = game_imagecreatefromgif( $file);
+        $file = $dir.'/la'.$movex.$movey.'.png';
+        $stamp = game_imagecreatefrompng( $file);
     }
     
-    if( $start == 0)
-    {
-        $startx = $_startx; $movex=$_movex; $starty = $_starty; $movey=$_movey;  
-    }
-
     $dst_x = $startx*$cx/$colsx;
     $dst_y = $starty*$cy/$colsy;
     $dst_w = ($movex+1) * $cx / $colsx;
     $dst_h = ($movey+1) * $cy / $colsy;
 
     if( $stamp == 0)
+    {
         game_printladder( $im, $file, $dst_x+$ofsleft, $dst_y+$ofstop, $dst_w, $dst_h, $cx/$colsx, $cy/$colsy);
-    else
+    }else
+    {
         imagecopyresampled( $im, $stamp, $ofsleft+$dst_x, $ofstop+$dst_y, 0, 0, $dst_w, $dst_h, 100*$movex+100, 100*$movey+100);
+    }
 }
 
 function makeboardS( $im, $dir, $cx, $cy, $s, $colsx, $colsy, $ofsleft, $ofstop)
@@ -161,8 +183,8 @@ function makeboardS( $im, $dir, $cx, $cy, $s, $colsx, $colsy, $ofsleft, $ofstop)
     $stamp = $rotate = 0;
     if( $movex >= 0 and $movey < 0){
         $letter = 'b';
-        $file = $dir.'/sa'.$movey.$movex.'.gif';
-        $source = game_imagecreatefromgif( $file);
+        $file = $dir.'/sa'.$movey.$movex.'.png';
+        $source = game_imagecreatefrompng( $file);
         if( $source != 0)
         {
             $stamp = imagerotate($source, 270, 0);
@@ -171,8 +193,8 @@ function makeboardS( $im, $dir, $cx, $cy, $s, $colsx, $colsy, $ofsleft, $ofstop)
             $rotate = 270;
     }else if( $movex < 0 and $movey < 0){
         $letter = 'c';
-        $file = $dir.'/sa'.$movey.$movex.'.gif';
-        $source = game_imagecreatefromgif( $file;
+        $file = $dir.'/sa'.$movey.$movex.'.png';
+        $source = game_imagecreatefrompng( $file);
         if( $source != 0)
         {
             $stamp = imagerotate($source, 180, 0);
@@ -182,8 +204,8 @@ function makeboardS( $im, $dir, $cx, $cy, $s, $colsx, $colsy, $ofsleft, $ofstop)
             $rotate = 180;
     }else if( ($movex < 0) and ($movey >= 0)){
         $letter = 'd';
-        $file = $dir.'/sa'.$movey.$movex.'.gif';
-        $source = game_imagecreatefromgif( $file);
+        $file = $dir.'/sa'.$movey.$movex.'.png';
+        $source = game_imagecreatefrompng( $file);
         if( $source != 0)
         {
             $stamp = imagerotate($source, 270, 0);
@@ -192,8 +214,8 @@ function makeboardS( $im, $dir, $cx, $cy, $s, $colsx, $colsy, $ofsleft, $ofstop)
             $rotate=270;
     }else
     {
-        $file = $dir.'/sa'.$movex.$movey.'.gif';
-        $stamp = game_imagecreatefromgif( $file);
+        $file = $dir.'/sa'.$movex.$movey.'.png';
+        $stamp = game_imagecreatefrompng( $file);
     }
 
         if( ($swap != 0) and ($stamp == 0))
@@ -216,9 +238,9 @@ function makeboardS( $im, $dir, $cx, $cy, $s, $colsx, $colsy, $ofsleft, $ofstop)
         imagecopyresampled( $im, $stamp, $dst_x+$ofsleft, $dst_y+$ofstop, 0, 0, $dst_w, $dst_h, 100*$movex+100, 100*$movey+100);
 }
 
-function game_imagecreatefromgif( $file){
+function game_imagecreatefrompng( $file){
     if( file_exists( $file))
-        return imagecreatefromgif( $file);
+        return imagecreatefrompng( $file);
 
     return 0;
 }

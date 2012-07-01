@@ -1,4 +1,4 @@
-<?php // $Id: play.php,v 1.5 2010/07/26 00:13:31 bdaloukas Exp $
+<?php // $Id: play.php,v 1.6 2011/07/26 23:12:56 bdaloukas Exp $
 
 function game_bookquiz_continue( $id, $game, $attempt, $bookquiz, $chapterid=0)
 {	
@@ -13,6 +13,7 @@ function game_bookquiz_continue( $id, $game, $attempt, $bookquiz, $chapterid=0)
 	unset( $bookquiz);
 	$bookquiz->lastchapterid = 0;
 	$bookquiz->id = $attempt->id;
+	$bookquiz->bookid = $game->bookid;
 	
 	if( !game_insert_record(  'game_bookquiz', $bookquiz)){
 		print_error( 'game_bookquiz_continue: error inserting in game_bookquiz');
@@ -129,10 +130,10 @@ if ($nextid) {
 	}
 } else {
 	game_updateattempts_maxgrade( $game, $attempt, 1, 0);
-    $sec = '';
+/*    $sec = '';
     if ($section = $DB->get_record('course_sections', array( 'id' => $cm->section))) {
         $sec = $section->section;
-    }
+    }*/
 	
 	if (! $cm = $DB->get_record('course_modules', array( 'id' => $id))) {
 		print_error("Course Module ID was incorrect id=$id");
@@ -168,14 +169,16 @@ $tocwidth = '10%';
 <tr>
     <td width="<?php echo $tocwidth ?>" valign="top" align="left">
         <?php
-        print_box_start('generalbox');
+        //print_box_start('generalbox');
+        //echo $OUTPUT->box_start( 'generalbox');
         echo $toc;
-        print_box_end();
+        //print_box_end();
+        //echo $OUTPUT->box_stop();
         ?>
     </td>
     <td valign="top" align="left">
         <?php
-        print_box_start('generalbox');
+        //print_box_start('generalbox');
         $content = '';
         if (!$book->customtitles) {
           if ($currsubtitle == '&nbsp;') {
@@ -192,13 +195,13 @@ $tocwidth = '10%';
 		if( $nextbutton != ''){
 			echo $nextbutton;
 		}
-        echo format_text($content, FORMAT_HTML, $nocleanoption, $id);
+        echo format_text($content, FORMAT_HTML, $nocleanoption, $game->course);        
 		if( $nextbutton != ''){
 			echo $nextbutton;
 		}
 		
         echo '</div>';
-        print_box_end();
+        //print_box_end();
         /// lower navigation
         echo '<p align="right">'.$chnavigation.'</p>';
         ?>
@@ -260,37 +263,7 @@ function game_bookquiz_showquestions( $id, $questionid, $chapterid, $nextchapter
 
 	$number=0;
     foreach ($questions as $question) {
-	
-		global $QTYPES;
-		
-		unset( $cmoptions);
-        $cmoptions->course = $game->course;
-        $cmoptions->optionflags->optionflags = 0;
-		$cmoptions->id = 0;
-		$cmoptions->shuffleanswers = 1;
-		
-		$attempt = 0;
-		if (!$QTYPES[$question->qtype]->create_session_and_responses( $question, $state, $cmoptions, $attempt)) {
-			error( 'game_bookquiz_showquestions: problem');
-		}
-		
-		$state->last_graded = new StdClass;
-		$state->last_graded->event = QUESTION_EVENTOPEN;
-		$state->event = QUESTION_EVENTOPEN;
-		$options->scores->score = 0;
-		$question->maxgrade = 100;
-		$state->manualcomment = '';
-		$cmoptions->optionflags = 0;
-		$options->correct_responses = 0;
-		$options->feedback = 0;
-		$options->readonly = 0;
-
-		if( $showsolution){
-			$state->responses = $QTYPES[$question->qtype]->get_correct_responses($question, $state);
-		}
-		
-		$number++;
-		print_question($question, $state, $number, $cmoptions, $options);
+		game_print_question( $game, $question);
     }
 
     echo "</div>";
@@ -343,24 +316,11 @@ function game_bookquiz_check_questions( $id, $game, $attempt, $bookquiz)
 	
     $questions = game_sudoku_getquestions( $questionlist);
 
-    $actions = question_extract_responses($questions, $responses, QUESTION_EVENTSUBMIT);
-
 	$scorequestion = 0;
 	$scoreattempt = 0;
     foreach($questions as $question) {
-        if( !array_key_exists( $question->id, $actions)){
-            //no answered
-            continue;
-        }
-        unset( $state);
-        unset( $cmoptions);
-        $question->maxgrade = 100;
-        $state->responses = $actions[ $question->id]->responses;
-		$state->event = QUESTION_EVENTGRADE;
-
-		$cmoptions = array();
-        $QTYPES[$question->qtype]->grade_responses( $question, $state, $cmoptions);            
-        if( $state->raw_grade < 50){
+        $grade = game_grade_responses( $question, $responses, 100, $answertext);        
+        if( $grade < 50){
             continue;
         }
 

@@ -1,70 +1,54 @@
-17/7/2010
-    * use Moodle forms
+Game module for Moodle
+Copyright (C) 2004-2011  Vasilis Daloukas (http://bdaloukas.gr)
 
-28/8/2009:
-    * Millionaire: Export to html
 
-26/8/2008:
-    * Hangman: Export to html    
-    
-8/8/08: 
-    * Fix: Millionaire: When a question has background or foregroundcolor doesn't set the background/foreground color
-7/9/08
-   * New: Include subcategories of questions 
-   * Fix: Hiddenpicture: Problem when exist \ in dirroot, dataroot
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 3 of the License, or
+(at your option) any later version.
 
-20/8/08
-    * New: translation to Dutch
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details:
 
-21/7/08
-    * New: Ability to export hangman to javame for use in mobile phones
-    
-17/7/08
-    * Warnings on sudoku in multiple choice questions
-    
-12/07/08 
-    * No cellpadding at parameters screen 
-    
-11/07/08
-    * Problem when the language of hangman words is different from current language
-    * Auto detects the language of words for the game hangman    
-    
-28/06/08
-    * Removes greeks from English translation
-    * CONTRIB-427 : At the end of game "the hidden picture" doesn't show the hidden picture
-    * CONTRIB-426 : The first time doesn't show the dice
-    * CONTRIB-446 : When an answer is wrong in millionaire game, the correct answer shown by the system is also wrong
+http:www.gnu.org/copyleft/gpl.html
 
-ver 1.6.8
-    * Fix: Show grades only to students
-    * New: Translation to Basque (thanks to Juan Ezeiza)
-    
-ver 1.6.6
-    * Fixes some warning with moodle 1.9
-    * New: Hiddenpicture: The width of picture is not 500 but the original size
-    * New: Hiddenpicture: You can set the width or height of the picture
-    * Fix: In cross removes the <p> on the start of question and </p> on the end
-    
-ver 1.6.4
-    * Fixes a problem in "Hidden pictures": Showed the main question two times
-    * Fix: Added the addslashes before inserting to game_queries
-    * New: Shows a betters message when can't find a glossaryentry with a attached picture
-    * New: Added Rusian translation (thanks to )
-    * New: A presentation of moodle (thanks to Christopher Pappas) is available from here
+Game module for Moodle
+===============================================================================
+Created by:
+      Vasilis Daloukas (bdaloukas)
 
-ver 1.6.1
-    * Fixes a problem in hangman: Not show the first letter when you select the appropriate parameter
-    * The default layout for crossword must be the layout with question at the bottom
+Many ideas and code were taken from other Moodle modules and Moodle itself
 
-ver 1.6
-    *  Includes a new game named "The hidden picture" (An idea of Johnathan Kemp)
-    * In hangman,crossword,cryptex you can use the space as a character (there is parameter) (An idea of morgan toumelin)
-    * In hangman,crossword,cryptex you can use the - as a character (there is parameter) (An idea of morgan toumelin)
-    * There is a second layout for the crossword (An idea of Fernando Oliveira)
-    * You can set the bottom text of each game in a little different way
-    * Fixes a problem with question categories in version 1.9 of moodle
+Installation:
+    * see http://docs.moodle.org/en/Installing_contributed_modules_or_plugins
 
-ver 1.4
+This module gets input from quiz, glossary or questions and plays some games. The games are:
+
+* hangman
+* crossword
+* cryptex
+* millionaire
+* sudoku
+* Snakes and Ladders
+* The hidden picture
+* Book with questions
+
+If you like the idea goto http://play2learn.gr/moodle for a demo in Moodle 1.9 or goto to http://ebusiness-lab.epdo.teimes.gr/play2learn/ for a demo in Moodle 2.
+
+Currently works with 17 languages Català (ca), Deutsch (de), Ελληνικά (el), English (en), Español - Internacional (es), Euskara (eu), Français (fr), ית  (he), Hrvatski (hr), Italiano (it), Nederlands (nl), Norsk - bokmal ( no), Polski (pl), Português - Brasil (pt_br), Русский (ru), Shqip (sq), Українська (uk), 简体中文 (zh_cn) languages.
+
+If you like the module Game please donate at http://bdaloukas.gr/donate/moodlegame/, help me to have more time to continue working on this project. This module is and will remain free, but your donation allows me to continue the development, and any amount is greatly appreciated.
+
+
+Documentation http://docs.moodle.org/en/Game_module
+Browse source code http://cvs.moodle.org/contrib/plugins/mod/game/
+Changelog https://docs.google.com/document/pub?id=1-WJUa_Hbdo9eualKSjjP9wTnI4GVMs4JYDaLypU2IDQ
+Discussion http://moodle.org/mod/forum/view.php?id=7220
+Download for Moodle 2.0 http://download.moodle.org/download.php/plugins/mod/game.zip
+Download for Moodle 1.9 http://download.moodle.org/download.php/plugins19/mod/game.zip
+Bugs and Issues http://tracker.moodle.org/browse/CONTRIB/component/10295
 
 Interface:
 
@@ -83,4 +67,3 @@ Upgrade
 
     * Delete the files from mod/game
     * Copy the new files to mod/game
-
