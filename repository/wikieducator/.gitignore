@@ -1,0 +1,6 @@
+# ignore OSXisms
+.DS_Store
+
+# editor debris
+*~
+*.swp
