@@ -56,6 +56,19 @@ class restore_tab_activity_structure_step extends restore_activity_structure_ste
         $newitemid = $DB->insert_record('tab', $data);
         // immediately after inserting "activity" record, call this
         $this->apply_activity_instance($newitemid);
+
+        // copied from process_tab_content() , which was never called, upon restore, funny. [nadavkav 3/7/2012]
+        for ($i=1;$i<=9;$i++) { // assume we have maximum of 8 tabs in the old moodle 19 module
+            $tcdata = new StdClass;
+            $tcdata->id = $oldid;
+            $tcdata->tabid = $newitemid;
+            $tcdata->tabname = $data->{"tab".$i};
+            $tcdata->tabcontent = $data->{"tab".$i."content"};
+            $tcdata->tabcontentorder = $i;
+            $tcdata->timemodified = $data->timemodified;
+            $this->process_tab_content($tcdata);
+
+        }
     }
 
     protected function process_tab_content($data) {
