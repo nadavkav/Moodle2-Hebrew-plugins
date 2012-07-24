@@ -26,19 +26,38 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+global $CFG;
+
 require_once($CFG->dirroot.'/mod/assignment/lib.php');
 
-class block_ajax_marking_assignment_form extends mod_assignment_grading_form {
+/**
+ * Allows us to alter the form to have no 'revert to draft' button, and add an extra 'save and revert to draft'
+ * button for advanced upload assignment types.
+ */
+class block_ajax_marking_assignment_form extends assignment_grading_form {
 
     /**
-     * Will theoretically render the form as a HTML string
-     *
-     * @return string
+     * Adds the 'save and revert to draft' button.
      */
-    public function display() {
+    public function add_action_buttons($cancel = true, $submitlabel = null) {
 
-        return $this->_form->toHtml();
+        $mform =& $this->_form;
 
+        $buttonarray = array();
+        $buttonarray[] = &
+        $mform->createElement('submit', 'submitbutton', get_string('savechanges'));
+        if ($this->_customdata->assignment->assignmenttype == 'upload') {
+            // Extra button to save and revert.
+            $buttonarray[] = &$mform->createElement('submit',
+                                                  'revertbutton',
+                                                  get_string('saveandrevert',
+                                                             'block_ajax_marking'));
+        }
+        $buttonarray[] = &$mform->createElement('cancel');
+
+        $mform->addGroup($buttonarray, 'grading_buttonar', '', array(' '), false);
+        $mform->closeHeaderBefore('grading_buttonar');
+        $mform->setType('grading_buttonar', PARAM_RAW);
     }
 
 }

@@ -25,17 +25,22 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
-define('AJAX_SCRIPT', true);
+if (!defined('AJAX_SCRIPT')) {
+    define('AJAX_SCRIPT', true);
+}
 
 require_once(dirname(__FILE__).'/../../../config.php');
+global $CFG;
+require_once($CFG->dirroot.'/blocks/ajax_marking/lib.php');
+
+block_ajax_marking_login_error();
 require_login(0, false);
 
 // Target = what function is going to be doing the save operation. Either a core thing for
-// config stuff, or a module name
+// config stuff, or a module name.
 $target = required_param('target', PARAM_ALPHA);
 
-// Work out where to send it for processing
+// Work out where to send it for processing.
 switch ($target) {
 
     case 'config_save':
@@ -47,4 +52,4 @@ switch ($target) {
         break;
 }
 
-// send it
+// Send it.

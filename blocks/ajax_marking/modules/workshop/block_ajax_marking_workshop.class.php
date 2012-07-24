@@ -29,8 +29,9 @@ if (!defined('MOODLE_INTERNAL')) {
     die();
 }
 
+global $CFG;
 require_once($CFG->dirroot.'/blocks/ajax_marking/classes/query_base.class.php');
-require_once($CFG->dirroot.'/mod/workshop/locallib.php'); // for constants
+require_once($CFG->dirroot.'/mod/workshop/locallib.php'); // For constants.
 
 /**
  * Provides marking functionality for the workshop module
@@ -43,15 +44,14 @@ class block_ajax_marking_workshop extends block_ajax_marking_module_base {
     /**
      * Constructor
      *
-     * @internal param object $mainobject the parent object passed in by reference
      * @return \block_ajax_marking_workshop
      */
     public function __construct() {
 
-        // call parent constructor with the same arguments
+        // Call parent constructor with the same arguments.
         parent::__construct();
 
-        $this->modulename           = $this->moduletable = 'workshop';
+        $this->modulename           = 'workshop';
         $this->capability           = 'mod/workshop:editdimensions';
         $this->icon                 = 'mod/workshop/icon.gif';
 
@@ -66,6 +66,7 @@ class block_ajax_marking_workshop extends block_ajax_marking_module_base {
     public function make_html_link($item) {
 
         global $CFG;
+
         $address = $CFG->wwwroot.'/mod/workshop/view.php?id='.$item->cmid;
         return $address;
     }
@@ -82,7 +83,7 @@ class block_ajax_marking_workshop extends block_ajax_marking_module_base {
     /**
      * Returns a query object with the basics all set up to get assignment stuff
      *
-     * @global type $DB
+     * @global moodle_database $DB
      * @return block_ajax_marking_query_base
      */
     public function query_factory() {
@@ -90,7 +91,6 @@ class block_ajax_marking_workshop extends block_ajax_marking_module_base {
         global $USER;
 
         $query = new block_ajax_marking_query_base($this);
-        $query->set_userid_column('sub.authorid');
 
         $query->add_from(array(
                 'table' => $this->modulename,
@@ -109,13 +109,25 @@ class block_ajax_marking_workshop extends block_ajax_marking_module_base {
                 'on' => 'sub.id = a.submissionid'
         ));
 
-        // Assumes that we want to see stuff that has not been assessed yet. Perhaps we still want
-        // this but also ones where we have not reviewed the assessments?
+        // Standard userid for joins.
+        $query->add_select(array('table' => 'sub',
+                                 'column' => 'authorid',
+                                 'alias' => 'userid'));
+        $query->add_select(array('table' => 'sub',
+                                'column' => 'timemodified',
+                                'alias'  => 'timestamp'));
+
+        // Assumes that we want to see stuff that has not been assessed by the current user yet. Perhaps
+        // we have more than one assessor? Perhaps it's peer assessment only?
         $query->add_where(array(
-                'type' => 'AND',
-                'condition' => '(a.reviewerid != :'.$query->prefix_param('userid').'
-                                   OR (a.reviewerid = :'.$query->prefix_param('userid2').'
-                                       AND a.grade = -1))'));
+                               'type' => 'AND',
+                               'condition' => 'NOT EXISTS(
+                                   SELECT 1
+                                     FROM {workshop_assessments} workshop_assessments
+                                    WHERE workshop_assessments.submissionid = sub.id
+                                      AND workshop_assessments.reviewerid = :workshopuserid
+                                      AND workshop_assessments.grade != -1
+                               )'));
         $query->add_where(array(
             'type' => 'AND',
             'condition' => 'moduletable.phase < '.workshop::PHASE_CLOSED
@@ -125,8 +137,7 @@ class block_ajax_marking_workshop extends block_ajax_marking_module_base {
         // If it has, a teacher will have done this manually and will know about the grading work.
         // Unless there are two teachers.
 
-        $query->add_param('userid', $USER->id);
-        $query->add_param('userid2', $USER->id);
+        $query->add_param('workshopuserid', $USER->id);
 
         return $query;
 
@@ -138,85 +149,29 @@ class block_ajax_marking_workshop extends block_ajax_marking_module_base {
      *
      * @param array $params From $_GET
      * @param $coursemodule
-     * @global type $PAGE
-     * @global type $CFG
-     * @global type $DB
-     * @global type $OUTPUT
-     * @global type $USER
+     * @global $PAGE
+     * @global $CFG
+     * @global moodle_database $DB
+     * @global $OUTPUT
+     * @global $USER
      *
+     * @return string|void
      */
     public function grading_popup($params, $coursemodule) {
 
         $workshopurl = new moodle_url('/mod/workshop/view.php?id='.$coursemodule->id);
         redirect($workshopurl);
-
     }
 
     /**
-     * Applies the module-specific stuff for the user nodes
+     * This function will take the data returned by the grading popup and process it. Not always
+     * implemented as not all modules have a grading popup yet
      *
-     * @param block_ajax_marking_query_base $query
-     * @param $operation
-     * @param int $userid
-     * @return void
+     * @param $data
+     * @param $params
+     * @return string
      */
-    public function apply_userid_filter(block_ajax_marking_query_base $query, $operation,
-                                        $userid = 0) {
-
-        $selects = array();
-
-        switch ($operation) {
-
-            case 'where':
-                // Applies if users are not the final nodes
-                $query->add_where(array(
-                        'type' => 'AND',
-                        'condition' => 'sub.authorid = :'.$query->prefix_param('submissionid')));
-                $query->add_param('submissionid', $userid);
-                break;
-
-            case 'displayselect':
-                $selects = array(
-
-                    array(
-                        'table'    => 'usertable',
-                        'column'   => 'firstname'),
-                    array(
-                        'table'    => 'usertable',
-                        'column'   => 'lastname')
-                );
-
-                $query->add_from(array(
-                        'join'  => 'INNER JOIN',
-                        'table' => 'user',
-                        'alias' => 'usertable',
-                        'on'    => 'usertable.id = combinedmodulesubquery.id'
-                ));
-                break;
-
-            case 'countselect':
-
-                $selects = array(
-                    array(
-                        'table'    => 'sub',
-                        'column'   => 'authorid',
-                        'alias'    => 'userid'),
-                    array( // Count in case we have user as something other than the last node
-                        'function' => 'COUNT',
-                        'table'    => 'sub',
-                        'column'   => 'id',
-                        'alias'    => 'count'),
-                    // This is only needed to add the right callback function.
-                    array(
-                        'column' => "'".$query->get_modulename()."'",
-                        'alias' => 'modulename'
-                        ));
-                break;
-        }
-
-        foreach ($selects as $select) {
-            $query->add_select($select);
-        }
+    public function process_data($data, $params) {
+        return '';
     }
-
 }

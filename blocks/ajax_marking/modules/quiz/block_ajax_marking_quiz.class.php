@@ -30,13 +30,13 @@ if (!defined('MOODLE_INTERNAL')) {
 
 global $CFG;
 
-/** @define "$blockdir" "../.." */
+/* @define "$blockdir" "../.." */
 $blockdir = $CFG->dirroot.'/blocks/ajax_marking';
 require_once($blockdir.'/classes/query_base.class.php');
-require_once($blockdir.'/classes/query_factory.class.php');
+require_once($CFG->dirroot.'/blocks/ajax_marking/classes/filters.class.php');
 
 // We only need this file for the constants. Doing this so that we don't have problems including
-// the file from module.js
+// the file from module.js.
 
 
 if (isset($CFG) && !empty($CFG)) {
@@ -65,80 +65,13 @@ class block_ajax_marking_quiz extends block_ajax_marking_module_base {
      */
     public function __construct() {
 
-        // call parent constructor with the same arguments
+        // Call parent constructor with the same arguments.
         parent::__construct();
 
-        // must be the same as the DB modulename
-        $this->modulename = $this->moduletable = 'quiz';
+        // Must be the same as the DB modulename.
+        $this->modulename           = 'quiz';
         $this->capability           = 'mod/quiz:grade';
         $this->icon                 = 'mod/quiz/icon.gif';
-    }
-
-    /**
-     * This will alter a query to send back the stuff needed for quiz questions
-     *
-     * @param \block_ajax_marking_query_base|\type $query
-     * @param $operation
-     * @param int $questionid the id to filter by
-     * @return void
-     */
-    public function apply_questionid_filter(block_ajax_marking_query_base $query, $operation,
-                                            $questionid = 0) {
-
-        $selects = array();
-
-        switch ($operation) {
-
-            case 'where':
-                // Apply WHERE clause
-                $query->add_where(array(
-                        'type' => 'AND',
-                        'condition' => 'question.id = :'.$query->prefix_param('questionid')));
-                $query->add_param('questionid', $questionid);
-                break;
-
-            case 'displayselect':
-
-                $query->add_from(array(
-                        'join' => 'INNER JOIN',
-                        'table' => 'question',
-                        'on' => 'question.id = combinedmodulesubquery.id'));
-                $selects = array(
-                        array(
-                            'table' => 'question',
-                            'column' => 'name'),
-                        array(
-                            'table' => 'question',
-                            'column' => 'questiontext',
-                            'alias' => 'tooltip')
-                );
-                break;
-
-            case 'countselect':
-
-                $selects = array(
-                    array(
-                        'table' => 'question',
-                        'column' => 'id',
-                        'alias' => 'questionid'),
-                    array(
-                        'table' => 'sub',
-                        'column' => 'id',
-                        'alias' => 'count',
-                        'function' => 'COUNT',
-                        'distinct' => true),
-                     // This is only needed to add the right callback function.
-                    array(
-                        'column' => "'".$query->get_modulename()."'",
-                        'alias' => 'modulename'
-                        )
-                    );
-                break;
-        }
-
-        foreach ($selects as $select) {
-            $query->add_select($select);
-        }
     }
 
     /**
@@ -173,53 +106,52 @@ class block_ajax_marking_quiz extends block_ajax_marking_module_base {
      * Use questionid, rather than slot so we can group the same question in future, even across
      * random questions.
      *
-     * @global stdClass $CFG
-     * @global moodle_database $DB
      * @param array $params all of the stuff sent with the node click e.g. questionid
      * @param object $coursemodule
+     * @throws moodle_exception
+     * @global stdClass $CFG
+     * @global moodle_database $DB
      * @return string the HTML page
      */
     public function grading_popup($params, $coursemodule) {
 
         global $CFG, $PAGE, $DB, $OUTPUT;
 
-        // TODO what params do we get here?
+        $output = '';
 
+        // TODO what params do we get here?
         require_once($CFG->dirroot.'/mod/quiz/locallib.php');
 
-         //TODO feed in all dynamic variables here
-        $url = new moodle_url('/blocks/ajax_marking/actions/grading_popup.php', $params);
-        $PAGE->set_url($url);
+         // TODO feed in all dynamic variables here.
+        $PAGE->set_url(new moodle_url('/blocks/ajax_marking/actions/grading_popup.php', $params));
 
         $formattributes = array(
                     'method' => 'post',
                     'class'  => 'mform',
                     'id'     => 'manualgradingform',
                     'action' => block_ajax_marking_form_url($params));
-        echo html_writer::start_tag('form', $formattributes);
+        $output .= html_writer::start_tag('form', $formattributes);
 
         // We could be looking at multiple attempts and/or multiple questions
-        // Assume we have a user/quiz combo to get us here. We may have attemptid or questionid too
+        // Assume we have a user/quiz combo to get us here. We may have attemptid or questionid too.
 
         // Get all attempts with unmarked questions. We may or may not have a questionid, but
-        // this comes later so we can use the quiz's internal functions
+        // this comes later so we can use the quiz's internal functions.
         $questionattempts = $this->get_question_attempts($params);
-
         if (!$questionattempts) {
-            die('Could not retrieve question attempts. Maybe someone else marked them just now');
+            $message =
+                'Could not retrieve question attempts. Maybe someone else marked them just now';
+            throw new moodle_exception($message);
         }
 
-        // cache the attempt objects for reuse.
-        $quizattempts = array();
-        // We want to get the first one ready, so we can use it to print the info box
+        // Print infobox.
+        $rows = array();
+        // Print user picture and name.
+        $quizattempts = array(); // Cache the attempt objects for reuse..
+        // We want to get the first one ready, so we can use it to print the info box.
         $firstattempt = reset($questionattempts);
         $quizattempt = quiz_attempt::create($firstattempt->quizattemptid);
         $quizattempts[$firstattempt->quizattemptid] = $quizattempt;
-
-        // Print infobox
-        $rows = array();
-
-        // Print user picture and name
         $student = $DB->get_record('user', array('id' => $quizattempt->get_userid()));
         $courseid = $quizattempt->get_courseid();
         $picture = $OUTPUT->user_picture($student, array('courseid' => $courseid));
@@ -235,23 +167,15 @@ class block_ajax_marking_quiz extends block_ajax_marking_module_base {
 
         // Now output the summary table, if there are any rows to be shown.
         if (!empty($rows)) {
-            echo '<table class="generaltable generalbox quizreviewsummary"><tbody>', "\n";
-            echo implode("\n", $rows);
-            echo "\n</tbody></table>\n";
+            $output .= '<table class="generaltable generalbox quizreviewsummary"><tbody>'."\n";
+            $output .= implode("\n", $rows);
+            $output .= "\n</tbody></table>\n";
         }
 
         foreach ($questionattempts as $questionattempt) {
-
-            // Everything should already be in the right order:
-            // Question 1
-            // - Attempt 1
-            // - Attempt 2
-            // Question 2
-            // - Attempt 1
-            // - Attempt 2
-
+            // Everything should already be in the right order as a nested array.
             // N.B. Using the proper quiz functions in an attempt to make this more robust
-            // against future changes
+            // against future changes.
             if (!isset($quizattempts[$questionattempt->quizattemptid])) {
                 $quizattempt = quiz_attempt::create($questionattempt->quizattemptid);
                 $quizattempts[$questionattempt->quizattemptid] = $quizattempt;
@@ -265,25 +189,24 @@ class block_ajax_marking_quiz extends block_ajax_marking_module_base {
                        'reviewquestion.php?attempt=' .
                        $attemptid . '&question=' . $params['questionid'] ,
                        $quizattempt->get_quizid(), $quizattempt->get_cmid());
-            // Now make the actual markup to show one question plus commenting/grading stuff
-            echo $quizattempt->render_question_for_commenting($questionattempt->slot);
-
+            // Now make the actual markup to show one question plus commenting/grading stuff.
+            $output .= $quizattempt->render_question_for_commenting($questionattempt->slot);
         }
 
-        echo html_writer::start_tag('div');
-        echo html_writer::empty_tag('input', array('type' => 'submit', 'value' => 'Save'));
-
+        $output .= html_writer::start_tag('div');
+        $output .= html_writer::empty_tag('input', array('type' => 'submit', 'value' => 'Save'));
         foreach ($params as $name => $value) {
-            echo html_writer::empty_tag('input', array('type' => 'hidden',
-                                                       'name' => $name,
-                                                       'value' => $value));
+            $output .= html_writer::empty_tag('input', array('type' => 'hidden',
+                                                             'name' => $name,
+                                                             'value' => $value));
         }
-        echo html_writer::empty_tag('input', array('type' => 'hidden',
+        $output .= html_writer::empty_tag('input', array('type' => 'hidden',
                                                   'name' => 'sesskey',
                                                   'value' => sesskey()));
-        echo html_writer::end_tag('div');
+        $output .= html_writer::end_tag('div');
+        $output .= html_writer::end_tag('form');
 
-        echo html_writer::end_tag('form');
+        return $output;
     }
 
     /**
@@ -302,7 +225,7 @@ class block_ajax_marking_quiz extends block_ajax_marking_module_base {
         // the pop up, which could lead to these grades being ignored, or the other person's
         // being overwritten. Not much we can do about that.
         $questionattempts = $this->get_question_attempts($params);
-        // We will have duplicates as there could be multiple questions per attempt
+        // We will have duplicates as there could be multiple questions per attempt.
         $processedattempts = array();
 
         // This will get all of the attempts to pull the relevant data from all the POST stuff
@@ -332,33 +255,35 @@ class block_ajax_marking_quiz extends block_ajax_marking_module_base {
         global $DB;
 
         $query = new block_ajax_marking_query_base($this);
-        $query->set_userid_column('quiz_attempts.userid');
 
         $query->add_from(array(
                 'table' => $this->modulename,
                 'alias' => 'moduletable',
         ));
         $query->add_from(array(
-                'join'  => 'INNER JOIN',
                 'table' => 'quiz_attempts',
                 'on'    => 'moduletable.id = quiz_attempts.quiz'
         ));
         $query->add_from(array(
-                'join'  => 'INNER JOIN',
                 'table' => 'question_attempts',
                 'on'    => 'question_attempts.questionusageid = quiz_attempts.uniqueid'
         ));
         $query->add_from(array(
-                'join'  => 'INNER JOIN',
                 'table' => 'question_attempt_steps',
                 'alias' => 'sub',
                 'on'    => 'question_attempts.id = sub.questionattemptid'
         ));
         $query->add_from(array(
-                'join'  => 'INNER JOIN',
                 'table' => 'question',
                 'on'    => 'question_attempts.questionid = question.id'
         ));
+
+        // Standard userid for joins.
+        $query->add_select(array('table' => 'quiz_attempts',
+                                 'column' => 'userid'));
+        $query->add_select(array('table' => 'sub',
+                                'column' => 'timecreated',
+                                'alias'  => 'timestamp'));
 
         $query->add_where(array('type' => 'AND',
                                 'condition' => 'quiz_attempts.timefinish > 0'));
@@ -375,6 +300,7 @@ class block_ajax_marking_quiz extends block_ajax_marking_module_base {
         $gradedstates = array();
         $us = new ReflectionClass('question_state');
         foreach ($us->getStaticProperties() as $name => $class) {
+            /* @var question_state $class */
             if ($class->is_graded()) {
                 $gradedstates[] = $name;
             }
@@ -388,74 +314,8 @@ class block_ajax_marking_quiz extends block_ajax_marking_module_base {
                                   AND st.questionattemptid = question_attempts.id)";
         $query->add_where(array('type' => 'AND',
                                 'condition' => $subsql));
-        $query->add_params($gradedparams, false);
+        $query->add_params($gradedparams);
         return $query;
-    }
-
-    /**
-     * Applies the module-specific stuff for the user nodes
-     *
-     * @param block_ajax_marking_query_base $query
-     * @param $operation
-     * @param int $userid
-     * @return void
-     */
-    public function apply_userid_filter(block_ajax_marking_query_base $query, $operation,
-                                        $userid = 0) {
-
-        $selects = array();
-
-        switch ($operation) {
-
-            case 'where':
-                // Applies if users are not the final nodes,
-                $id = $query->prefix_param('submissionid');
-                $query->add_where(array(
-                        'type' => 'AND',
-                        'condition' => 'quiz_attempts.userid = :'.$id)
-                );
-                $query->add_param('submissionid', $userid);
-                break;
-
-            case 'displayselect':
-                $selects = array(
-                        array(
-                            'table'    => 'usertable',
-                            'column'   => 'firstname'),
-                        array(
-                            'table'    => 'usertable',
-                            'column'   => 'lastname'));
-
-                $query->add_from(array(
-                        'join'  => 'INNER JOIN',
-                        'table' => 'user',
-                        'alias' => 'usertable',
-                        'on'    => 'usertable.id = combinedmodulesubquery.id'
-                ));
-                break;
-
-            case 'countselect':
-                $selects = array(
-                    array(
-                        'table'    => 'quiz_attempts',
-                        'column'   => 'userid'),
-                    array( // Count in case we have user as something other than the last node
-                        'function' => 'COUNT',
-                        'table'    => 'sub',
-                        'column'   => 'id',
-                        'alias'    => 'count'),
-                    // This is only needed to add the right callback function.
-                    array(
-                        'column' => "'".$query->get_modulename()."'",
-                        'alias' => 'modulename'
-                        ));
-                break;
-        }
-
-        foreach ($selects as $select) {
-            $query->add_select($select);
-        }
-
     }
 
     /**
@@ -468,25 +328,209 @@ class block_ajax_marking_quiz extends block_ajax_marking_module_base {
      */
     protected function get_question_attempts($params) {
 
-        $query = block_ajax_marking_query_factory::get_filtered_module_query($params, $this);
-        $query->add_select(array('table' => 'question_attempts',
-                               'column' => 'id',
-                               'distinct' => true
-                           ));
-        $query->add_select(array('table' => 'quiz_attempts',
-                               'column' => 'id',
-                               'alias' => 'quizattemptid'
-                           ));
-        $query->add_select(array('table' => 'question_attempts',
-                               'column' => 'questionid',
-                           ));
-        $query->add_select(array('table' => 'question_attempts',
-                               'column' => 'slot',
-                           ));
-        // We want the oldest at the top so that the tutor can see how the answer changes over time
-        $query->add_orderby('question_attempts.slot, quiz_attempts.id ASC');
-        $questionattempts = $query->execute();
+        global $DB;
+
+        $quizmoduleid = $this->get_module_id();
+        $sqlparams = array('quizmoduleid' => $quizmoduleid);
+
+        $sql = "SELECT question_attempts.id,
+                       quiz_attempts.userid,
+                       sub.timecreated   AS timestamp,
+                       course_modules.id AS coursemoduleid,
+                       moduletable.course,
+                       sub.id            AS subid,
+                       'quiz'            AS modulename,
+                       quiz_attempts.id  AS quizattemptid,
+                       question_attempts.questionid,
+                       question_attempts.slot
+                FROM   mdl_quiz moduletable
+                       INNER JOIN mdl_quiz_attempts quiz_attempts
+                         ON moduletable.id = quiz_attempts.quiz
+                       INNER JOIN mdl_question_attempts question_attempts
+                         ON question_attempts.questionusageid = quiz_attempts.uniqueid
+                       INNER JOIN mdl_question_attempt_steps sub
+                         ON question_attempts.id = sub.questionattemptid
+                       INNER JOIN mdl_question question
+                         ON question_attempts.questionid = question.id
+                       INNER JOIN mdl_course_modules course_modules
+                         ON course_modules.instance = moduletable.id
+                            AND course_modules.module = :quizmoduleid
+                WHERE  quiz_attempts.timefinish > 0
+                       AND quiz_attempts.preview = 0
+                       AND question_attempts.behaviour = 'manualgraded'
+                       AND sub.state = 'needsgrading'
+                       AND NOT EXISTS(SELECT 1
+                                      FROM   mdl_question_attempt_steps st
+                                      WHERE  st.state IN ( 'gradedwrong', 'gradedpartial',
+                                                           'gradedright',
+                                                           'mangrwrong',
+                                                           'mangrpartial', 'mangrright' )
+                                             AND st.questionattemptid = question_attempts.id)";
+
+        if (isset($params['coursemoduleid'])) {
+            $sql .= ' AND course_modules.id = :coursemoduleid ';
+            $sqlparams['coursemoduleid'] = $params['coursemoduleid'];
+        }
+        if (isset($params['questionid'])) {
+            $sql .= ' AND question_attempts.questionid = :questionid ';
+            $sqlparams['questionid'] = $params['questionid'];
+        }
+        if (isset($params['userid'])) {
+            $sql .= ' AND quiz_attempts.userid = :userid ';
+            $sqlparams['userid'] = $params['userid'];
+        }
+
+        $sql .= " ORDER  BY question_attempts.slot,
+                          quiz_attempts.id ASC  ";
+
+        // We want the oldest at the top so that the tutor can see how the answer changes over time.
+        $questionattempts = $DB->get_records_sql($sql, $sqlparams);
         return $questionattempts;
+    }
+
+}
+
+/**
+ * Questionid filters for the quiz module.
+ */
+class block_ajax_marking_quiz_questionid extends block_ajax_marking_filter_base {
+
+    /**
+     * Adds SQL to a dynamic query for when there is a question node as an ancestor of the current
+     * nodes.
+     *
+     * @static
+     * @param block_ajax_marking_query_base $query
+     * @param int $questionid
+     */
+    public static function where_filter($query, $questionid) {
+
+        $moduleunion = self::get_moduleunion_subquery($query);
+        $countwrapper = self::get_countwrapper_subquery($query);
+        // Apply WHERE clause.
+        // TODO can we just add the questionid in there all the time and not have to make
+        // moduleunion dynamic?
+        $conditions = array(
+            'table' => 'question',
+            'column' => 'id',
+            'alias' => 'questionid'
+        );
+        $moduleunion['quiz']->add_select($conditions);
+        $clause = array(
+            'type' => 'AND',
+            'condition' => 'moduleunion.questionid = :questionidfilterquestionid');
+        $countwrapper->add_where($clause);
+        $countwrapper->add_param('questionidfilterquestionid', $questionid);
+    }
+
+    /**
+     * Makes a set of question nodes by grouping submissions by questionid.
+     *
+     * @static
+     * @param block_ajax_marking_query_base $query
+     */
+    public static function nextnodetype_filter($query) {
+
+        $moduleunion = self::get_moduleunion_subquery($query);
+        $countwrapper = self::get_countwrapper_subquery($query);
+
+        $moduleunion['quiz']->add_select(array(
+                                              'table' => 'question',
+                                              'column' => 'id',
+                                              'alias' => 'questionid'
+                                         ));
+        // We can add this as we can be sure that we are only looking at quiz nodes, so there
+        // will be no other modules being added with UNION, so they won't all need the same
+        // columns for the UNION to work.
+        $countwrapper->add_select(array(
+                                       'table' => 'moduleunion',
+                                       'column' => 'questionid',
+                                       'alias' => 'id'));
+
+        // Outer bit to get display name.
+        $query->add_from(array(
+                              'join' => 'INNER JOIN',
+                              'table' => 'question',
+                              'on' => 'question.id = countwrapperquery.id'));
+        $query->add_select(array(
+                                'table' => 'question',
+                                'column' => 'name'));
+        $query->add_select(array(
+                                'table' => 'question',
+                                'column' => 'questiontext',
+                                'alias' => 'tooltip'));
+
+        // This is only needed to add the right callback function.
+        $query->add_select(array(
+                                'column' => "'quiz'",
+                                'alias' => 'modulename'));
+
+        $query->add_orderby("question.name ASC");
+    }
+}
+
+/**
+ * Userid filters for the quiz module
+ */
+class block_ajax_marking_quiz_userid extends block_ajax_marking_filter_base {
+
+    /**
+     * Adds SQL for when there is a userid node as an ancestor of the current nodes. Unlikely to
+     * be used.
+     *
+     * @static
+     * @param block_ajax_marking_query_base $query
+     * @param int $userid
+     */
+    public static function where_filter($query, $userid) {
+        // Applies if users are not the final nodes.
+        $clause = array(
+            'type' => 'AND',
+            'condition' => 'quiz_attempts.userid = :useridfiltersubmissionid');
+        $query->add_where($clause
+        );
+        $query->add_param('useridfiltersubmissionid', $userid);
+    }
+
+    /**
+     * Makes a bunch of user nodes by grouping quiz submissions by the user id. The grouping is
+     * automatic, but the text labels for the nodes are specified here.
+     *
+     * @static
+     * @param block_ajax_marking_query_base $query
+     */
+    public static function nextnodetype_filter($query) {
+        $countwrapper = self::get_countwrapper_subquery($query);
+
+        $query->add_select(array(
+                                'table' => 'countwrapperquery',
+                                'column' => 'timestamp',
+                                'alias' => 'tooltip')
+        );
+
+        $query->add_select(array(
+                                'table' => 'usertable',
+                                'column' => 'firstname'));
+        $query->add_select(array(
+                                'table' => 'usertable',
+                                'column' => 'lastname'));
+
+        $query->add_from(array(
+                              'join' => 'INNER JOIN',
+                              'table' => 'user',
+                              'alias' => 'usertable',
+                              'on' => 'usertable.id = countwrapperquery.id'
+                         ));
+
+        $countwrapper->add_select(array(
+                                       'table' => 'moduleunion',
+                                       'column' => 'userid',
+                                       'alias' => 'id'));
+        // This is only needed to add the right callback function.
+        $query->add_select(array(
+                                'column' => "'quiz'",
+                                'alias' => 'modulename'
+                           ));
     }
 
 

@@ -25,48 +25,51 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define('AJAX_SCRIPT', true);
+if (!defined('AJAX_SCRIPT')) {
+    define('AJAX_SCRIPT', true);
+}
 
 require_once(dirname(__FILE__).'/../../../config.php');
 
-// For unit tests to work
+// For unit tests to work.
 global $CFG, $PAGE;
 
-require_login(0, false);
 require_once($CFG->dirroot.'/blocks/ajax_marking/lib.php');
-require_once($CFG->dirroot.'/blocks/ajax_marking/classes/output.class.php');
 require_once($CFG->dirroot.'/blocks/ajax_marking/classes/module_base.class.php');
-require_once($CFG->dirroot.'/blocks/ajax_marking/classes/query_factory.class.php');
+require_once($CFG->dirroot.'/blocks/ajax_marking/classes/nodes_builder.class.php');
 
-// TODO might be in a course
-$PAGE->set_context(get_context_instance(CONTEXT_SYSTEM));
+block_ajax_marking_login_error();
+require_login(0, false); // Still need this to set stuff up.
+
+// TODO might be in a course.
+$PAGE->set_context(context_system::instance());
 
 // Each ajax request will have different stuff that we want to pass to the callback function. Using
 // required_param() means hard-coding them.
 $params = array();
 
-// Need to get the filters in the right order so that the query receives them in the right order
+// Need to get the filters in the right order so that the query receives them in the right order.
 foreach ($_POST as $name => $value) {
     $params[$name] = clean_param($value, PARAM_ALPHANUMEXT);
 }
 
-if (!isset($params['nextnodefilter'])) {
-    print_error('No filter specified for next set of nodes');
-    die();
-}
-
 if (isset($params['config'])) {
-    $nodes = block_ajax_marking_query_factory::get_config_nodes($params);
+    $nodes = block_ajax_marking_nodes_builder::get_config_nodes($params);
 } else {
-    $nodes = block_ajax_marking_query_factory::get_unmarked_nodes($params);
+    $nodes = block_ajax_marking_nodes_builder::unmarked_nodes($params);
 }
 
+$nextnodefilter = block_ajax_marking_get_nextnodefilter_from_params($params);
 foreach ($nodes as &$node) {
-    block_ajax_marking_format_node($node, $params['nextnodefilter']);
+    block_ajax_marking_format_node($node, $nextnodefilter);
 }
 
-// reindex array so we pick it up in js as an array and can find the length. Associative arrays
-// with strings for keys are automatically sent as objects
+// Reindex array so we pick it up in js as an array and can find the length. Associative arrays
+// with strings for keys are automatically sent as objects.
 $nodes = array_values($nodes);
-echo json_encode(array('nodes' => $nodes));
+$data = array('nodes' => $nodes);
+if (isset($params['nodeindex'])) {
+    $data['nodeindex'] = $params['nodeindex'];
+}
+echo json_encode($data);
 
