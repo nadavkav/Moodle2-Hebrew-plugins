@@ -13,14 +13,16 @@
         <FIELD NAME="summary" TYPE="text" LENGTH="medium" NOTNULL="false" SEQUENCE="false" ENUM="false" PREVIOUS="name" NEXT="allowcomments"/>
         <FIELD NAME="allowcomments" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" COMMENT="0 = do not allow comments
 1 = allow comments from signed-in users
-2 = allow comments from signed-in users, and moderated comments from external users" PREVIOUS="summary" NEXT="maxvisibility"/>
-        <FIELD NAME="maxvisibility" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="true" DEFAULT="100" SEQUENCE="false" ENUM="false" PREVIOUS="allowcomments" NEXT="global"/>
-
+2 = allow comments from signed-in users, and moderated comments from external users" PREVIOUS="summary" NEXT="maxbytes"/>
+        <FIELD NAME="maxbytes" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="512000" SEQUENCE="false" PREVIOUS="allowcomments" NEXT="maxattachments"/>
+        <FIELD NAME="maxattachments" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="9" SEQUENCE="false" COMMENT="Number of attachments allowed per post" PREVIOUS="maxbytes" NEXT="maxvisibility"/>
+        <FIELD NAME="maxvisibility" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="true" DEFAULT="100" SEQUENCE="false" ENUM="false" PREVIOUS="maxattachments" NEXT="global"/>
         <FIELD NAME="global" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" COMMENT="Is this the global blog?" PREVIOUS="maxvisibility" NEXT="views"/>
         <FIELD NAME="views" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="global" NEXT="completionposts"/>
         <FIELD NAME="completionposts" TYPE="int" LENGTH="9" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" COMMENT="If set, specifies a number of blog posts that a student must make for this activity to be marked completed." PREVIOUS="views" NEXT="completioncomments"/>
         <FIELD NAME="completioncomments" TYPE="int" LENGTH="9" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" COMMENT="If set, specifies a number of blog comments that a student must make for this activity to be marked completed." PREVIOUS="completionposts" NEXT="individual"/>
-        <FIELD NAME="individual" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" COMMENT="Is this the individual blog?" PREVIOUS="completioncomments"/>
+        <FIELD NAME="individual" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" COMMENT="Is this the individual blog?" PREVIOUS="completioncomments" NEXT="grade"/>
+        <FIELD NAME="grade" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="individual"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -72,7 +74,7 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="oublog_posts_oublog_instances_fk"/>
         <KEY NAME="oublog_posts_oublog_instances_fk" TYPE="foreign" FIELDS="oubloginstancesid" REFTABLE="oublog_instances" REFFIELDS="id" PREVIOUS="primary" NEXT="oublog_posts_deletedby_users_fk"/>
 
-        <KEY NAME="oublog_posts_deletedby_users_fk" TYPE="foreign" FIELDS="deletedby" REFTABLE="users" REFFIELDS="id" PREVIOUS="oublog_posts_oublog_instances_fk"/>
+        <KEY NAME="oublog_posts_deletedby_users_fk" TYPE="foreign" FIELDS="deletedby" REFTABLE="user" REFFIELDS="id" PREVIOUS="oublog_posts_oublog_instances_fk"/>
       </KEYS>
       <INDEXES>
         <INDEX NAME="timeposted" UNIQUE="false" FIELDS="timeposted" NEXT="timeupdated"/>
@@ -97,8 +99,8 @@
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="oublog_comments_oublog_post_fk"/>
         <KEY NAME="oublog_comments_oublog_post_fk" TYPE="foreign" FIELDS="postid" REFTABLE="oublog_posts" REFFIELDS="id" PREVIOUS="primary" NEXT="oublog_comments_userid_users_fk"/>
-        <KEY NAME="oublog_comments_userid_users_fk" TYPE="foreign" FIELDS="userid" REFTABLE="users" REFFIELDS="id" PREVIOUS="oublog_comments_oublog_post_fk" NEXT="oublog_comments_deletedby_users_fk"/>
-        <KEY NAME="oublog_comments_deletedby_users_fk" TYPE="foreign" FIELDS="deletedby" REFTABLE="users" REFFIELDS="id" PREVIOUS="oublog_comments_userid_users_fk"/>
+        <KEY NAME="oublog_comments_userid_users_fk" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id" PREVIOUS="oublog_comments_oublog_post_fk" NEXT="oublog_comments_deletedby_users_fk"/>
+        <KEY NAME="oublog_comments_deletedby_users_fk" TYPE="foreign" FIELDS="deletedby" REFTABLE="user" REFFIELDS="id" PREVIOUS="oublog_comments_userid_users_fk"/>
 
       </KEYS>
     </TABLE>
@@ -115,7 +117,7 @@
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="oublog_edits_oublog_posts_fk"/>
         <KEY NAME="oublog_edits_oublog_posts_fk" TYPE="foreign" FIELDS="postid" REFTABLE="oublog_instances" REFFIELDS="id" PREVIOUS="primary" NEXT="oublog_edits_users_fk"/>
-        <KEY NAME="oublog_edits_users_fk" TYPE="foreign" FIELDS="userid" REFTABLE="users" REFFIELDS="id" PREVIOUS="oublog_edits_oublog_posts_fk"/>
+        <KEY NAME="oublog_edits_users_fk" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id" PREVIOUS="oublog_edits_oublog_posts_fk"/>
       </KEYS>
     </TABLE>
     <TABLE NAME="oublog_tags" COMMENT="Blog tags" PREVIOUS="oublog_edits" NEXT="oublog_taginstances">

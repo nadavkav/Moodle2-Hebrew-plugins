@@ -5,6 +5,7 @@ $string['modulename'] = 'OU blog';
 $string['modulenameplural'] = 'OU blogs';
 
 $string['oublog:view'] = 'View posts';
+$string['oublog:addinstance'] = 'Add a new OU blog';
 $string['oublog:viewpersonal'] = 'View posts in personal blogs';
 $string['oublog:contributepersonal'] = 'Post and comment in personal blogs';
 $string['oublog:post'] = 'Create a new post';
@@ -25,6 +26,7 @@ $string['tagsfield'] = 'Tags (separated by commas)';
 $string['allowcomments'] = 'Allow comments';
 $string['allowcommentsmax'] = 'Allow comments (if chosen for post)';
 $string['logincomments'] = 'Yes, from logged-in users';
+$string['permalink'] = 'Permalink';
 $string['publiccomments'] = 'Yes, from everybody (even if not logged in)';
 $string['publiccomments_info'] = 'If somebody adds a comment when they are not
 logged in, you will receive email notification and can approve the comment for
@@ -197,8 +199,8 @@ $string['no_blogtogetheroringroups'] = 'No (blog together or in groups)';
 $string['separateindividualblogs'] = 'Separate individual blogs';
 $string['visibleindividualblogs'] = 'Visible individual blogs';
 
-$string['separateindividual'] = 'Separate&nbsp;individual';
-$string['visibleindividual'] = 'Visible&nbsp;individual';
+$string['separateindividual'] = 'Separate&nbsp;individuals';
+$string['visibleindividual'] = 'Visible&nbsp;individuals';
 $string['viewallusers'] = 'View all users';
 $string['viewallusersingroup'] = 'View all users in group';
 
@@ -348,3 +350,41 @@ $string['externaldashboardadd'] = 'Add blog to dashboard';
 $string['externaldashboardremove'] = 'Remove blog from dashboard';
 $string['viewblogdetails'] = 'View blog details';
 $string['viewblogposts'] = 'Return to blog';
+
+// User participation
+$string['oublog:grade'] = 'Grade OU Blog user participation';
+$string['oublog:viewparticipation'] = 'View OU Blog user participation';
+$string['userparticipation'] = 'User participation';
+$string['myparticipation'] = 'My participation';
+$string['savegrades'] = 'Save grades';
+$string['participation'] = 'Participation';
+$string['participationbyuser'] = 'Participation by user';
+$string['details'] = 'Details';
+$string['foruser'] = ' for {$a}';
+$string['postsby'] = 'Posts by {$a}';
+$string['commentsby'] = 'Comments by {$a}';
+$string['commentonby'] = 'Comment on <u>{$a->title}</u> by <u>{$a->author}</u>';
+$string['nouserposts'] = 'This user made no posts in this blog.';
+$string['nousercomments'] = 'This user added no comments in this blog.';
+$string['savegrades'] = 'Save grades';
+$string['gradesupdated'] = 'Grades updated';
+$string['usergrade'] = 'User grade';
+
+// Participation download strings
+$string['downloadas'] = 'Download data as';
+$string['postauthor'] = 'Post author';
+$string['postdate'] = 'Post date';
+$string['posttime'] = 'Post time';
+$string['posttitle'] = 'Post title';
+
+// Export
+$string['exportedpost'] = 'Exported blog post';
+
+$string['configmaxattachments'] = 'Default maximum number of attachments allowed per blog post.';
+$string['configmaxbytes'] = 'Default maximum size for all blog attachments on the site.
+(subject to course limits and other local settings)';
+$string['maxattachmentsize'] = 'Maximum attachment size';
+$string['maxattachments'] = 'Maximum number of attachments';
+$string['maxattachments_help'] = 'This setting specifies the maximum number of files that can be attached to a blog post.';
+$string['maxattachmentsize_help'] = 'This setting specifies the largest size of file that can be attached to a blog post.';
+$string['attachments_help'] = 'You can optionally attach one or more files to a blog post. If you attach an image, it will be displayed after the message.';

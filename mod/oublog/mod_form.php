@@ -20,7 +20,7 @@ class mod_oublog_mod_form extends moodleform_mod {
 
     function definition() {
 
-        global $COURSE;
+        global $COURSE, $CFG;
         $mform    =& $this->_form;
 
 //-------------------------------------------------------------------------------
@@ -66,14 +66,33 @@ class mod_oublog_mod_form extends moodleform_mod {
             $mform->setType('maxvisibility', PARAM_INT);
             $mform->addHelpButton('maxvisibility', 'maxvisibility', 'oublog');
 
+            // Max size of attachments.
+            $modulesettings = get_config('mod_oublog');
+            $choices = get_max_upload_sizes($CFG->maxbytes, $COURSE->maxbytes);
+            $choices[-1] = get_string('uploadnotallowed');
+            $choices[0] = get_string('courseuploadlimit') . ' (' .
+                    display_size($COURSE->maxbytes) . ')';
+            $mform->addElement('select', 'maxbytes',
+                    get_string('maxattachmentsize', 'oublog'), $choices);
+            $mform->addHelpButton('maxbytes', 'maxattachmentsize', 'oublog');
+            $mform->setDefault('maxbytes', $modulesettings->maxbytes);
 
-    //-------------------------------------------------------------------------------
+
+            // Max number of attachments.
+            $choices = array(0,1,2,3,4,5,6,7,8,9,10,20,50,100);
+            $mform->addElement('select', 'maxattachments',
+                    get_string('maxattachments', 'oublog'), $choices);
+            $mform->addHelpButton('maxattachments', 'maxattachments', 'oublog');
+            $mform->setDefault('maxattachments', $modulesettings->maxattachments);
+
+            $this->standard_grading_coursemodule_elements();
+            $mform->setDefault('grade', 0);
+
             // add standard elements, common to all modules
             $features = new stdClass;
             $features->groupings = true;
             $features->groupmembersonly = true;
             $this->standard_coursemodule_elements($features);
-    //-------------------------------------------------------------------------------
         } else {
             $mform->addElement('hidden', 'instance');
             $mform->setType('instance', PARAM_INT);
@@ -102,6 +121,9 @@ class mod_oublog_mod_form extends moodleform_mod {
         $mform->addGroup($group, 'completioncommentsgroup', get_string('completioncommentsgroup','oublog'), array(' '), false);
         $mform->addHelpButton('completioncommentsgroup', 'completioncommentsgroup', 'oublog');
         $mform->disabledIf('completioncomments','completioncommentsenabled','notchecked');
+
+        // Restriction for grade completion
+        $mform->disabledIf('completionusegrade', 'grade', 'eq', 0);
 
         return array('completionpostsgroup','completioncommentsgroup');
     }
