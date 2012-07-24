@@ -66,17 +66,14 @@
     
                                  
     if ($sections = $DB->get_records_sql($sql)) {
-
-
-        echo "<table width='90%'>";
+       echo "<table width='90%'>";
        foreach($sections as $section){
             $sect = new qssection($section->summary);  
             if($fromlform){
                 $stripbcol=optional_param('colb_' . $section->id,'#000088',PARAM_TEXT);
                 $stripfcol=optional_param('colf_' . $section->id,'#ffffff',PARAM_TEXT);
-                $t=optional_param('name_' . $section->id,"Section {$section->section}",PARAM_RAW);
-                //$new = "<h2 class='qs_header' style='background-color:{$stripbcol};color:{$stripfcol}'>" . strip_tags(htmlentities(str_replace('&',' and ',$t))) . '</h2>' . ($sect->getimage(200)) . ($sect->gettail());
-                $new = "<h2 class='qs_header' style='background-color:{$stripbcol};color:{$stripfcol}'>" . strip_tags(str_replace('&',' and ',$t)) . '</h2>' . ($sect->getimage(200)) . ($sect->gettail());
+                $t=optional_param('name_' . $section->id,"Section {$section->section}",PARAM_TEXT);
+                $new = "<h2 class='qs_header' style='background-color:{$stripbcol};color:{$stripfcol}'>" . strip_tags(str_replace('&',' and ',$t)) . '</h2>' . ($sect->getimage(200)) . ($sect->gettail());          
                 $section->summary=$new;
             }
             
@@ -95,11 +92,7 @@
                    $sect = new qssection($section->summary);
                }
             }
-//           print_r($section);
-//           $tempsection = $DB->get_record('course_sections', array('id' => $section->id));
-//           $tempsection->summary = $section->summary;
-//           $tempsection->section = $section->section;
-//           $tempsection->visible = $section->visible;
+            
             // now write any changes back to db
             $DB->update_record('course_sections',$section);
             

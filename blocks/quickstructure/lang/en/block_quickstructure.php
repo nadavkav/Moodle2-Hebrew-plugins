@@ -42,5 +42,3 @@ $string['stageI'] = 'Stage I: Add/Edit Section Labels';
 $string['stageII'] = 'Stage II: Add/Edit Thumbnails ';
 $string['jumptocurrenttopic'] = 'Jump to current topic';
 $string['jumptocurrentweek'] = 'Jump to current week';
-$string['edit'] = 'Update course structure';
-$string['sectionfolding'] = 'Show selected section';

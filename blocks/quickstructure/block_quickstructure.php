@@ -11,7 +11,7 @@
 class block_quickstructure extends block_base {
 
     function init() { 
-       $this->title = get_string('pluginname', 'block_quickstructure');
+       $this->title = 'QuickStructure';
        $this->version = 2007101509;
     }
 
@@ -29,7 +29,7 @@ class block_quickstructure extends block_base {
             } else if ($course->format == 'weeks') {
                 $this->title = get_string('weeks', 'block_quickstructure');
             } else {
-                $this->title = get_string('pluginname', 'block_quickstructure');
+                $this->title = get_string('blockname', 'block_quickstructure');
             }
         }
     }
@@ -134,16 +134,16 @@ class block_quickstructure extends block_base {
            
         }
         $this->content->text = $text;
-        $this->content->text .= "<br/><br/><input type='checkbox' id='qs_folding' name='qs_folding' checked> <span style='color:#aaa'>" . get_string('sectionfolding','block_quickstructure') . "</span>";
+        $this->content->text .= "<br/><br/><input type='checkbox' id='qs_folding' name='qs_folding' checked> <span style='color:#aaa'>use section folding</span>";
         if(has_capability('moodle/course:update', $context)){
-            $this->content->footer = "<a href='{$CFG->wwwroot}/blocks/quickstructure/addlabels.php?cid=$course->id&bid={$this->instance->id}'>" . get_string('edit','block_quickstructure') . "</a>";
+            $this->content->footer = "<a href='{$CFG->wwwroot}/blocks/quickstructure/addlabels.php?cid=$course->id&bid={$this->instance->id}'>Edit</a>";
             $menu = resetmenu($course,$numthumbs,$thumbwidth,$usethumbs,$uselabels,$menucolour,$thumbeffects);
         } else {
             $menu = (get_config('blocks/quickstructure','qsmenu_'.$course->id));        
         }      
         
         if($usemenu){
-            $this->content->text .= "<br/><input type='checkbox' id='qs_showmenu' name='qs_showmenu' checked> <span style='color:#aaa'>" . get_string('usemenu','block_quickstructure') . "</span>";
+            $this->content->text .= "<br/><input type='checkbox' id='qs_showmenu' name='qs_showmenu' checked> <span style='color:#aaa'>use menu</span>";
             $code="<div id='qs_topmenu'>$menu</div>";
             $PAGE->requires->js('/blocks/quickstructure/quickstructure.js'); 
             $PAGE->requires->css('/blocks/quickstructure/quickstructure.css'); 

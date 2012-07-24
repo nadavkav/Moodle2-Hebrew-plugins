@@ -9,15 +9,17 @@ class qssection {
     var $bcol='';
     
     function qssection($xml) {
+        //dbg();
         $this->sep = "<!-- qs -->";
         $parts = explode($this->sep,$xml);
         if(isset($parts[1])){
-            $this->tail=$this->sep . $parts[1];    
+            $head=array_shift($parts);
+            $head=strip_tags($head,'<h1><h2><h3><h4><h5><h6><img><div>');
+            $this->tail=$this->sep . implode('',$parts);    
             // editor sometimes add tags! strip em all out 
-            $head=strip_tags($parts[0],'<h1><h2><h3><h4><h5><h6><img><div>');
         }else{
             $head = '<h2 style="background-color: rgb(255, 255, 255); color: rgb(0, 0, 0);" class="qs_header"></h2>';    
-            $this->tail=$this->sep . $parts[0];    
+            $this->tail=$this->sep . $xml;    
         }
         $this->dom = new DOMDocument;
         $this->dom->loadXml('<div>' . $head . '</div>');
