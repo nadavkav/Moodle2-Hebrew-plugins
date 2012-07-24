@@ -69,10 +69,32 @@ function subpage_update_instance($subpage) {
  * @return bool
  */
 function subpage_delete_instance($id) {
-    global $DB;
+    global $DB, $PAGE, $CFG;
 
     if (! $subpage = $DB->get_record("subpage", array("id"=>$id))) {
         return false;
+    }
+    require_once($CFG->dirroot . '/mod/subpage/locallib.php');
+    $transaction = $DB->start_delegated_transaction();
+
+    // if deleting a subpage activity from course/mod.php page (not delete the whole course)
+    if ($PAGE->pagetype == 'course-mod') {
+        $subpagecmid = required_param('delete', PARAM_INT);
+        // Check if all the sections in this subpage is empty
+        $subpageinstance = mod_subpage::get_from_cmid($subpagecmid);
+        $subpagesections = $DB->get_records('subpage_sections',
+                array("subpageid" => $subpage->id), '', 'sectionid');
+        foreach ($subpagesections as $sections) {
+            if (!$subpageinstance->is_section_empty($sections->sectionid)) {
+                // Section is not empty
+                $url = new moodle_url('/mod/subpage/view.php', array('id' => $subpagecmid));
+                print_error('error_deletingsubpage', 'mod_subpage', $url);
+            }
+        }
+        // all sections are empty, delete the empty sections
+        foreach ($subpagesections as $sections) {
+            $subpageinstance->delete_section($sections->sectionid);
+        }
     }
 
     // Delete main table and sections
@@ -88,7 +110,7 @@ function subpage_delete_instance($id) {
             rebuild_course_cache($sharedsubpage->course, true);
         }
     }
-
+    $transaction->allow_commit();
     return true;
 }
 
@@ -144,7 +166,7 @@ function subpage_get_coursemodule_info($cm) {
     if ($subpage->enablesharing) {
         // Work out current value
         require_once($CFG->dirroot . '/mod/sharedsubpage/locallib.php');
-        $content = sharedsubpage_get_subpage_content($subpage);
+        $content = serialize(sharedsubpage_gather_data($subpage));
         $hash = sha1($subpage->name . "\n" . $content);
 
         if ($hash != $subpage->sharedcontenthash) {
@@ -159,7 +181,30 @@ function subpage_get_coursemodule_info($cm) {
             $DB->set_field('subpage', 'sharedcontenthash', $hash, array('id'=>$subpage->id));
         }
     }
-    return new cached_cm_info();
+    // Add the all the sectionids within this subpage to the customdata
+    $info = new cached_cm_info();
+    $sectionids = array();
+    $sectionstealth = array();
+    $sections = $DB->get_records('subpage_sections',
+            array('subpageid'=>$subpage->id), 'pageorder');
+    foreach ($sections as $section) {
+        $sectionids[] = $section->sectionid;
+        $sectionstealth[$section->sectionid] = $section->stealth;
+    }
+    $info->customdata = (object)array('sectionids' => $sectionids,
+            'sectionstealth' => $sectionstealth);
+    return $info;
+}
+
+/**
+ * Sets the module uservisible to false if the user has not got the view
+ * capability.
+ * @param cm_info $cm Module data
+ */
+function subpage_cm_info_dynamic(cm_info $cm) {
+    if (!has_capability('mod/subpage:view', get_context_instance(CONTEXT_MODULE, $cm->id))) {
+        $cm->set_available(false);
+    }
 }
 
 /**
@@ -185,4 +230,13 @@ function subpage_extend_settings_navigation($settings, navigation_node $subpagen
                 navigation_node::TYPE_SETTING, null, 'subpageeditingtoggle');
         $subpagenode->add_node($node, 'modedit');
     }
+}
+
+/**
+ * @return array List of all system capabilitiess used in module
+ */
+function subpage_get_extra_capabilities() {
+    // Note: I made this list by searching for moodle/ within the module
+    return array('moodle/course:update', 'moodle/course:viewhiddensections',
+            'moodle/course:manageactivities');
 }

@@ -179,4 +179,11 @@ WHERE
         $transaction->allow_commit();
     }
 
+    if ($oldversion < 2012021301) {
+        // Delete the cached modinfo data for all the courses
+        rebuild_course_cache(0, true);
+        upgrade_mod_savepoint(true, 2012021301, 'subpage');
+    }
+
+    return true;
 }
