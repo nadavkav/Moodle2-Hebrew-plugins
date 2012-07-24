@@ -91,18 +91,28 @@ $string['images'] = 'Images';
 $string['imagesperpage'] = 'Images per page';
 $string['imagesperrow'] = 'Images per row';
 $string['imageuploaded'] = 'Uploaded image: {$a}';
+$string['invalidquizid'] = 'Invalid lightboxgallery ID';
 $string['lightboxgallery'] = 'Lightbox Gallery';
 $string['lightboxgallery:addcomment'] = 'Add comment to lightbox gallery';
+$string['lightboxgallery:addinstance'] = 'Add a new lightbox gallery';
 $string['lightboxgallery:addimage'] = 'Add image to lightbox gallery';
 $string['lightboxgallery:edit'] = 'Edit a lightbox gallery';
+$string['lightboxgallery:submit'] = 'Submit a lightbox gallery';
 $string['lightboxgallery:viewcomments'] = 'View lightbox gallery comments';
-$string['lightboxgallery:submit'] = 'Submit images';
 $string['makepublic'] = 'Make public';
 $string['metadata'] = 'Meta data';
 $string['modulename'] = 'Lightbox Gallery';
+$string['modulename_help'] = 'The lightboxgallery resource module enables participants to view a gallery of images.
+
+This resource allows you to create \'Lightbox\' enabled image galleries within your Moodle course.
+
+As a course teacher, you are able to create, edit and delete galleries. Smallthumbnails will then be generated, which are used for the thumbnail view of the gallery.
+Clicking on any of the thumbnails brings that image into focus, and allows you to scroll through the gallery at your leisure. Using the Lightbox scripts creates nice transition effects when loading and scrolling through the images.
+
+If enabled, users are able to leave comments on your gallery.';
 $string['modulenameplural'] = 'Lightbox Galleries';
 $string['modulenameshort'] = 'Gallery';
-$string['modulenameadd'] = 'Add a lightbox gallery';
+$string['modulenameadd'] = 'Lightbox gallery';
 $string['newgallerycomments'] = 'New gallery comments';
 $string['norssfeedavailable'] = 'Feed not available';
 $string['position_bottom'] = 'Bottom';

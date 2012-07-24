@@ -36,7 +36,7 @@ $galleryurl = $CFG->wwwroot.'/mod/lightboxgallery/view.php?id='.$cm->id;
 
 if ($delete && has_capability('mod/lightboxgallery:edit', $context)) {
     if ($confirm && confirm_sesskey()) {
-        delete_records('lightboxgallery_comments', 'id', $comment->id);
+        $DB->delete_records('lightboxgallery_comments', array('id' => $comment->id));
         redirect($galleryurl);
     } else {
         echo $OUTPUT->header();

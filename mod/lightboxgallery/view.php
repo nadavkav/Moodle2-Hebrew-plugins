@@ -33,14 +33,34 @@ require_once(dirname(__FILE__).'/imageclass.php');
 
 global $DB;
 
-$id = required_param('id', PARAM_INT); // Course module id
+$id = optional_param('id', 0, PARAM_INT); // Course module id
+$l = optional_param('l', 0, PARAM_INT); // instance id
 $page = optional_param('page', 0, PARAM_INT);
 $search  = optional_param('search', '', PARAM_TEXT);
 $editing = optional_param('editing', 0, PARAM_BOOL);
 
-$cm      = get_coursemodule_from_id('lightboxgallery', $id, 0, false, MUST_EXIST);
-$course  = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
-$gallery = $DB->get_record('lightboxgallery', array('id' => $cm->instance), '*', MUST_EXIST);
+if ($id) {
+    if (!$cm = get_coursemodule_from_id('lightboxgallery', $id)) {
+        print_error('invalidcoursemodule');
+    }
+    if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
+        print_error('coursemisconf');
+    }
+    if (!$gallery = $DB->get_record('lightboxgallery', array('id' => $cm->instance))) {
+        print_error('invalidcoursemodule');
+    }
+} else {
+    if (!$gallery = $DB->get_record('lightboxgallery', array('id' => $l))) {
+        print_error('invalidlightboxgalleryid', 'lightboxgallery');
+    }
+    if (!$course = $DB->get_record('course', array('id' => $gallery->course))) {
+        print_error('invalidcourseid');
+    }
+    if (!$cm = get_coursemodule_from_instance("lightboxgallery", $gallery->id, $course->id)) {
+        print_error('invalidcoursemodule');
+    }
+}
+
 
 require_login($course, true, $cm);
 
@@ -75,17 +95,17 @@ $PAGE->requires->css('/mod/lightboxgallery/assets/skins/sam/gallery-lightbox-ski
 $PAGE->requires->js('/mod/lightboxgallery/gallery-lightbox-min.js');
 $PAGE->requires->js('/mod/lightboxgallery/module.js');
 
-echo $OUTPUT->header();
-
 $allowrssfeed = (lightboxgallery_rss_enabled() && $gallery->rss);
+$heading = get_string('displayinggallery', 'lightboxgallery', $gallery->name);
 
 if ($allowrssfeed) {
-    $rsspath = rss_get_url($course->id, $userid, 'lightboxgallery', $gallery->id);
-    $meta .= "\n".'<link rel="alternate" href="'.$rsspath.'" type="application/rss+xml" title="'.format_string($gallery->name).'" id="gallery" />';
-    $heading .= ' '.rss_get_link($course->id, $userid, 'lightboxgallery', $gallery->id, get_string('rsssubscribe', 'lightboxgallery'));
+    rss_add_http_header($context, 'mod_lightboxgallery', $gallery->id, $gallery->name);
+    $heading .= ' '.rss_get_link($context->id, $userid, 'mod_lightboxgallery', $gallery->id, get_string('rsssubscribe', 'lightboxgallery'));
 }
 
-echo $OUTPUT->heading(get_string('displayinggallery', 'lightboxgallery', $gallery->name));
+echo $OUTPUT->header();
+
+echo $OUTPUT->heading($heading);
 
 if ($gallery->intro && !$editing) {
     echo $OUTPUT->box(format_module_intro('lightboxgallery', $gallery, $cm->id), 'generalbox', 'intro');

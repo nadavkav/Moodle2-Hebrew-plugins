@@ -172,7 +172,7 @@ function lightboxgallery_user_complete($course, $user, $mod, $resource) {
 
     $conditions = array('userid' => $user->id,  'module' => 'lightboxgallery', 'action' => 'view', 'info' => $resource->id);
 
-    if ($logs = get_records('log', $conditions, 'time ASC', '*', '0', '1')) {
+    if ($logs = $DB->get_records('log', $conditions, 'time ASC', '*', '0', '1')) {
         $numviews = $DB->count_records('log', $conditions);
         $lastlog = array_pop($logs);
 
@@ -182,13 +182,13 @@ function lightboxgallery_user_complete($course, $user, $mod, $resource) {
         echo $strnumviews.' - '.$strmostrecently.' '.userdate($lastlog->time);
 
         $sql = "SELECT c.*
-                  FROM {$CFG->prefix}lightboxgallery_comments c
-                       JOIN {$CFG->prefix}lightboxgallery l ON l.id = c.gallery
-                       JOIN {$CFG->prefix}user            u ON u.id = c.userid
-                 WHERE l.id = {$mod->instance} AND u.id = {$user->id}
+                  FROM {lightboxgallery_comments} c
+                       JOIN {lightboxgallery} l ON l.id = c.gallery
+                       JOIN {user}            u ON u.id = c.userid
+                 WHERE l.id = :mod AND u.id = :userid
               ORDER BY c.timemodified ASC";
-
-        if ($comments = $DB->get_records_sql($sql)) {
+        $params = array('mod' => $mod->instance, 'userid' => $user->id);
+        if ($comments = $DB->get_records_sql($sql, $params)) {
             $cm = get_coursemodule_from_id('lightboxgallery', $mod->id);
             $context = get_context_instance(CONTEXT_MODULE, $cm->id);
             foreach ($comments as $comment) {
@@ -198,6 +198,15 @@ function lightboxgallery_user_complete($course, $user, $mod, $resource) {
     } else {
         print_string('neverseen', 'resource');
     }
+}
+
+/**
+ * Returns all other caps used in module
+ *
+ * @return array
+ */
+function lightboxgallery_get_extra_capabilities() {
+    return array('moodle/course:viewhiddenactivities');
 }
 
 function lightboxgallery_get_recent_mod_activity(&$activities, &$index, $timestart, $courseid, $cmid, $userid=0, $groupid=0) {
@@ -214,9 +223,9 @@ function lightboxgallery_get_recent_mod_activity(&$activities, &$index, $timesta
     $cm = $modinfo->cms[$cmid];
 
     $sql = "SELECT c.*, l.name, u.firstname, u.lastname, u.picture
-              FROM {$CFG->prefix}lightboxgallery_comments c
-                   JOIN {$CFG->prefix}lightboxgallery l ON l.id = c.gallery
-                   JOIN {$CFG->prefix}user            u ON u.id = c.userid
+              FROM {lightboxgallery_comments} c
+                   JOIN {lightboxgallery} l ON l.id = c.gallery
+                   JOIN {user}            u ON u.id = c.userid
              WHERE c.timemodified > $timestart AND l.id = {$cm->instance}
                    " . ($userid ? "AND u.id = $userid" : '') . "
           ORDER BY c.timemodified ASC";
@@ -251,10 +260,10 @@ function lightboxgallery_get_recent_mod_activity(&$activities, &$index, $timesta
 }
 
 function lightboxgallery_print_recent_mod_activity($activity, $courseid, $detail, $modnames, $viewfullnames) {
-    global $CFG;
+    global $CFG, $OUTPUT;
 
     echo '<table border="0" cellpadding="3" cellspacing="0">'.
-         '<tr><td class="userpicture" valign="top">'.print_user_picture($activity->user, $courseid, $activity->user->picture, 0, true).'</td><td>'.
+         '<tr><td class="userpicture" valign="top">'.$OUTPUT->user_picture($activity->user, array('courseid' => $courseid)).'</td><td>'.
          '<div class="title">'.
          ($detail ? '<img src="'.$CFG->modpixpath.'/'.$activity->type.'/icon.gif" class="icon" alt="'.s($activity->name).'" />' : '').
          '<a href="'.$CFG->wwwroot.'/mod/lightboxgallery/view.php?id='.$activity->cmid.'#c'.$activity->content->id.'">'.$activity->content->comment.'</a>'.
@@ -279,9 +288,9 @@ function lightboxgallery_print_recent_activity($course, $viewfullnames, $timesta
     global $DB, $CFG, $OUTPUT;
 
     $sql = "SELECT c.*, l.name, u.firstname, u.lastname
-              FROM {$CFG->prefix}lightboxgallery_comments c
-                   JOIN {$CFG->prefix}lightboxgallery l ON l.id = c.gallery
-                   JOIN {$CFG->prefix}user            u ON u.id = c.userid
+              FROM {lightboxgallery_comments} c
+                   JOIN {lightboxgallery} l ON l.id = c.gallery
+                   JOIN {user}            u ON u.id = c.userid
              WHERE c.timemodified > $timestart AND l.course = {$course->id}
           ORDER BY c.timemodified ASC";
 
@@ -293,7 +302,7 @@ function lightboxgallery_print_recent_activity($course, $viewfullnames, $timesta
         foreach ($comments as $comment) {
             $display = lightboxgallery_resize_text(trim(strip_tags($comment->comment)), MAX_COMMENT_PREVIEW);
 
-            echo '<li>'.
+            $output = '<li>'.
                  ' <div class="head">'.
                  '  <div class="date">'.userdate($comment->timemodified, get_string('strftimerecent')).'</div>'.
                  '  <div class="name">'.fullname($comment, $viewfullnames).' - '.format_string($comment->name).'</div>'.
@@ -302,6 +311,7 @@ function lightboxgallery_print_recent_activity($course, $viewfullnames, $timesta
                  '  "<a href="'.$CFG->wwwroot.'/mod/lightboxgallery/view.php?l='.$comment->gallery.'#c'.$comment->id.'">'.$display.'</a>"'.
                  ' </div>'.
                  '</li>';
+            echo $output;
         }
 
         echo '</ul>';
@@ -336,18 +346,6 @@ function lightboxgallery_get_view_actions() {
 
 function lightboxgallery_get_post_actions() {
     return array('comment', 'addimage', 'editimage');
-}
-
-function lightboxgallery_get_types() {
-    $types = array();
-
-    $type = new object;
-    $type->modclass = MOD_CLASS_RESOURCE;
-    $type->type = 'lightboxgallery';
-    $type->typestr = get_string('modulenameadd', 'lightboxgallery');
-    $types[] = $type;
-
-    return $types;
 }
 
 /**

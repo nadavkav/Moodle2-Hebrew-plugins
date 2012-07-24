@@ -67,7 +67,7 @@
                                 $record->image = $image;
                                 $record->metatype = 'tag';
                                 $record->description = $tag;
-                                if (insert_record('lightboxgallery_image_meta', $record)) {
+                                if ($DB->insert_record('lightboxgallery_image_meta', $record)) {
                                     $a->tags++;
                                 }
                             }

@@ -63,6 +63,17 @@ $capabilities = array(
         )
     ),
 
+    'mod/lightboxgallery:addinstance' => array(
+        'riskbitmask' => RISK_XSS,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array(
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        ),
+        'clonepermissionsfrom' => 'moodle/course:manageactivities'
+    ),
+
     'mod/lightboxgallery:submit' => array(
         'riskbitmask' => RISK_SPAM,
         'captype' => 'write',

@@ -192,7 +192,7 @@ class lightboxgallery_image {
         global $DB;
         $caption = '';
 
-        if($image_meta = $DB->get_record('lightboxgallery_image_meta', array('image' => $this->stored_file->get_filename(), 'metatype' => 'caption'))) {
+        if($image_meta = $DB->get_record('lightboxgallery_image_meta', array('gallery' => $this->gallery->id, 'image' => $this->stored_file->get_filename(), 'metatype' => 'caption'))) {
             $caption = $image_meta->description;
         }
 
@@ -289,6 +289,10 @@ class lightboxgallery_image {
         $rotated = imagerotate($image, $angle, 0);
 
         return $rotated;
+    }
+
+    public function get_image_url() {
+        return $this->image_url;
     }
 
     public function get_tags() {

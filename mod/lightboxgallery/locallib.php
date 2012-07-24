@@ -165,7 +165,7 @@ function lightboxgallery_resize_options() {
 }
 
 function lightboxgallery_resize_text($text, $length) {
-    $textlib = textlib_get_instance();
+    $textlib = new textlib();
     return ($textlib->strlen($text) > $length ? $textlib->substr($text, 0, $length) . '...' : $text);
 }
 
