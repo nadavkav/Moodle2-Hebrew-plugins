@@ -157,6 +157,7 @@ class qtype_ddimageortext extends qtype_ddtoimage_base {
         }
 
         $this->move_files_in_combined_feedback($questionid, $oldcontextid, $newcontextid);
+        $this->move_files_in_hints($questionid, $oldcontextid, $newcontextid);
     }
 
     /**
@@ -178,10 +179,11 @@ class qtype_ddimageortext extends qtype_ddtoimage_base {
         }
 
         $this->delete_files_in_combined_feedback($questionid, $contextid);
+        $this->delete_files_in_hints($questionid, $contextid);
     }
 
 
-    public function export_to_xml($question, $format, $extra = null) {
+    public function export_to_xml($question, qformat_xml $format, $extra = null) {
         $fs = get_file_storage();
         $contextid = $question->contextid;
         $output = '';
@@ -221,7 +223,7 @@ class qtype_ddimageortext extends qtype_ddtoimage_base {
         return $output;
     }
 
-    public function import_from_xml($data, $question, $format, $extra=null) {
+    public function import_from_xml($data, $question, qformat_xml $format, $extra=null) {
         if (!isset($data['@']['type']) || $data['@']['type'] != 'ddimageortext') {
             return false;
         }
