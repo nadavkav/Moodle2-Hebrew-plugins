@@ -1,0 +1,25 @@
+body.jsenabled .block_quickfindlist .submitbutton {
+    display: none;
+}
+
+.block_quickfindlist .quickfindprogress {
+    visibility: hidden;
+}
+
+.block_quickfindlist ul {
+    margin: 0;
+}
+
+.block_quickfindlist li {
+    list-style-type: none;
+    margin-left: 0;
+    padding-bottom: 0.2em;
+    margin-bottom: 0.2em;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-bottom-color: #d3d3d3;
+}
+
+.quickfindlistsearch {
+    width: 10em;
+}
