@@ -1,5 +1,5 @@
 /**
- * Handle submitting question and voting action of hotquestion
+ * Handle submitting question and voting action of hotquestion 
  * using Ajax of YUI
  *
  * @package   mod_hotquestion
@@ -13,7 +13,6 @@ M.mod_hotquestion.Y = {};
 
 M.mod_hotquestion.questionbox = {};
 M.mod_hotquestion.submitbutton = {};
-M.mod_hotquestion.refreshing = false;
 
 M.mod_hotquestion.init = function(Y) {
     M.mod_hotquestion.Y = Y;
@@ -36,25 +35,6 @@ M.mod_hotquestion.init = function(Y) {
     // bind io events
     Y.on('io:success', M.mod_hotquestion.iocomplete);
     Y.on('io:failure', M.mod_hotquestion.iofailure);
-
-    var timer = Y.later(10000, Y, function() {
-
-        var url = window.location;
-        var data= url.search.split('?')[1] + '&ajax=1';
-        var cfg = {
-            method : "GET",
-            data : data,
-            arguments: {
-                caller: 'refresh',
-            }
-        };
-
-        if (M.mod_hotquestion.refreshing == true) {
-            var request = M.mod_hotquestion.Y.io('view.php', cfg);
-        }
-
-    }, '', true);
-
 }
 
 M.mod_hotquestion.iocomplete = function(transactionid, response, arguments) {
@@ -95,16 +75,7 @@ M.mod_hotquestion.refresh = function(e) {
         }
     };
 
-    // Switch auto refresh on/off (with 10 sec interval)
-    if (M.mod_hotquestion.refreshing == true) {
-        M.mod_hotquestion.refreshing = false;
-        M.mod_hotquestion.Y.one('#questions_list').setStyle('border','0px');
-    } else {
-        M.mod_hotquestion.refreshing = true;
-        M.mod_hotquestion.Y.one('#questions_list').setStyle('border','2px solid yellow');
-    };
-
-    //var request = M.mod_hotquestion.Y.io('view.php', cfg);
+    var request = M.mod_hotquestion.Y.io('view.php', cfg);
 }
 
 M.mod_hotquestion.getquestion = function() {
@@ -158,5 +129,4 @@ M.mod_hotquestion.submit = function(e) {
     };
     var request = M.mod_hotquestion.Y.io('view.php', cfg);
 }
-
 
