@@ -30,7 +30,11 @@ class block_quickmail extends block_list {
         $config = quickmail::load_config($COURSE->id);
         $permission = has_capability('block/quickmail:cansend', $context);
 
-        if ($permission or !empty($config['allowstudents'])) {
+        $can_send = ($permission or !empty($config['allowstudents']));
+
+        $icon_class = array('class' => 'icon');
+
+        if ($can_send) {
             $cparam = array('courseid' => $COURSE->id);
 
             $send_email_str = quickmail::_s('composenew');
@@ -39,7 +43,7 @@ class block_quickmail extends block_list {
                 $send_email_str
             );
             $this->content->items[] = $send_email;
-            $this->content->icons[] = $OUTPUT->pix_icon('i/email', $send_email_str);
+            $this->content->icons[] = $OUTPUT->pix_icon('i/email', $send_email_str, 'moodle', $icon_class);
 
             $signature_str = quickmail::_s('signature');
             $signature = html_writer::link(
@@ -47,7 +51,7 @@ class block_quickmail extends block_list {
                 $signature_str
             );
             $this->content->items[] = $signature;
-            $this->content->icons[] = $OUTPUT->pix_icon('i/edit', $signature_str);
+            $this->content->icons[] = $OUTPUT->pix_icon('i/edit', $signature_str, 'moodle', $icon_class);
 
             $draft_params = $cparam + array('type' => 'drafts');
             $drafts_email_str = quickmail::_s('drafts');
@@ -56,18 +60,26 @@ class block_quickmail extends block_list {
                 $drafts_email_str
             );
             $this->content->items[] = $drafts;
-            $this->content->icons[] = $OUTPUT->pix_icon('i/settings', $drafts_email_str);
-        }
+            $this->content->icons[] = $OUTPUT->pix_icon('i/settings', $drafts_email_str, 'moodle', $icon_class);
 
-        // History can't be view by students
-        if ($permission) {
             $history_str = quickmail::_s('history');
             $history = html_writer::link(
                 new moodle_url('/blocks/quickmail/emaillog.php', $cparam),
                 $history_str
             );
             $this->content->items[] = $history;
-            $this->content->icons[] = $OUTPUT->pix_icon('i/settings', $history_str);
+            $this->content->icons[] = $OUTPUT->pix_icon('i/settings', $history_str, 'moodle', $icon_class);
+        }
+
+        if (has_capability('block/quickmail:allowalternate', $context)) {
+            $alt_str = quickmail::_s('alternate');
+            $alt = html_writer::link(
+                new moodle_url('/blocks/quickmail/alternate.php', $cparam),
+                $alt_str
+            );
+
+            $this->content->items[] = $alt;
+            $this->content->icons[] = $OUTPUT->pix_icon('i/edit', $alt_str, 'moodle', $icon_class);
         }
 
         if (has_capability('block/quickmail:canconfig', $context)) {
@@ -77,7 +89,7 @@ class block_quickmail extends block_list {
                 $config_str
             );
             $this->content->items[] = $config;
-            $this->content->icons[] = $OUTPUT->pix_icon('i/settings', $config_str);
+            $this->content->icons[] = $OUTPUT->pix_icon('i/settings', $config_str, 'moodle', $icon_class);
         }
 
         return $this->content;

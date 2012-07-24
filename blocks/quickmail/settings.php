@@ -33,4 +33,24 @@ if($ADMIN->fulltree) {
             array_map($only_names, $roles)
         )
     );
+
+    $settings->add(
+        new admin_setting_configselect('block_quickmail_receipt',
+        quickmail::_s('receipt'), quickmail::_s('receipt_help'),
+        0, $select
+        )
+    );
+
+    $options = array(
+        0 => get_string('none'),
+        'idnumber' => get_string('idnumber'),
+        'shortname' => get_string('shortname')
+    );
+
+    $settings->add(
+        new admin_setting_configselect('block_quickmail_prepend_class',
+            quickmail::_s('prepend_class'), quickmail::_s('prepend_class_desc'),
+            0, $options
+        )
+    );
 }
