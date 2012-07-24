@@ -262,7 +262,7 @@ class qtype_oumultiresponse extends question_type {
         return $parts;
     }
 
-    public function import_from_xml($data, $question, $format, $extra=null) {
+    public function import_from_xml($data, $question, qformat_xml $format, $extra=null) {
         if (!isset($data['@']['type']) || $data['@']['type'] != 'oumultiresponse') {
             return false;
         }
@@ -307,7 +307,7 @@ class qtype_oumultiresponse extends question_type {
         return $question;
     }
 
-    public function export_to_xml($question, $format, $extra = null) {
+    public function export_to_xml($question, qformat_xml $format, $extra = null) {
         $output = '';
 
         $output .= "    <shuffleanswers>" . $format->get_single(
@@ -327,6 +327,7 @@ class qtype_oumultiresponse extends question_type {
 
         parent::move_files($questionid, $oldcontextid, $newcontextid);
         $this->move_files_in_answers($questionid, $oldcontextid, $newcontextid, true);
+        $this->move_files_in_hints($questionid, $oldcontextid, $newcontextid);
 
         $fs->move_area_files_to_new_context($oldcontextid,
                 $newcontextid, 'question', 'correctfeedback', $questionid);
@@ -341,6 +342,7 @@ class qtype_oumultiresponse extends question_type {
 
         parent::delete_files($questionid, $contextid);
         $this->delete_files_in_answers($questionid, $contextid, true);
+        $this->delete_files_in_hints($questionid, $contextid);
         $fs->delete_area_files($contextid, 'question', 'correctfeedback', $questionid);
         $fs->delete_area_files($contextid, 'question', 'partiallycorrectfeedback', $questionid);
         $fs->delete_area_files($contextid, 'question', 'incorrectfeedback', $questionid);
