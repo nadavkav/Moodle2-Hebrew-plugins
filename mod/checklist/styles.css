@@ -178,9 +178,7 @@ ol.checklist li .itemteacherdate {
     overflow: clip;
     position: relative;
 }
-.dir-rtl .checklist_progress_outer {
-  float:right;
-}
+
 .checklist_progress_inner {
     background-color: #229b15;
     height: 100%;
@@ -209,8 +207,4 @@ ol.checklist li .itemteacherdate {
 .checklistwarning {
     margin-top: 1em;
     color: #800000;
-}
-
-.dir-rtl #additemdateform {
-  width:80%;
 }

@@ -311,6 +311,7 @@ class checklist_class {
                     reset($this->items);
                     $this->items[$itemid]->stillexists = true;
                     $this->items[$itemid]->grouping = ($groupmembersonly && $mods->cms[$cmid]->groupmembersonly) ? $mods->cms[$cmid]->groupingid : 0;
+                    $item = $this->items[$itemid];
                 }
                 $item->modulelink = new moodle_url('/mod/'.$mods->cms[$cmid]->modname.'/view.php', array('id' => $cmid));
                 $nextpos++;
@@ -690,7 +691,7 @@ class checklist_class {
 
         if ($requireditems > 0 && $totalitems > $requireditems) {
             $percentcomplete = ($completeitems * 100) / $requireditems;
-            echo '<div style="display:block;  width:150px;" class="checklist_progress_heading">';
+            echo '<div style="display:block; float:left; width:150px;" class="checklist_progress_heading">';
             echo get_string('percentcomplete','checklist').':&nbsp;';
             echo '</div>';
             echo '<span id="checklistprogressrequired">';
@@ -703,7 +704,7 @@ class checklist_class {
             echo '<br style="clear:both"/>';
         }
 
-        echo '<div style="display:block; width:150px;" class="checklist_progress_heading">';
+        echo '<div style="display:block; float:left; width:150px;" class="checklist_progress_heading">';
         echo get_string('percentcompleteall','checklist').':&nbsp;';
         echo '</div>';
         echo '<span id="checklistprogressall">';
@@ -1038,7 +1039,7 @@ class checklist_class {
                                 $thisitemurl->param('itemid', $useritem->id);
 
                                 echo '<li>';
-                                echo '<div id="checklistitem">';
+                                echo '<div style="float: left;">';
                                 if ($showcheckbox) {
                                     echo '<input class="checklistitem itemoptional" type="checkbox" name="items[]" id='.$itemname.$checked.' disabled="disabled" value="'.$useritem->id.'" />';
                                 }
@@ -1099,7 +1100,7 @@ class checklist_class {
                     $thisitemurl->param('sesskey', sesskey());
 
                     echo '<ol class="checklist"><li>';
-                    echo '<div id="checklistform">';
+                    echo '<div style="float: left;">';
                     echo '<form action="'.$thispage->out_omit_querystring().'" method="post">';
                     echo html_writer::input_hidden_params($thisitemurl);
                     if ($showcheckbox) {
@@ -1454,7 +1455,7 @@ class checklist_class {
 
         if ($addatend) {
             echo '<li>';
-            echo '<form id="additemdateform" action="'.$thispage->out_omit_querystring().'" method="post">';
+            echo '<form action="'.$thispage->out_omit_querystring().'" method="post">';
             echo html_writer::input_hidden_params($thispage);
             echo '<input type="hidden" name="action" value="additem" />';
             echo '<input type="hidden" name="indent" value="'.$currindent.'" />';
@@ -1645,13 +1646,13 @@ class checklist_class {
                     }
                     $userurl = new moodle_url('/user/view.php', array('id'=>$auser->id, 'course'=>$this->course->id) );
                     $userlink = '<a href="'.$userurl.'">'.fullname($auser).'</a>';
-                    echo '<div style="width: 30%; text-align: right; margin-right: 8px; ">'.$userlink.$vslink.'</div>';
+                    echo '<div style="float: left; width: 30%; text-align: right; margin-right: 8px; ">'.$userlink.$vslink.'</div>';
 
                     echo '<div class="checklist_progress_outer">';
                     echo '<div class="checklist_progress_inner" style="width:'.$percentcomplete.'%; background-image: url('.$OUTPUT->pix_url('progress','checklist').');" >&nbsp;</div>';
                     echo '</div>';
-                    echo '<div style="width: 3em;">&nbsp;'.sprintf('%0d%%',$percentcomplete).'</div>';
-                    echo '<div id="tickeditems">&nbsp;('.$tickeditems.'/'.$totalitems.')</div>';
+                    echo '<div style="float:left; width: 3em;">&nbsp;'.sprintf('%0d%%',$percentcomplete).'</div>';
+                    echo '<div style="float:left;">&nbsp;('.$tickeditems.'/'.$totalitems.')</div>';
                     echo '<br style="clear:both;" />';
                 }
                 echo '</div>';
@@ -2888,7 +2889,6 @@ class checklist_class {
             return;
         }
         $userids = implode(',',array_keys($users));
-        $updategrades = false;
 
         // Get a list of all the checklist items with a module linked to them (ignoring headings)
         $sql = "SELECT cm.id AS cmid, m.name AS mod_name, i.id AS itemid, cm.completion AS completion
@@ -2914,7 +2914,6 @@ class checklist_class {
                             }
                             $check->usertimestamp = time();
                             $DB->update_record('checklist_check', $check);
-                            $updategrades = true;
                         } else {
                             $check = new stdClass;
                             $check->item = $item->itemid;
@@ -2924,7 +2923,6 @@ class checklist_class {
                             $check->teachermark = CHECKLIST_TEACHERMARK_UNDECIDED;
 
                             $check->id = $DB->insert_record('checklist_check', $check);
-                            $updategrades = true;
                         }
                     }
                 }
@@ -3022,7 +3020,6 @@ class checklist_class {
                     }
                     $check->usertimestamp = time();
                     $DB->update_record('checklist_check', $check);
-                    $updategrades = true;
                 } else {
                     $check = new stdClass;
                     $check->item = $item->itemid;
@@ -3032,13 +3029,11 @@ class checklist_class {
                     $check->teachermark = CHECKLIST_TEACHERMARK_UNDECIDED;
 
                     $check->id = $DB->insert_record('checklist_check', $check);
-                    $updategrades = true;
                 }
             }
 
-            if ($updategrades) {
-                checklist_update_grades($this->checklist);
-            }
+            // Always update the grades
+            checklist_update_grades($this->checklist);
         }
     }
 
@@ -3102,11 +3097,11 @@ class checklist_class {
         $percent = $ticked * 100 / $total;
 
         // TODO - fix this now that styles.css is included
-        $output = '<div class="checklist_progress_outer" style="border-width: 1px; border-style: solid; border-color: black; width: '.$width.'; background-colour: transparent; height: 15px;" >';
+        $output = '<div class="checklist_progress_outer" style="border-width: 1px; border-style: solid; border-color: black; width: '.$width.'; background-colour: transparent; height: 15px; float: left;" >';
         $output .= '<div class="checklist_progress_inner" style="width:'.$percent.'%; background-image: url('.$OUTPUT->pix_url('progress','checklist').'); background-color: #229b15; height: 100%; background-repeat: repeat-x; background-position: top;" >&nbsp;</div>';
         $output .= '</div>';
         if ($showpercent) {
-            $output .= '<div id="percent" style="width: 3em;">&nbsp;'.sprintf('%0d%%', $percent).'</div>';
+            $output .= '<div style="float:left; width: 3em;">&nbsp;'.sprintf('%0d%%', $percent).'</div>';
         }
         $output .= '<br style="clear:both;" />';
         if ($return) {
