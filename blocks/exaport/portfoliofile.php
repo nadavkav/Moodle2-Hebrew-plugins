@@ -44,32 +44,39 @@ if (empty($CFG->filelifetime)) {
 
 $relativepath = get_file_argument('portfoliofile.php'); // the check of the parameter to PARAM_PATH is executed inside get_file_argument
 $access = optional_param('access', 0, PARAM_TEXT);
-$itemid = optional_param('att', 0, PARAM_INT);
 $id = optional_param('itemid', 0, PARAM_INT);
-require_login();
+$userhash = optional_param('hv', 0, PARAM_ALPHANUM);
+//block_exaport_epop_checkhash
+$epopaccess=false;
+
+if ($userhash!="0"){
+	$user=block_exaport_epop_checkhash($userhash);
+	if ($user==false) {require_login();}
+	else {$epopaccess=true;}
+}else{
+	require_login();
+}
 
 
-if ($access && $itemid && $id) {
-        $item = block_exaport_get_item($id, $access);
-	if (!$item || ($item->type != 'file') || !$item->attachment) {
-            print_error('No valid arguments supplied');
+if ($access && $id) {
+	// file storage logic
+	
+	if ($epopaccess)
+		$item = block_exaport_get_item_epop($id, $user);
+	else
+		$item = block_exaport_get_item($id, $access, $epopaccess);
+
+	if (!$item) print_error('Item not found');
+	if ($item->type != 'file') print_error('Item not a file');
+
+	if ($file = block_exaport_get_item_file($item)) {
+		send_stored_file($file);
+	} else {
+		not_found();
 	}
-        //Berechtigung checken
-
-	$fs = get_file_storage();
-        $context = get_context_instance(CONTEXT_SYSTEM);
-
-        $hash = get_hash($itemid);
-         $file = $fs->get_file_by_hash($hash);
-
-        // Read contents
-        if ($file) {
-                send_stored_file($file);
-        } else {
-                not_found();
-        }
-
 } else {
+	// old logic? still used?
+	
 	if (!$relativepath) {
 		error('No valid arguments supplied or incorrect server configuration');
 	} else if ($relativepath{0} != '/') {
@@ -106,7 +113,7 @@ if ($access && $itemid && $id) {
 			$args[3] = $access_portfolio_id = clean_param($args[3], PARAM_INT);
 
 			if($access_user_id == $USER->id) { // check if this user has a portfolio with id $access_portfolio_id;
-				if(count_records('block_exaportitem', 'userid', $USER->id, 'id', $access_portfolio_id) == 1) {
+				if ($DB->count_records('block_exaportitem', array('userid'=>$USER->id, 'id'=>$access_portfolio_id)) == 1) {
 					// check ok, allowed to access the file
 				}
 				else {
@@ -137,41 +144,7 @@ if (!file_exists($filepath)) {
 	}
 }
 send_file($filepath, basename($filepath), $lifetime, $CFG->filteruploadedfiles, false, true);
-/*
-$fs = get_file_storage();
-$context = get_context_instance(CONTEXT_SYSTEM);
-// Prepare file record object
 
-//$file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], 
-//         $fileinfo['filepath'], $fileinfo['filename']);
-
-$hash = get_hash($itemid);
- $file = $fs->get_file_by_hash($hash);
- 
-// Read contents
-if ($file) {
-	send_stored_file($file);
-} else {
-	not_found();
-}
-*/
-// ========================================
-// finally send the file
-// ========================================
-//session_write_close(); // unlock session during fileserving
-
-// portfoliofile serves user submitted data, so $forcedownload is set to 1
-
-
-function get_hash($itemid) {
-	global $DB;
-
-    if ($file_record = $DB->get_record_sql("select min(id), pathnamehash from {files} where itemid={$itemid} AND filename!='.' GROUP BY id, pathnamehash")) {
-        return $file_record->pathnamehash;
-    } else {
-        return false;
-    }
-}
 function not_found($courseid = 0) {
 	global $CFG;
 	header('HTTP/1.0 404 not found');

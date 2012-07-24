@@ -39,10 +39,9 @@ $type_plural = block_exaport_get_plural_item_type($type);
 $strbookmarks = get_string("mybookmarks", "block_exaport");
 $strheadline = get_string("bookmarks".$type_plural, "block_exaport");
 
-$context = get_context_instance(CONTEXT_SYSTEM);
+block_exaport_require_login($courseid);
 
-require_login($courseid);
-require_capability('block/exaport:use', $context);
+$context = get_context_instance(CONTEXT_SYSTEM);
 
 $conditions = array("id" => $courseid);
 if (! $course = $DB->get_record("course", $conditions) ) {
@@ -51,10 +50,6 @@ if (! $course = $DB->get_record("course", $conditions) ) {
 $url = '/blocks/exabis_competences/view_items.php';
 $PAGE->set_url($url);
 block_exaport_print_header("bookmarks".$type_plural);
-
-if (isset($USER->realuser)) {
-	error("You can't access portfolios in 'Login As'-Mode.");
-}
 
 block_exaport_setup_default_categories();
 
@@ -172,7 +167,8 @@ if ($items) {
 
 		$table->data[$item_i]['name'] = "<a href=\"".s("{$CFG->wwwroot}/blocks/exaport/shared_item.php?courseid=$courseid&access=portfolio/id/".$USER->id."&itemid=$item->id&backtype=".$type."&att=".$item->attachment)."\">" . $item->name . "</a>";
 		if ($item->intro) {
-			$table->data[$item_i]['name'] .= "<table width=\"98%\"><tr><td>".format_text($item->intro, FORMAT_HTML)."</td></tr></table>";
+			$intro = file_rewrite_pluginfile_urls($item->intro, 'pluginfile.php', get_context_instance(CONTEXT_USER, $item->userid)->id, 'block_exaport', 'item_content', 'portfolio/id/'.$item->userid.'/itemid/'.$item->id);
+			$table->data[$item_i]['name'] .= "<table width=\"98%\"><tr><td>".format_text($intro, FORMAT_HTML)."</td></tr></table>";
 		}
 
 		$table->data[$item_i]['date'] = userdate($item->timemodified);

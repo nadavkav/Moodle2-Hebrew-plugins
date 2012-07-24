@@ -86,13 +86,8 @@ class block_exaport_item_edit_form extends moodleform {
             $mform->addRule('url', get_string("urlnotempty", "block_exaport"), 'required', null, 'client');
         } elseif ($type == 'file') {
             if ($this->_customdata['action'] == 'add') {
-                //$this->set_upload_manager(new upload_manager('attachment', true, false, $this->_customdata['course'], false, 0, true, true, false));
-                //$mform->addElement('file', 'attachment', get_string("file", "block_exaport"));
-                //$mform->addElement('filemanager', 'attachment', get_string('file', 'block_exaport'), null,
-                //    array('subdirs' => true, 'maxfiles' => 50 ));
-
-                $mform->addElement('filepicker', 'attachment', get_string('file', 'block_exaport'), null, null);
-            } else {
+				$mform->addElement('filemanager', 'file', get_string('file', 'block_exaport'), null, array('subdirs' => false, 'maxfiles' => 1));
+			} else {
                 // filename for assignment import
                 $mform->addElement('hidden', 'filename');
                 $mform->setType('filename', PARAM_TEXT);
@@ -100,15 +95,10 @@ class block_exaport_item_edit_form extends moodleform {
             }
         }
 
-        //$mform->addElement('editor', 'intro', get_string("intro", "block_exaport"), array('rows' => 25));
-        $mform->addElement('editor', 'intro', get_string('intro', 'block_exaport'), null,
-                    array('maxfiles' => EDITOR_UNLIMITED_FILES));
-        $mform->setType('intro', PARAM_TEXT);
-        //$mform->setHelpButton('intro', array('writing', 'richtext'), false, 'editorhelpbutton');
+        $mform->addElement('editor', 'intro_editor', get_string('intro', 'block_exaport'), null, $this->_customdata['textfieldoptions']);
+        $mform->setType('intro_editor', PARAM_RAW);
         if ($type == 'note')
-            $mform->addRule('intro', get_string("intronotempty", "block_exaport"), 'required', null, 'client');
-
-        //$mform->addElement('format', 'format', get_string('format'));
+            $mform->addRule('intro_editor', get_string("intronotempty", "block_exaport"), 'required', null, 'client');
 
         $this->add_action_buttons();
     }

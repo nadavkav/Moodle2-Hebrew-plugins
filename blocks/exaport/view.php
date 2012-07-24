@@ -33,11 +33,9 @@ $userid = optional_param('userid', 0, PARAM_INT);
 $courseid = optional_param('courseid', 0, PARAM_INT);
 $edit = optional_param('edit', 0, PARAM_BOOL);
 
-require_login($courseid);
+block_exaport_require_login($courseid);
 
 $context = get_context_instance(CONTEXT_SYSTEM);
-
-require_capability('block/exaport:use', $context);
 
 $conditions = array("id" => $courseid);
 if (!$course = $DB->get_record("course", $conditions)) {
@@ -49,11 +47,6 @@ block_exaport_setup_default_categories();
 $url = '/blocks/exaport/view.php';
 $PAGE->set_url($url);
 block_exaport_print_header("personal");
-
-
-if (isset($USER->realuser)) {
-    print_error("loginasmode", "block_exaport");
-}
 
 if (block_exaport_feature_enabled('share_item')) {
     if (has_capability('block/exaport:shareextern', $context)) {
@@ -167,5 +160,6 @@ if ($show_information) {
 echo "<span class=\"left\">project supported by<br/><img src=\"{$CFG->wwwroot}/blocks/exaport/pix/bmukk.png\" width=\"63\" height=\"24\" alt=\"bmukk\" /></span>";
 echo "<span class=\"right\">programmed by<br/><a href=\"http://www.exabis.at/\"><img src=\"{$CFG->wwwroot}/blocks/exaport/pix/exabis.png\" width=\"89\" height=\"40\" alt=\"exabis\"/></a></span>";
 echo "<div class=\"block_eportfolio_clear\" />";
+echo "</div>";
 
 echo $OUTPUT->footer($course);

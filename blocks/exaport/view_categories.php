@@ -37,10 +37,7 @@ $catconfirm = optional_param('catconfirm', 0, PARAM_INT);
 $delid = optional_param('delid', 0, PARAM_INT);
 $editid = optional_param('editid', 0, PARAM_INT);
 
-$context = get_context_instance(CONTEXT_SYSTEM);
-
-require_login($courseid);
-require_capability('block/exaport:use', $context);
+block_exaport_require_login($courseid);
 
 $conditions = array("id" => $courseid);
 if (! $course = $DB->get_record("course", $conditions) ) {
@@ -52,10 +49,6 @@ block_exaport_setup_default_categories();
 $url = '/blocks/exabis_competences/view_categories.php';
 $PAGE->set_url($url);
 block_exaport_print_header("categories");
-
-if (isset($USER->realuser)) {
-	error("You can't access portfolios in 'Login As'-Mode.");
-}
 
 echo '<div class="block_eportfolio_center">';
 

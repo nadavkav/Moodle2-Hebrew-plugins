@@ -198,7 +198,9 @@ if (in_array($action, array('moveup', 'movetop', 'movedown', 'movebottom'))) {
 
 require_once("{$CFG->dirroot}/blocks/exaport/lib/item_edit_form.php");
 
-$editform = new block_exaport_item_edit_form($_SERVER['REQUEST_URI'] . '&type=' . $type, Array('existing' => $existing, 'course' => $course, 'type' => $type, 'action' => $action));
+$textfieldoptions = array('trusttext'=>true, 'subdirs'=>true, 'maxfiles'=>99, 'context'=>get_context_instance(CONTEXT_USER, $USER->id));
+	
+$editform = new block_exaport_item_edit_form($_SERVER['REQUEST_URI'] . '&type=' . $type, Array('current' => $existing, 'textfieldoptions' => $textfieldoptions, 'course' => $course, 'type' => $type, 'action' => $action));
 
 if ($editform->is_cancelled()) {
     redirect($returnurl);
@@ -211,7 +213,7 @@ if ($editform->is_cancelled()) {
             $fromform->type = $type;
             $fromform->compids = $compids;
 
-            block_exaport_do_add($fromform, $editform, $returnurl, $courseid);
+            block_exaport_do_add($fromform, $editform, $returnurl, $courseid, $textfieldoptions);
             break;
 
         case 'edit':
@@ -219,7 +221,7 @@ if ($editform->is_cancelled()) {
                 print_error("bookmarknotfound", "block_exaport");
             }
 
-            block_exaport_do_edit($fromform, $editform, $returnurl, $courseid);
+            block_exaport_do_edit($fromform, $editform, $returnurl, $courseid, $textfieldoptions);
             break;
 
         default:
@@ -233,6 +235,8 @@ $strAction = "";
 $extra_content = '';
 // gui setup
 $post = new stdClass();
+$post->introformat = FORMAT_HTML;
+
 switch ($action) {
     case 'add':
         $post->action = $action;
@@ -247,27 +251,36 @@ switch ($action) {
         }
         $post->id = $existing->id;
         $post->name = $existing->name;
+		$post->intro = $existing->intro;
         $post->categoryid = $existing->categoryid;
-        $post->intro['text'] = $existing->intro;
         $post->userid = $existing->userid;
         $post->action = $action;
         $post->courseid = $courseid;
         $post->type = $existing->type;
         $post->compids = $existing->compids;
 
+		$post = file_prepare_standard_editor($post, 'intro', $textfieldoptions, get_context_instance(CONTEXT_USER, $USER->id), 'block_exaport', 'item_content', $post->id);
+
         $strAction = get_string('edit');
 
         if ($type == 'link') {
             $post->url = $existing->url;
         } elseif ($type == 'file') {
-            $post->attachment = $existing->attachment;
-
-            $ffurl = "{$CFG->wwwroot}/blocks/exaport/portfoliofile.php?access=portfolio/id/" . $post->userid . "&itemid=" . $post->id . "&att=" . $post->attachment;
-
-            $extra_content = "<div class='block_eportfolio_center'>\n";
-            $extra_content = $OUTPUT->box("<a target='_blank' href='" . $ffurl . "'>" . $post->name . "</a>");
-            //$extra_content .= print_box(block_exaport_print_file($ffurl, $post->attachment, $post->name), 'generalbox', '', true);
-            $extra_content .= "</div>";
+			if ($file = block_exaport_get_item_file($post)) {
+				$ffurl = "{$CFG->wwwroot}/blocks/exaport/portfoliofile.php?access=portfolio/id/" . $post->userid . "&itemid=" . $post->id;
+				
+				$extra_content = "<div class='block_eportfolio_center'>\n";
+				if ($file->is_valid_image()) {    // Image attachments don't get printed as links
+					$extra_content .= "<img src=\"$ffurl\" alt=\"" . format_string($post->name) . "\" />";
+				} else {
+					$extra_content .= "<p>" . $OUTPUT->action_link($ffurl, format_string($post->name), new popup_action ('click', $ffurl)) . "</p>";
+				}
+				$extra_content .= "</div>";
+			}
+			
+			if (!$extra_content) {
+				$extra_content = 'File not found';
+			}
         }
 
         break;
@@ -318,7 +331,7 @@ if ($comp) {
 <?php
     }
     $editform->set_data($post);
-    echo $extra_content;
+	echo $OUTPUT->box($extra_content);
     $editform->display();
 
     echo $OUTPUT->footer($course);
@@ -326,11 +339,13 @@ if ($comp) {
     /**
      * Update item in the database
      */
-    function block_exaport_do_edit($post, $blogeditform, $returnurl, $courseid) {
+    function block_exaport_do_edit($post, $blogeditform, $returnurl, $courseid, $textfieldoptions) {
         global $CFG, $USER, $DB;
 
         $post->timemodified = time();
-        $post->intro = $post->intro['text'];
+		$post->introformat = FORMAT_HTML;
+		$post = file_postupdate_standard_editor($post, 'intro', $textfieldoptions, get_context_instance(CONTEXT_USER, $USER->id), 'block_exaport', 'item_content', $post->id);
+
         if ($DB->update_record('block_exaportitem', $post)) {
             add_to_log(SITEID, 'bookmark', 'update', 'item.php?courseid=' . $courseid . '&id=' . $post->id . '&action=edit', $post->name);
         } else {
@@ -357,37 +372,24 @@ if ($comp) {
     /**
      * Write a new item into database
      */
-    function block_exaport_do_add($post, $blogeditform, $returnurl, $courseid) {
+    function block_exaport_do_add($post, $blogeditform, $returnurl, $courseid, $textfieldoptions) {
         global $CFG, $USER, $DB;
 
         $post->userid = $USER->id;
         $post->timemodified = time();
         $post->courseid = $courseid;
-        $post->intro = $post->intro['text'];
-        // Insert the new blog entry.
+		$post->intro = '';
+
+		// Insert the new blog entry.
         if ($post->id = $DB->insert_record('block_exaportitem', $post)) {
-            if ($post->type == 'file') {
-
-                //$post = file_postupdate_standard_editor($post, 'intro', array('subdirs'=>false), $context, 'exaport', 'intro', $post->id);
-                //$post = file_postupdate_standard_filemanager($post, 'attachment', array('accepted_types' => '*'), $context, 'exaport', 'attachment', $post->id);
-                // store the updated value values
-                //$DB->update_record('block_exaportitem', $post);
-
-
-
-                $dir = block_exaport_file_area_name($post);
-
-                //$file = $blogeditform->get_data();
-                //$blogeditform->save_file($file,'D:\xamppaktuell\xampp\moodledata\filedir');
-                //$blogeditform->save_file($file,$dir);
-                //print_r($file);
-
-                /* $newfilename = $blogeditform->get_new_filename();
-                  echo 'FILENAME: '.$newfilename;
-
-                  if ($blogeditform->save_file($blogeditform->get_new_filename(), $dir) && ($newfilename = $blogeditform->get_new_filename())) {
-                  set_field("block_exaportitem", "attachment", $newfilename, "id", $post->id);
-                  } */
+			$post->introformat = FORMAT_HTML;
+			$post = file_postupdate_standard_editor($post, 'intro', $textfieldoptions, get_context_instance(CONTEXT_USER, $USER->id), 'block_exaport', 'item_content', $post->id);
+			$DB->update_record('block_exaportitem', $post);
+	
+			if ($post->type == 'file') {
+				// save uploaded file in user filearea
+				$context = get_context_instance(CONTEXT_USER, $USER->id);
+				file_save_draft_area_files($post->file, $context->id, 'block_exaport', 'item_file', $post->id, null);
             }
             $comps = $post->compids;
             if ($comps) {
@@ -412,8 +414,10 @@ if ($comp) {
     function block_exaport_do_delete($post, $returnurl, $courseid) {
 
         global $DB, $USER;
-        // falls file mit dem item verkn�pft ist, l�schen
+
+        // try to delete the item file
         block_exaport_file_remove($post);
+
         $conditions = array("id" => $post->id);
         $status = $DB->delete_records('block_exaportitem', $conditions);
 		
