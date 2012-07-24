@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="mod/elluminate/db" VERSION="2006062102" COMMENT="XMLDB file for the Moodle Elluminate Live! module"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../lib/xmldb/xmldb.xsd">
+  <TABLES>   
+    <TABLE NAME="elluminate_preloads" COMMENT="Contains Elluminate Live! info about recorded meetings">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="meetingid"/>
+        <FIELD NAME="meetingid" TYPE="char" LENGTH="20" NOTNULL="false" UNSIGNED="false" SEQUENCE="false" PREVIOUS="id" NEXT="presentationid"/>
+        <FIELD NAME="presentationid" TYPE="char" LENGTH="30" NOTNULL="false" UNSIGNED="false" SEQUENCE="false" PREVIOUS="meetingid" NEXT="description"/>
+        <FIELD NAME="description" TYPE="char" LENGTH="255" NOTNULL="false" UNSIGNED="false" SEQUENCE="false" PREVIOUS="presentationid" NEXT="size"/>
+        <FIELD NAME="size" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" NEXT="creatorid" PREVIOUS="description"/>
+        <FIELD NAME="creatorid" TYPE="char" LENGTH="255" NOTNULL="false" UNSIGNED="false" SEQUENCE="false" PREVIOUS="size"/>        
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for elluminate_recordings"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="meetingid_preloadid" UNIQUE="true" FIELDS="meetingid, presentationid"/>
+      </INDEXES>
+    </TABLE>     
+  </TABLES>
+</XMLDB>

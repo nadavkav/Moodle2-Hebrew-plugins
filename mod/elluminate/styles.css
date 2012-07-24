@@ -1,0 +1,75 @@
+/* $Id: styles.css,v 2.0.2 2012-04-26 15:21:12 jcheema Exp $ */
+
+.elluminateboundarytime {
+    text-align: center;
+    font-size: 0.8em;
+}
+
+
+.elluminaterecordingmode {
+    text-align: center;
+    font-size: 0.7em;
+}
+
+
+.elluminateeditmoderators {
+    text-align: center;
+    font-size: 1em;
+    font-weight: bold;
+}
+
+
+.elluminateeditparticipants {
+    text-align: center;
+    font-size: 1em;
+    font-weight: bold;
+}
+
+
+.elluminatepreload {
+    text-align: center;
+    font-size: 1em;
+    font-weight: bold;
+}
+
+
+.elluminatejoinmeeting {
+    text-align: center;
+    font-size: 1.7em;
+    font-weight: bold;
+}
+
+
+.elluminateverifysetup {
+    text-align: center;
+    font-size: 1em;
+    font-weight: bold;
+}
+
+.elluminaterecording {
+    text-align: center;
+    font-size: 1em;
+}
+
+.elluminaterecording .description {
+    font-style: italic;
+}
+
+.elluminateattendance {
+    text-align: center;
+    font-size: 1em;
+}
+.elluminaterecordingdescriptionedit {
+    text-align: center;
+}
+
+.elluminateguestlink {
+    text-align: center;
+    font-size: 1em;
+    font-weight: bold;
+}
+
+.elluminateListOfErrors {
+	list-style-position:inside;
+	padding-left:30%;
+}
