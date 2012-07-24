@@ -42,6 +42,7 @@ define('OUWIKI_SUBWIKIS_INDIVIDUAL', 2);
 define('OUWIKI_LOCK_PERSISTENCE', 120);
 define('OUWIKI_LOCK_RECONFIRM', 60);
 define('OUWIKI_LOCK_NOJS', 15*60);
+define('OUWIKI_LOCK_TIMEOUT', 30*60);
 define('OUWIKI_SESSION_LOCKS', 'ouwikilocks'); // Session variable used to store wiki locks
 
 // format params
@@ -74,6 +75,8 @@ define('OUWIKI_MY_PARTICIPATION', 1);
 define('OUWIKI_USER_PARTICIPATION', 2);
 define('OUWIKI_PARTICIPATION_PERPAGE', 100);
 
+// User preference
+define('OUWIKI_PREF_HIDEANNOTATIONS', 'ouwiki_hide_annotations');
 
 function ouwiki_dberror($error, $source = null) {
     if (!$source) {
@@ -285,7 +288,8 @@ function ouwiki_init_pages($course, $cm, $ouwiki, $subwiki, $ouwiki) {
                 }
                 switch ($child->tagName) {
                     case 'title':
-                        $title = $text;
+                        // Replace non-breaking spaces with normal spaces in title
+                        $title = str_replace(html_entity_decode('&nbsp;', ENT_QUOTES, 'UTF-8'), ' ', $text);
                         break;
                     case 'xhtml':
                         $xhtml = $text;
@@ -385,7 +389,8 @@ function ouwiki_shared_url_params($pagename, $subwiki, $cm) {
             $params['user'] = $subwiki->userid;
         }
     }
-    if (strtolower(trim($pagename)) !== strtolower(get_string('startpage', 'ouwiki'))) {
+    if (strtolower(trim($pagename)) !== strtolower(get_string('startpage', 'ouwiki')) &&
+            $pagename !== '') {
         $params['page'] = $pagename;
     }
     return $params;
@@ -469,8 +474,10 @@ function ouwiki_get_parameter($name, $value, $type) {
  * @param object $cm Course-module object
  * @param object $context Context for permissions
  * @param object $course Course object
+ * @param string $actionurl
+ * @param string $querytext for use when changing groups against search criteria
  */
-function ouwiki_display_subwiki_selector($subwiki, $ouwiki, $cm, $context, $course, $actionurl = 'view.php') {
+function ouwiki_display_subwiki_selector($subwiki, $ouwiki, $cm, $context, $course, $actionurl = 'view.php', $querytext = '') {
     global $USER, $DB;
 
     if ($ouwiki->subwikis == OUWIKI_SUBWIKIS_SINGLE) {
@@ -542,9 +549,14 @@ function ouwiki_display_subwiki_selector($subwiki, $ouwiki, $cm, $context, $cour
             '</label>';
     if ($choicefield && count($choices) > 1) {
         $selectedid = $choicefield == 'user' ? $subwiki->userid : $subwiki->groupid;
-        $out .= '<form method="get" action="'.$actionurl.'" class="ouwiki_otherwikis">
-            <div><input type="hidden" name="id" value="'.$cm->id.'"/>
-            <select name="'.$choicefield.'" id="wikiselect">';
+        $out .= '<form method="get" action="'.$actionurl.'" class="ouwiki_otherwikis"><div>';
+        $out .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'id',
+                'value' => $cm->id));
+        if (!empty($querytext)) {
+            $out .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'query',
+                    'value' => $querytext));
+        }
+        $out .= '<select name="'.$choicefield.'" id="wikiselect">';
         foreach ($choices as $choice) {
             $selected = $choice->id == $selectedid ? ' selected="selected"' : '';
             $out .= '<option value="'.$choice->id.'"'.$selected.'>'.
@@ -577,9 +589,10 @@ function ouwiki_get_current_page($subwiki, $pagename, $option = OUWIKI_GETPAGE_R
     global $DB;
 
     $params = array($subwiki->id);
-    $tl = textlib_get_instance();
+    //$tl = textlib_get_instance();
+    $textlib = new textlib();
     $pagename_s = 'UPPER(p.title) = ?';
-    $params[] = $tl->strtoupper($pagename);
+    $params[] = $textlib::strtoupper($pagename);
 
     $jointype = $option == OUWIKI_GETPAGE_REQUIREVERSION ? 'JOIN' : 'LEFT JOIN';
 
@@ -610,7 +623,7 @@ function ouwiki_get_current_page($subwiki, $pagename, $option = OUWIKI_GETPAGE_R
         }
 
         // Update any missing link records that might exist
-        $uppertitle = $tl->strtoupper($pagename);
+        $uppertitle = $textlib::strtoupper($pagename);
         try {
             $DB->execute("UPDATE {ouwiki_links}
                 SET tomissingpage = NULL, topageid = ?
@@ -696,8 +709,9 @@ function ouwiki_get_page_version($subwiki, $pagename, $versionid) {
             LEFT JOIN {user} u ON v.userid = u.id
             WHERE p.subwikiid = ? AND v.id = ? AND UPPER(p.title) = ?";
 
-    $tl = textlib_get_instance();
-    $pagename = $tl->strtoupper($pagename);
+    //$tl = textlib_get_instance();
+    $textlib = new textlib();
+    $pagename = $textlib::strtoupper($pagename);
     $pageversion = $DB->get_record_sql($sql, array($subwiki->id, $versionid, $pagename));
 
     $pageversion->recentversions = false;
@@ -1602,12 +1616,19 @@ function ouwiki_save_new_version($course, $cm, $ouwiki, $subwiki, $pagename, $co
     // language-specific) format [[]]
     $regex = str_replace('.*?', preg_quote(get_string('startpage', 'ouwiki')),
         OUWIKI_LINKS_SQUAREBRACKETS) . 'ui';
-    $content = preg_replace($regex, '[[]]', $content);
+    $newcontent = @preg_replace($regex, '[[]]', $content);
+    if ($newcontent === null) {
+        // Unicode support not available! Change the regex and try again
+        $regex = preg_replace('~ui$~', 'i', $regex);
+        $newcontent = preg_replace($regex, '[[]]', $content);
+    }
+    $content = $newcontent;
 
     // Create version
     $version = new StdClass;
     $version->pageid = $pageversion->pageid;
     $version->xhtml = $content; // May be altered later (see below)
+    $version->xhtmlformat = FORMAT_MOODLE; // Using fixed value here is a bit rubbish
     $version->timecreated = time();
     $version->wordcount = ouwiki_count_words($content);
     $version->previousversionid = $previousversionid;
@@ -1741,11 +1762,12 @@ function ouwiki_save_new_version($course, $cm, $ouwiki, $subwiki, $pagename, $co
     }
     $link->topageid = null;
     $link->tomissingpage = null;
-    $tl = textlib_get_instance();
+    //$tl = textlib_get_instance();
+    $textlib = new textlib();
     foreach ($externallinks as $url) {
         // Restrict length of URL
-        if ($tl->strlen($url) > 255) {
-            $url = $tl->substr($url, 0, 255);
+        if ($textlib::strlen($url) > 255) {
+            $url = $textlib::substr($url, 0, 255);
         }
         $link->tourl = $url;
         try {
@@ -1805,14 +1827,18 @@ function ouwiki_get_wiki_link_details($wikilink) {
 
     // Trim to 200 characters or less (note: because we don't want to cut it off
     // in the middle of a character, we use proper UTF-8 functions)
-    $tl = textlib_get_instance();
-    if ($tl->strlen($wikilink) > 200) {
-        $wikilink = $tl->substr($wikilink, 0, 200);
-        $space = $tl->strrpos($wikilink, ' ');
+    //$tl = textlib_get_instance();
+    $textlib = new textlib();
+    if ($textlib::strlen($wikilink) > 200) {
+        $wikilink = $textlib::substr($wikilink, 0, 200);
+        $space = $textlib::strrpos($wikilink, ' ');
         if ($space > 150) {
-            $wikilink = $tl->substr($wikilink, 0, $space);
+            $wikilink = $textlib::substr($wikilink, 0, $space);
         }
     }
+
+    // Remove non-breaking spaces
+    $wikilink = str_replace(html_entity_decode('&nbsp;', ENT_QUOTES, 'UTF-8'), ' ', $wikilink);
 
     // What will the title be of this link?
     if ($rawtitle) {
@@ -2180,12 +2206,14 @@ function ouwiki_setup_annotation_markers(&$content) {
                 $newcontent .= ouwiki_get_annotation_marker($pos);
                 $markeradded = true;
                 $space = false;
+                continue;
             } else if ($tagpositions[$pos] == '</p>'){
                 $newcontent .= ouwiki_get_annotation_marker($pos);
                 $newcontent .= $tagpositions[$pos];
                 $pos += strlen($tagpositions[$pos]);
                 $markeradded = true;
                 $space = false;
+                continue;
             } elseif (strpos($tagpositions[$pos], '<span id="annotation') !== false) {
                 // we're at the opening annotation tag span so we need to skip past </span>
                 // which is the next tag in $tagpositions[]
@@ -2200,6 +2228,7 @@ function ouwiki_setup_annotation_markers(&$content) {
                 $newcontent .= $tagpositions[$pos];
                 $pos += strlen($tagpositions[$pos]);
                 $markeradded = true;
+                continue;
             } else if (strpos($tagpositions[$pos], '<a ') !== false) {
                 // markers are not added in the middle of an anchor tag so need to skip
                 // to after the closing </a> in $tagpositions[]
@@ -2215,9 +2244,11 @@ function ouwiki_setup_annotation_markers(&$content) {
 
                 $newcontent .= $tagpositions[$pos];
                 $pos += strlen($tagpositions[$pos]);
+                continue;
             } else {
                 $newcontent .= $tagpositions[$pos];
                 $pos += strlen($tagpositions[$pos]);
+                continue;
             }
         }
 
@@ -2275,8 +2306,8 @@ function ouwiki_highlight_existing_annotations(&$content, $annotations, $page) {
     $ouwikioutput = $PAGE->get_renderer('mod_ouwiki');
 
     $icon = '<img src="'.$OUTPUT->pix_url('annotation', 'ouwiki').'" alt="'.
-            get_string('annotation', 'ouwiki').'" title="'.
-            get_string('annotation', 'ouwiki').'" />';
+            get_string('expandannotation', 'ouwiki').'" title="'.
+            get_string('expandannotation', 'ouwiki').'" />';
 
     usort($annotations, "ouwiki_internal_position_sort");
     // we only need the used annotations, not the orphaned ones.
@@ -2473,9 +2504,9 @@ function ouwiki_print_editlock($lock, $ouwiki) {
                     var ouw_countdowninterval=setInterval(function() {
                     var countdown=document.getElementById('ouw_countdown');
                     var timeleft=ouw_countdownto-(new Date().getTime());
-                    if(timeleft<0) {
+                    if (timeleft < 0) {
                         clearInterval(ouw_countdowninterval);
-                        document.forms['mform1'].elements['id_save'].click();
+                        document.forms['mform1'].elements['save'].click();
                         return;
                     }
                     if(timeleft<2*60*1000) {

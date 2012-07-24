@@ -157,15 +157,15 @@ abstract class ouwiki_portfolio_caller_base extends portfolio_module_caller_base
                 'date' => userdate($pageversion->timecreated),
                 'userlink' => ouwiki_display_user($user, $course->id)));
         $output .= html_writer::tag('p', html_writer::tag('small',
-        html_writer::tag('i', $lastchange)));
+                html_writer::tag('i', $lastchange)));
 
         // Main text
-        $output .= $formattedtext;
+        $output .= html_writer::tag('div', $formattedtext);
 
         // Word count
         if ($ouwiki->enablewordcount) {
             $wordcount = get_string('numwords', 'ouwiki', $pageversion->wordcount);
-            $output .= html_writer::empty_tag('br');
+            $output .= html_writer::tag('div', html_writer::empty_tag('br'));
             $output .= html_writer::tag('p',
             html_writer::tag('small', $wordcount),
             array('class' => 'ouw_wordcount'));
@@ -191,6 +191,8 @@ abstract class ouwiki_portfolio_caller_base extends portfolio_module_caller_base
             $output .= html_writer::end_tag('div');
         }
 
+        // Replace all user links with user name so that you can not access user links from within exported document.
+        $output = preg_replace('~<a href="[^"]*/user/view.php[^"]*"\s*>(.*?)</a>~', '$1', $output);
         return $output;
     }
 
@@ -228,7 +230,12 @@ abstract class ouwiki_portfolio_caller_base extends portfolio_module_caller_base
      * @return string Safe version of name (replaces unknown characters with _)
      */
     protected function make_filename_safe($name) {
-        return preg_replace('~[^A-Za-z0-9 _!,.-]~u', '_', $name);
+        $result = @preg_replace('~[^A-Za-z0-9 _!,.-]~u', '_', $name);
+        // Cope with Unicode support not being available
+        if ($result === null) {
+            $result = preg_replace('~[^A-Za-z0-9 _!,.-]~', '_', $name);
+        }
+        return $result;
     }
 }
 
@@ -273,14 +280,16 @@ class ouwiki_page_portfolio_caller extends ouwiki_portfolio_caller_base {
     public function get_navigation() {
         global $CFG;
 
-        list($navlinks, $cm) = parent::get_navigation();
+        $title = format_string($this->pageversion->title);
+        $name = $title === '' ? get_string('startpage', 'ouwiki') : $title;
+
         $navlinks[] = array(
-            'name' => format_string($this->pageversion->title),
+            'name' => $name,
             'link' => $CFG->wwwroot . '/mod/ouwiki/view.php?id=' . $this->cm->id . '&page=' .
                 $this->pageversion->title,
             'type' => 'title'
         );
-        return array($navlinks, $cm);
+        return array($navlinks, $this->cm);
     }
 
     /**
@@ -294,7 +303,18 @@ class ouwiki_page_portfolio_caller extends ouwiki_portfolio_caller_base {
     public function prepare_package() {
         global $CFG;
 
-        $pagehtml = $this->prepare_page($this->pageversion);
+        $pagehtml = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" ' .
+                '"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">' .
+                html_writer::start_tag('html', array('xmlns' => 'http://www.w3.org/1999/xhtml'));
+        $pagehtml .= html_writer::tag('head',
+                html_writer::empty_tag('meta',
+                    array('http-equiv' => 'Content-Type', 'content' => 'text/html; charset=utf-8')) .
+                html_writer::tag('title', get_string('export', 'forumngfeature_export')));
+        $pagehtml .= html_writer::start_tag('body') . "\n";
+
+        $pagehtml .= $this->prepare_page($this->pageversion);
+
+        $pagehtml .= html_writer::end_tag('body') . html_writer::end_tag('html');
 
         $content = $pagehtml;
         $name = $this->make_filename_safe($this->pageversion->title === '' ?
@@ -363,11 +383,21 @@ class ouwiki_all_portfolio_caller extends ouwiki_portfolio_caller_base {
     public function prepare_package() {
         global $CFG;
 
-        $pagehtml = html_writer::tag('h1', s($this->ouwiki->name));
+        $pagehtml = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" ' .
+                '"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">' .
+                html_writer::start_tag('html', array('xmlns' => 'http://www.w3.org/1999/xhtml'));
+        $pagehtml .= html_writer::tag('head',
+                html_writer::empty_tag('meta',
+                    array('http-equiv' => 'Content-Type', 'content' => 'text/html; charset=utf-8')) .
+                html_writer::tag('title', get_string('export', 'forumngfeature_export')));
+        $pagehtml .= html_writer::start_tag('body') . "\n";
+        $pagehtml .= html_writer::tag('h1', s($this->ouwiki->name));
 
         foreach ($this->pageversions as $pageversion) {
             $pagehtml .= $this->prepare_page($pageversion);
         }
+
+        $pagehtml .= html_writer::end_tag('body') . html_writer::end_tag('html');
 
         $content = $pagehtml;
         $name = $this->make_filename_safe($this->ouwiki->name) . '.html';

@@ -100,9 +100,15 @@ function ouwiki_delete_instance($id) {
     require_once($CFG->dirroot.'/mod/ouwiki/locallib.php');
 
     $cm = get_coursemodule_from_instance('ouwiki', $id, 0, false, MUST_EXIST);
+
+    // Delete search data
     if (ouwiki_search_installed()) {
         local_ousearch_document::delete_module_instance_data($cm);
     }
+
+    // Delete grade
+    $ouwiki = $DB->get_record('ouwiki', array('id' => $cm->instance));
+    ouwiki_grade_item_delete($ouwiki);
 
     // Subqueries that find all versions and pages associated with this wiki
     // and delete them all bottom up
@@ -137,9 +143,6 @@ function ouwiki_delete_instance($id) {
 
     $DB->delete_records_select('ouwiki_subwikis', 'wikiid = ?', array($id));
     $DB->delete_records('ouwiki', array('id' => $id));
-
-    ouwiki_grade_item_delete($ouwiki);
-
     return true;
 }
 
@@ -319,6 +322,7 @@ function ouwiki_supports($feature) {
         case FEATURE_GROUPINGS: return true;
         case FEATURE_GROUPS: return true;
         case FEATURE_GROUPMEMBERSONLY: return true;
+        case FEATURE_SHOW_DESCRIPTION: return true;
         default: return null;
     }
 }
@@ -537,6 +541,95 @@ function ouwiki_pluginfile($course, $cm, $context, $filearea, $args, $forcedownl
 }
 
 /**
+ * File browsing support for ouwiki module.
+ * @param object $browser
+ * @param object $areas
+ * @param object $course
+ * @param object $cm
+ * @param object $context
+ * @param string $filearea
+ * @param int $itemid
+ * @param string $filepath
+ * @param string $filename
+ * @return file_info instance Representing an actual file or folder (null if not found
+ * or cannot access)
+ */
+function ouwiki_get_file_info($browser, $areas, $course, $cm, $context, $filearea,
+        $itemid, $filepath, $filename) {
+    global $CFG, $DB, $USER;
+
+    if ($context->contextlevel != CONTEXT_MODULE) {
+        return null;
+    }
+    $fileareas = array('attachment', 'content');
+    if (!in_array($filearea, $fileareas)) {
+        return null;
+    }
+    if (!has_capability('mod/ouwiki:view', $context)) {
+        return null;
+    }
+    if (!$pageid = $DB->get_field('ouwiki_versions', 'pageid',
+            array('id' => $itemid), IGNORE_MISSING)) {
+        return null;
+    }
+    if (!$subwikiid = $DB->get_field('ouwiki_pages', 'subwikiid',
+            array('id' => $pageid), IGNORE_MISSING)) {
+        return null;
+    }
+    $groupid = $DB->get_field('ouwiki_subwikis', 'groupid',
+            array('id' => $subwikiid), IGNORE_MISSING);
+    // Make sure groups allow this user to see this file
+    if ($groupid) {
+        if (groups_get_activity_groupmode($cm, $course) == SEPARATEGROUPS) {
+            // Groups are being used
+            if (!groups_group_exists($groupid)) {
+                // Can't find group
+                return null;
+            }
+            if (!has_capability('moodle/site:accessallgroups', $context) &&
+                    !groups_is_member($groupid)) {
+                return null;
+            }
+        }
+    }
+    $userid = $DB->get_field('ouwiki_subwikis', 'userid',
+            array('id' => $subwikiid), IGNORE_MISSING);
+    if ($userid) {
+        if ($userid != $USER->id && !has_capability('mod/ouwiki:viewallindividuals', $context)) {
+            if (has_capability('mod/ouwiki:viewgroupindividuals', $context)) {
+                $params = array($course->id, $userid, $USER->id);
+                $query = "
+                FROM
+                    {groups} gp
+                    INNER JOIN {groups_members} gm ON gp.id = gm.groupid
+                    INNER JOIN {groups_members} gms ON gp.id = gms.groupid
+                WHERE
+                    gp.courseid = ? AND gm.userid = ? AND gms.userid = ?";
+
+                $count = $DB->count_records_sql("SELECT COUNT(1) $query", $params);
+                if ($count == 0) {
+                    return null;
+                }
+            } else {
+                return null;
+            }
+        }
+    }
+
+    $fs = get_file_storage();
+    $filepath = is_null($filepath) ? '/' : $filepath;
+    $filename = is_null($filename) ? '.' : $filename;
+    if (!($storedfile = $fs->get_file($context->id, 'mod_ouwiki', $filearea, $itemid,
+            $filepath, $filename))) {
+        return null;
+    }
+
+    $urlbase = $CFG->wwwroot . '/pluginfile.php';
+    return new file_info_stored($browser, $context, $storedfile, $urlbase, $filearea,
+            $itemid, true, true, false);
+}
+
+/**
  * Create grade item for given ouwiki
  *
  * @param object $ouwiki object with extra cmidnumber
@@ -572,10 +665,10 @@ function ouwiki_grade_item_update($ouwiki, $grades = null) {
 }
 
 /**
- * Delete grade item for given ouwiki
+ * Deletes grade item for given ouwiki.
  *
- * @param object $assignment object
- * @return object assignment
+ * @param object $ouwiki object
+ * @return int GRADE_UPDATE_xx constant
  */
 function ouwiki_grade_item_delete($ouwiki) {
     global $CFG;
@@ -594,5 +687,20 @@ function ouwiki_cm_info_dynamic(cm_info $cm) {
             get_context_instance(CONTEXT_MODULE,$cm->id))) {
         $cm->uservisible = false;
         $cm->set_available(false);
+    }
+}
+
+function ouwiki_cron() {
+    global $CFG;
+
+    require_once($CFG->dirroot . '/mod/ouwiki/mod_ouwiki_cron.php');
+
+    try {
+        mod_ouwiki_cron::cron();
+    } catch (moodle_exception $e) {
+        mtrace("An ouwiki exception occurred and ouwiki cron was aborted: " .
+                $e->getMessage() . "\n\n" .
+                $e->debuginfo . "\n\n" .
+                $e->getTraceAsString()."\n\n");
     }
 }

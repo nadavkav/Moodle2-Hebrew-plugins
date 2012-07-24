@@ -41,8 +41,9 @@ if (is_null($pagename)) {
 }
 
 // Restrict page name
-$tl = textlib_get_instance();
-if ($tl->strlen($pagename) > 200) {
+//$tl = textlib_get_instance();
+$textlib = new textlib();
+if ($textlib::strlen($pagename) > 200) {
     print_error('pagenametoolong', 'ouwiki');
 }
 // Convert nbsp to space
