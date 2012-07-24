@@ -1,0 +1,25 @@
+body.jsenabled .block_quickcourselist .submitbutton {
+    display: none;
+}
+
+.block_quickcourselist .quickcourseprogress {
+    visibility: hidden;
+}
+
+.block_quickcourselist ul {
+    margin: 0;
+}
+
+.block_quickcourselist li {
+    list-style-type: none;
+    margin-left: 0;
+    padding-bottom: 0.2em;
+    margin-bottom: 0.2em;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-bottom-color: #d3d3d3;
+}
+
+#quickcourselistsearch {
+    width: 120px;
+}
