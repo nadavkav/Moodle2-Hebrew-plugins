@@ -1,0 +1,19 @@
+.block_viewizer #coursesbypage {text-align:center; margin: 0px 0px 5px 0px; line-height:27px;}
+.block_viewizer h3 {margin-left:10px;font-weight:normal; vertical-align: middle;}
+.block_viewizer #coursesbypage a {font-weight:normal; font-size:100%; border:1px solid #ddd; padding:3px;}
+.block_viewizer #coursesbypage a.currpage {font-weight:bold; cursor:default;}
+.block_viewizer .viewizerimportant .course_details {margin-left:30px; font-size:90%;}
+.block_viewizer .viewizerimportant .course_details .mod_details {margin-top:5px;}
+.block_viewizer .viewizerimportant .viewizercourses .course_details .mod_details .overview .name {font-weight:bold;}
+.block_viewizer #viewizer_courses .course_details .mod_details .overview .name {font-weight:bold;}
+.block_viewizer .viewizercourses .course_details {margin-left:30px; font-size:90%;}
+.block_viewizer .viewizercourses ul.teachers li a {font-size:100%;}
+.block_viewizer .viewizerimportant .course_details .teachers a {font-size:100%;}
+.block_viewizer .viewizercourses .shdetails img {vertical-align:bottom;}
+.block_viewizer .viewizerprofile .viewizer_userpicture {margin: 15px 25px 15px 25px; border: 3px solid #fff; -moz-transform: rotate(-10deg);-webkit-transform:rotate(-10deg);-o-transform:rotate(-10deg);-ms-transform:rotate(-10deg);}
+.block_viewizer .viewizerprofile .viewizer_uimage {float:left;}
+.block_viewizer .viewizerprofile .viewizer_udetails {float:left; margin: 15px 0;}
+.block_viewizer .viewizerprofile .viewizer_clear {clear:both;}
+.block_viewizer .viewizerprofile #coursesearch {text-align:left;}
+.block_viewizer .viewizerprofile #coursesearch input#coursesearchbox {padding:2px;}
+.block_viewizer .viewizerprofile .viewizer_lastlogin {font-size:90%;font-style:italic;}
