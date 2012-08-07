@@ -23,37 +23,105 @@
   */
 
 class component_template extends component_base{
-	
-	function init(){
-		$this->plugins = false;
-		$this->ordering = false;
-		$this->form = true;
-		$this->help = true;
+
+	function has_form(){
+	    return true;
 	}
 	
-	function form_process_data(&$cform){
-	    global $DB;
+	function print_report($reportclass){
+	    global $OUTPUT;
 	    
-		if($this->form){
-			$data = $cform->get_data();
-			// cr_serialize() will add slashes
-			
-			$components = cr_unserialize($this->config->components);
-			$components['template']['config'] = $data;
-			
-			$this->config->components = cr_serialize($components);
-			
-			$DB->update_record('block_configurable_reports_report',$this->config);
-		}
-	}
-	
-	function form_set_data(&$cform){
-		if($this->form){
-			$fdata = new stdclass;
-			$components = cr_unserialize($this->config->components);
-			$config = (isset($components['template']['config']))? $components['template']['config'] : new stdclass;		
-			$cform->set_data($config);
-		}
+	    $page = optional_param('page', 0, PARAM_INT);
+	    
+	    $page_contents = array();
+	    $page_contents['header'] = (isset($config->header) && $config->header)? $config->header : '';
+	    $page_contents['footer'] = (isset($config->footer) && $config->footer)? $config->footer : '';
+	    
+	    $report = $reportclass->config;
+	    $recordtpl = (isset($config->record) && $config->record)? $config->record : '';;
+	    
+	    $calculations = '';
+	    
+	    if(!empty($reportclass->finalreport->calcs->data[0])){
+	        $calculations = print_table($reportclass->finalreport->calcs, true);
+	    }
+	    	
+	    $pagination = '';
+	    if($reportclass->config->pagination){
+	        $params = array('id' => $report->id);
+	        $request = array_merge($_POST, $_GET);
+            foreach($request as $key => $val){
+	            if(strpos($key,'filter_') !== false){
+    	            if(is_array($val)){
+    	                foreach($val as $k => $v){
+    	                    $params[$key][$k] = $v;    //TODO: moodle_url doesn't accept array params
+    	                }
+    	            } else {
+    	                $params[$key] = $val;
+    	            }
+	            }
+            }
+	    
+	        $reportclass->totalrecords = count($reportclass->finalreport->table->data);
+	        $baseurl = new moodle_url('viewreport.php', $params);
+	        $pagingbar = new paging_bar($reportclass->totalrecords, $page, $reportclass->config->pagination, $baseurl, 'page');
+	        $pagination =  $OUTPUT->render($pagingbar);
+	    }
+	    
+	    /* Add report elements */
+	    $search = array(
+	            '##reportname##',
+	            '##reportsummary##',
+	            '##graphs##',
+	            '##exportoptions##',
+	            '##calculationstable##',
+	            '##pagination##'
+	    );
+	    $plotclass = $this->get_component('plot');
+	    $exportclass = $this->get_component('export');
+	    $replace = array(
+	        format_string($reportclass->config->name),
+	        format_text($reportclass->config->summary),
+	        $plotclass->print_to_report(true),
+	        $exportclass->print_to_report(true),
+	        $calculations,
+	        $pagination
+        );
+	    foreach($page_contents as $key=>$p){
+	        if($p){
+	            $page_contents[$key] = str_ireplace($search, $replace, $p);
+	        }
+	    }
+	    
+	    /* Print report */
+	    $reportclass->print_filters();
+	    
+	    //TODO: Need to actually have a table somewhere
+	    $PAGE->requires->js_init_call('M.block_configurable_reports.setupTable', array('reporttable'));
+	    
+	    echo html_writer::start_tag('div', array('id' => 'printablediv'));
+	    echo format_text($page_contents['header'], FORMAT_HTML);
+	    
+	    if($recordtpl){
+	        if($reportclass->config->pagination){
+	            $rowsperpage = $reportclass->config->pagination;
+	            $reportclass->totalrecords = count($reportclass->finalreport->table->data);
+	            $reportclass->finalreport->table->data = array_slice($reportclass->finalreport->table->data, $page * $rowsperpage, $rowsperpage);
+	        }
+	        	
+	        foreach($reportclass->finalreport->table->data as $r){
+	            $recordtext = $recordtpl;
+	            foreach($reportclass->finalreport->table->head as $key=>$c){
+	                $recordtext = str_ireplace("[[$c]]",$r[$key],$recordtext);
+	            }
+	            echo format_text($recordtext, FORMAT_HTML);
+	        }
+	    }
+	   
+	    echo format_text($page_contents['footer'], FORMAT_HTML);
+	    echo html_writer::end_tag('div');
+	    
+	    $this->report->print_report_link();
 	}
 }
 

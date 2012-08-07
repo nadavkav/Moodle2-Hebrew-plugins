@@ -4,7 +4,7 @@ $string['pluginname'] = "Configurable Reports";
 $string['blockname'] = "Configurable Reports";
 $string['report_courses'] = "Courses report";
 $string['report_users'] = "Users report";
-$string['report_sql'] = "SQL Report";
+$string['report_customsql'] = "SQL Report";
 $string['managereports'] = "Manage reports";
 
 $string['report'] = "Report";
@@ -23,6 +23,7 @@ $string['type'] = "Type of report";
 $string['columncalculations'] = "Column Calculations";
 $string['newreport'] = "New report";
 $string['column'] = "Column";
+$string['deletereport'] = 'Delete report';
 $string['confirmdeletereport'] = "Are you sure you want to delete this report?";
 $string['noreportsavailable'] = "No reports available";
 $string['downloadreport'] = "Download report";
@@ -217,7 +218,7 @@ $string['statslogins'] = 'Logins in the platform';
 $string['activityview'] = 'Activity views';
 $string['activitypost'] = 'Activity posts';
 $string[''] = '';
-$string['globalstatsshouldbeenabled'] = 'Site statistics must be enabled. Go to Admin -> Server -> Statistics';
+$string['globalstatsshouldbeenabled'] = 'Site statistics must be enabled. Go to Site administration -> Advanced features';
 
 $string['xaxis'] = 'X Axis';
 $string['yaxis'] = 'Y Axis';

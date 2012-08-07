@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -22,178 +21,163 @@
   * @date: 2009
   */
 
-    require_once("../../config.php");
-	
-	require_once($CFG->dirroot."/blocks/configurable_reports/locallib.php");
-	require_once($CFG->dirroot.'/blocks/configurable_reports/report.class.php');
-	require_once($CFG->dirroot.'/blocks/configurable_reports/component.class.php');	
-	require_once($CFG->dirroot.'/blocks/configurable_reports/plugin.class.php');
+require_once("../../config.php");
+require_once("$CFG->dirroot/blocks/configurable_reports/locallib.php");
+require_once($CFG->dirroot.'/blocks/configurable_reports/reports/report.class.php');
 
-	$id = required_param('id', PARAM_INT);
-	$comp = required_param('comp', PARAM_ALPHA);
+$id   = required_param('id', PARAM_INT);        // Report id
+$comp = required_param('comp', PARAM_ALPHA);    // Component name
 
-	if(! $report = $DB->get_record('block_configurable_reports_report',array('id' => $id)))
-		print_error('reportdoesnotexists');
+if (! ($report = $DB->get_record('block_cr_report', array('id' => $id)))) {
+	print_error('reportdoesnotexists');
+}
+$courseid = $report->courseid;
+if (isset($courseid)) {
+    if (! ($course = $DB->get_record("course", array( "id" =>  $courseid)))) {
+        print_error('invalidcourseid');
+    }
 
-	
-	if (! $course = $DB->get_record("course",array( "id" =>  $report->courseid)) ) {
-		print_error("No such course id");
-	}	
-	
-	// Force user login in course (SITE or Course)
-    if ($course->id == SITEID){
-		require_login();
-		$context = get_context_instance(CONTEXT_SYSTEM);
-	}	
-	else{
-		require_login($course->id);		
-		$context = get_context_instance(CONTEXT_COURSE, $course->id);
-	}
+    require_login($courseid);
+    $context = context_course::instance($courseid);
+} else {
+    require_login();
+    $context = context_system::instance();
+}
+// Capability check
+if($report->ownerid != $USER->id){
+    require_capability('block/configurable_reports:managereports', $context);
+}else{
+    require_capability('block/configurable_reports:manageownreports', $context);
+}
 
-	$PAGE->set_url('/blocks/configurable_reports/editreport.php', array('id'=>$id,'comp'=>$comp));
-	$PAGE->set_context($context);	
-	$PAGE->set_pagelayout('incourse');
-	$PAGE->requires->js('/blocks/configurable_reports/js/configurable_reports.js');
+$params = array('id' => $id, 'comp' => $comp);
+$baseurl = new moodle_url('/blocks/configurable_reports/editcomp.php');
+$manageurl = new moodle_url('/blocks/configurable_reports/managereport.php', array('courseid' => $courseid));
+$addurl = new moodle_url('/blocks/configurable_reports/addplugin.php', $params);
+$editurl = new moodle_url('/blocks/configurable_reports/editplugin.php', array('comp' => $comp));
+$PAGE->set_url($baseurl, $params);
+$PAGE->set_context($context);	
+$PAGE->set_pagelayout('incourse');
 	
-	if(! has_capability('block/configurable_reports:managereports', $context) && ! has_capability('block/configurable_reports:manageownreports', $context))
-		print_error('badpermissions');
+$reportclass = report_base::get($report);
+$compclass = $reportclass->get_component($comp);
+if (!isset($compclass)) {
+    print_error('badcomponent');
+}
+
+$title = format_string($reportclass->config->name).' '.$compclass->get_type();    //TODO: Display names
+navigation_node::override_active_url($manageurl);
+$PAGE->navbar->add($title);
+$PAGE->set_title($title);
+$PAGE->set_heading($title);
+
+if($compclass->has_form()){
+    $editform = $compclass->get_form($PAGE->url);
 	
-				
-	if(! has_capability('block/configurable_reports:managereports', $context) && $report->ownerid != $USER->id)
-		print_error('badpermissions');
+	if ($editform->is_cancelled()) {
+		redirect(new moodle_url('/blocks/configurable_reports/editreport.php', array('id' => $id)));
 		
-	require_once($CFG->dirroot.'/blocks/configurable_reports/reports/'.$report->type.'/report.class.php');
+	} else if ($data = $editform->get_data()) {
+	    $editform->save_data($data);
+	    $logcourse = isset($courseid) ? $courseid : $SITE->id; 
+		add_to_log($logcourse, 'configurable_reports', 'edit', '', $report->name);
+	}
 	
-	$reportclassname = 'report_'.$report->type;	
-	$reportclass = new $reportclassname($report->id);
-	
-	if(!in_array($comp,$reportclass->components))
-		print_error('badcomponent');
+	$editform->set_data();
+}
 
-	$elements = cr_unserialize($report->components);
-	$elements = isset($elements[$comp]['elements'])? $elements[$comp]['elements'] : array();
-	
-	require_once($CFG->dirroot.'/blocks/configurable_reports/components/'.$comp.'/component.class.php');	
-	$componentclassname = 'component_'.$comp;
-	$compclass = new $componentclassname($report->id);
-	
-	if($compclass->form){
-		require_once($CFG->dirroot.'/blocks/configurable_reports/components/'.$comp.'/form.php');
-		$classname = $comp.'_form';
-		$editform = new $classname('editcomp.php?id='.$id.'&comp='.$comp,compact('compclass','comp','id','report','reportclass','elements'));
-		
-		if($editform->is_cancelled()){
-			redirect($CFG->wwwroot.'/blocks/configurable_reports/editcomp.php?id='.$id.'&amp;comp='.$comp);
-		}
-		else if ($data = $editform->get_data()) {
-			$compclass->form_process_data($editform);
-			add_to_log($report->courseid, 'configurable_reports', 'edit', '', $report->name);
-		}
-		
-		$compclass->form_set_data($editform);
+$instances = $compclass->get_all_instances();
 
-	}
-	
-	if($compclass->plugins){
-		$currentplugins = array();
-		if($elements){
-			foreach($elements as $e){
-				$currentplugins[] = $e['pluginname'];
-			}
-		}
-		$plugins = get_list_of_plugins('blocks/configurable_reports/components/'.$comp);
-		$optionsplugins = array();
-		foreach($plugins as $p){
-			require_once($CFG->dirroot.'/blocks/configurable_reports/components/'.$comp.'/'.$p.'/plugin.class.php');
-			$pluginclassname = 'plugin_'.$p;
-			$pluginclass = new $pluginclassname($report);
-			if(in_array($report->type,$pluginclass->reporttypes)){
-				if($pluginclass->unique && in_array($p,$currentplugins))
-					continue;
-				$optionsplugins[$p] = get_string($p,'block_configurable_reports');
-			}
-		}
-		asort($optionsplugins);
-	}
-	
+if (!empty($instances)) {
+    $table = new html_table();
+    $table->width = '80%';
+    $table->tablealign = 'center';
+    $table->head = array(
+            get_string('idnumber'),
+            get_string('name'), 
+            get_string('summary'), 
+            get_string('edit')
+    );
+    
+    $icons = array(
+            'edit'      => new pix_icon('t/edit', get_string('edit')),
+            'delete'    => new pix_icon('t/delete', get_string('delete')),
+            'moveup'    => new pix_icon('t/up', get_string('hide')),
+            'movedown'  => new pix_icon('t/down', get_string('show')),
+    );
+    $divider = '&nbsp;&nbsp;';
+    $pixattr = array('class'=>'iconsmall');
+    
+    $i = 0;
+    $numinstances = count($instances);
+    $plugins = $compclass->get_plugins();
+    foreach($instances as $sortorder => $instance){
+        if (!$compclass->has_plugin($instance->plugin)) {
+            continue;    //Just in case dependency change TODO: throw Exception
+        }
+        $editurl->params(array('id' => $instance->id));
+        $pluginclass = $plugins[$instance->plugin];
+    
+        $commands = array();
+        if($pluginclass->has_form()){
+            $commands[] = $OUTPUT->action_icon($editurl, $icons['edit'], null, $pixattr);
+        }
+        $url = clone($editurl);
+        $url->params(array('delete' => 1, 'sesskey' => $USER->sesskey));
+        $commands[] = $OUTPUT->action_icon($url, $icons['delete'], null, $pixattr);
+        
+        if ($compclass->has_ordering()) {
+            if ($i != 0 && $numinstances > 1) {
+                $url = clone($editurl);
+                $url->params(array('moveup' => 1, 'sesskey' => $USER->sesskey));
+                $commands[] = $OUTPUT->action_icon($url, $icons['moveup'], null, $pixattr);
+            }
+            if ($i != $numinstances -1) {
+                $url = clone($editurl);
+                $url->params(array('movedown' => 1, 'sesskey' => $USER->sesskey));
+                $commands[] = $OUTPUT->action_icon($url, $icons['movedown'], null, $pixattr);
+            }
+        }
+        $editcell = implode($divider, $commands);
+        
+        $table->data[] = array('c'.($i+1), $instance->name, $instance->summary, $editcell);
+        $i++;
+    }
+}
 
-	$title = format_string($report->name).' '.get_string($comp,'block_configurable_reports');
-	$navlinks = array();
-	$navlinks[] = array('name' => get_string('managereports','block_configurable_reports'), 'link' => $CFG->wwwroot.'/blocks/configurable_reports/managereport.php?courseid='.$report->courseid, 'type' => 'title');
-	$navlinks[] = array('name' => $title, 'link' => null, 'type' => 'title');
-	$navigation = build_navigation($navlinks);
-	
-	
-	$PAGE->set_title($title);	
-	$PAGE->set_heading($title);	
-	$PAGE->set_cacheable(true);
-	
-	echo $OUTPUT->header();
-	
-	$currenttab = $comp;
-	include('tabs.php');
-	
-	if($elements){
-		$table = new stdclass;
-		$table->head = array(get_string('idnumber'),get_string('name'),get_string('summary'),get_string('edit'));
-		$i = 0;
-			
-		
-		foreach($elements as $e){
-			require_once($CFG->dirroot.'/blocks/configurable_reports/components/'.$comp.'/'.$e['pluginname'].'/plugin.class.php');
-			$pluginclassname = 'plugin_'.$e['pluginname'];
-			$pluginclass = new $pluginclassname($report);
-		
-			$editcell = '';
-		
-			if($pluginclass->form){
-				$editcell .= '<a href="editplugin.php?id='.$id.'&comp='.$comp.'&pname='.$e['pluginname'].'&cid='.$e['id'].'"><img src="'.$OUTPUT->pix_url('/t/edit').'" class="iconsmall"></a>';
-			}
-			
-			$editcell .= '<a href="editplugin.php?id='.$id.'&comp='.$comp.'&pname='.$e['pluginname'].'&cid='.$e['id'].'&delete=1&amp;sesskey='.sesskey().'"><img src="'.$OUTPUT->pix_url('/t/delete').'" class="iconsmall"></a>';
+/* Display page */
 
-			if($compclass->ordering && $i != 0 && count($elements) > 1)
-				$editcell .= '<a href="editplugin.php?id='.$id.'&comp='.$comp.'&pname='.$e['pluginname'].'&cid='.$e['id'].'&moveup=1&amp;sesskey='.sesskey().'"><img src="'.$OUTPUT->pix_url('/t/up').'" class="iconsmall"></a>';
-			if($compclass->ordering && $i != count($elements) -1)
-				$editcell .= '<a href="editplugin.php?id='.$id.'&comp='.$comp.'&pname='.$e['pluginname'].'&cid='.$e['id'].'&movedown=1&amp;sesskey='.sesskey().'"><img src="'.$OUTPUT->pix_url('/t/down').'" class="iconsmall"></a>';
-			
-			$table->data[] = array('c'.($i+1),$e['pluginfullname'],$e['summary'],$editcell);
-			$i++;
-		}
-		cr_print_table($table);
-	}
-	else{
-		if($compclass->plugins)
-			echo $OUTPUT->heading(get_string('no'.$comp.'yet','block_configurable_reports'));
-	}
-	
-	if($compclass->plugins){
-		echo '<div class="boxaligncenter">';
-		echo '<p class="centerpara">';
-		print_string('add');
-		echo ': &nbsp;';
-		//choose_from_menu($optionsplugins,'plugin','',get_string('choose'),"location.href = 'editplugin.php?id=".$id."&comp=".$comp."&pname='+document.getElementById('menuplugin').value");
-		$attributes = array('id'=>'menuplugin');		
+echo $OUTPUT->header();
 
-		echo html_writer::select($optionsplugins,'plugin','', array(''=>get_string('choose')), $attributes);
-		$OUTPUT->add_action_handler(new component_action('change', 'menuplugin',array('url'=>"editplugin.php?id=".$id."&comp=".$comp."&pname=")),'menuplugin');
-		echo '</p>';
-		echo '</div>';
-	}
-	
-	if($compclass->form){
-		$editform->display();
-	}
-	
-	if($compclass->help){
-		echo '<div class="boxaligncenter">';	
-		echo '<p class="centerpara">';
-		echo $OUTPUT->help_icon('comp_'.$comp,'block_configurable_reports',get_string('comp_'.$comp,'block_configurable_reports'));
-		//helpbutton('comp_'.$comp, get_string('componenthelp','block_configurable_reports'),'block_configurable_reports', true, true);
-		echo '</p>';
-		echo '</div>';
-	}
-	
-	echo $OUTPUT->footer();
+echo $OUTPUT->heading($reportclass->get_typename());
+
+cr_print_tabs($reportclass, $comp);
+
+if ($helpicon = $compclass->get_help_icon()) {
+    echo $OUTPUT->box(html_writer::tag('p', $helpicon, array('class' => 'centerpara')), 'boxaligncenter');
+}
+
+if (!empty($instances)) {
+	echo html_writer::table($table);
+} else if ($compclass->plugins) {
+	echo $OUTPUT->heading(get_string('no'.$comp.'yet', 'block_configurable_reports'));
+}
+
+if ($pluginoptions = $compclass->get_plugin_options()) {
+    $plugurls = array();
+    foreach($pluginoptions as $plugin => $option){
+        $plugurls[$addurl->out(false, array('plug' => $plugin))] = $option;
+    }
+    $selector = new url_select($plugurls);
+    $selector->class = 'boxaligncenter centerpara';
+    $selector->set_label(get_string('add'));
+    echo $OUTPUT->render($selector);
+}
+
+if ($compclass->has_form()) {
+	$editform->display();
+}
+
+echo $OUTPUT->footer();
 
 ?>

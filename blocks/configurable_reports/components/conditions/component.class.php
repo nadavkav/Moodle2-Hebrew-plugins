@@ -22,86 +22,68 @@
   * @date: 2009
   */
 
-class component_conditions extends component_base{
+abstract class component_conditions extends component_base{
+    
+    function plugin_classes(){
+        throw new Exception(get_string('mustdefineplugins', 'block_configurable_reports'));
+    }
 	
-	function init(){
-		$this->plugins = true;
-		$this->ordering = false;
-		$this->form = true;
-		$this->help = true;
-	}
-	
-	function form_process_data(&$cform){
-		global $DB;
-		
-		if($this->form){
-			$data = $cform->get_data();
-			// cr_serialize() will add slashes
-			
-			$components = cr_unserialize($this->config->components);
-			$components['conditions']['config'] = $data;
-			if(isset($components['conditions']['config']->conditionexpr)){
-				$components['conditions']['config']->conditionexpr = $this->add_missing_conditions($components['conditions']['config']->conditionexpr);
-			}
-			$this->config->components = cr_serialize($components);
-			$DB->update_record('block_configurable_reports_report',$this->config);
-		}
+	function has_form(){
+	    return true;
 	}
 	
 	function add_missing_conditions($cond){
-		global $DB;
-		
-		$components = cr_unserialize($this->config->components);
-		
-		if(isset($components['conditions']['elements'])){
-			
-			$elements = $components['conditions']['elements'];		
-			$count = count($elements);
-			if($count == 0 || $count == 1)
-				return '';
-			for($i=$count; $i > 0; $i--){
-				if(strpos($cond,'c'.$i) === false){
-					if($count > 1 && $cond)
-						$cond .= " and c$i";
-					else
-						$cond .= "c$i";
-				}
-			}
-				
-			// Deleting extra conditions
-			
-			for($i = $count + 1; $i <= $count + 5; $i++){
-				$cond = preg_replace('/(\bc'.$i.'\b\s+\b(and|or|not)\b\s*)/i','',$cond);
-				$cond = preg_replace('/(\s+\b(and|or|not)\b\s+\bc'.$i.'\b)/i','',$cond);
-			}
-		}
-		
-		return $cond;
+	    $instances = $this->get_all_instances();
+	    $count = count($instances);
+	    if(empty($instances) || $count == 1){
+	        return '';
+	    }
+	    
+        for($i=$count; $i > 0; $i--){
+            if (strpos($cond,'c'.$i) !== false){
+                continue;
+            }
+            if ($count > 1 && $cond) {
+                $cond .= " and c$i";
+            } else {
+                $cond .= "c$i";
+            }
+        }
+
+        // Deleting extra conditions
+        for($i = $count + 1; $i <= $count + 5; $i++){
+            $cond = preg_replace('/(\bc'.$i.'\b\s+\b(and|or|not)\b\s*)/i', '', $cond);
+            $cond = preg_replace('/(\s+\b(and|or|not)\b\s+\bc'.$i.'\b)/i', '', $cond);
+        }
+	
+	    return $cond;
 	}
 	
-	function form_set_data(&$cform){
-		global $DB;
-		if($this->form){
-			$fdata = new stdclass;
-			$components = cr_unserialize($this->config->components);
-			//print_r($components);exit;
-			$conditionsconfig = (isset($components['conditions']['config']))? $components['conditions']['config'] : new stdclass;
-			
-			if(!isset($conditionsconfig->conditionexpr)){
-				$conditionsconfig->conditionexpr = '';
-				$conditionsconfig->conditionexpr = '';
-			}
-			$conditionsconfig->conditionexpr = $this->add_missing_conditions($conditionsconfig->conditionexpr);
-			$fdata->conditionexpr = $conditionsconfig->conditionexpr;
-			
-			$components['conditions']['config']->conditionexpr = $fdata->conditionexpr;
-			$this->config->components = cr_serialize($components);
-			$DB->update_record('block_configurable_reports_report',$this->config);
-						
-			$cform->set_data($fdata);			
-		}
+	function evaluate_expression($instances){
+	    global $CFG;
+	    if(!$this->config || ! ($expression = $this->config->conditionexpr)){
+	        return false;
+	    }
+	    
+	    require_once($CFG->dirroot.'/blocks/configurable_reports/components/conditions/evalwise.class.php');
+	    
+	    $logic = trim(strtolower($expression));
+	    $logic = substr($logic, 0, count($instances) * 10);
+	    $logic = str_replace(array('or','and','not'), array('+','*','-'), $logic);
+	    $logic = preg_replace('/[^\*c\d\s\+\-()]/i', '', $logic);
+	    
+	    $orig = $dest = array();
+	    for($j = count($instances); $j > 0; $j--){
+	        $orig[] = 'c'.$j;
+	        $dest[] = $j;
+	    }
+	    $logic = str_replace($orig,$dest,$logic);
+	    
+	    $m = new EvalWise();
+	    $m->set_data($instances);
+	    
+	    return $m->evaluate($logic);
 	}
-
 }
 
 ?>

@@ -24,73 +24,56 @@
 
 class component_calcs extends component_base{
 	
-	function init(){
-		$this->plugins = true;
-		$this->ordering = false;
-		$this->form = false;
-		$this->help = true;
+	function plugin_classes(){
+		return array(
+	        'average' => 'plugin_average',
+	        'max'     => 'plugin_max',
+	        'min'     => 'plugin_min',
+	        'sum'     => 'plugin_sum',
+		);
 	}
 	
-	function add_form_elements(&$mform,$components){
-		global $DB, $CFG;
-
-		$components = cr_unserialize($components);
-		$options = array();
-		
-		if($this->config->type != 'sql'){
-			if(!is_array($components) || empty($components['columns']['elements']))
-				print_error('nocolumns');
-			
-			$columns = $components['columns']['elements'];
-			
-			$calcs = isset($components['calcs']['elements'])?  $components['calcs']['elements']: array();
-			$columnsused = array();
-			if($calcs){
-				foreach($calcs as $c){
-					$columnsused[] = $c['formdata']->column;
-				}
-			}	
-				
-			$i = 0;
-			foreach($columns as $c){
-				if(!in_array($i,$columnsused))
-					$options[$i] = $c['summary'];
-				$i++;
-			}
-		}
-		else{
-			require_once($CFG->dirroot.'/blocks/configurable_reports/report.class.php');
-			require_once($CFG->dirroot.'/blocks/configurable_reports/reports/'.$this->config->type.'/report.class.php');
-			
-			$reportclassname = 'report_'.$this->config->type;	
-			$reportclass = new $reportclassname($this->config);
-			
-			$components = cr_unserialize($this->config->components);
-			$config = (isset($components['customsql']['config']))? $components['customsql']['config'] : new stdclass;	
-			
-			if(isset($config->querysql)){
-				
-				$sql =$config->querysql;
-				$sql = $reportclass->prepare_sql($sql);
-				if($rs = $reportclass->execute_query($sql)){					
-					foreach ($rs as $row) {	
-                        $i = 0;
-                        foreach($row as $colname=>$value){
-                            $options[$i] = str_replace('_', ' ', $colname);
-                            $i++;
-                        }
-                        break;
-                    }
-					$rs->close();
-				}
-			}			
-		}
-			
-		$mform->addElement('header', '', get_string('coursefield','block_configurable_reports'), '');
-		$mform->addElement('select', 'column', get_string('column','block_configurable_reports'), $options);	
-	
+	function print_to_report($return = false){
+	    global $PAGE;
+	    
+	    $calcs = $this->get_all_instances();
+	    if (empty($calcs)) {
+	        return;
+	    }
+	    
+	    /* Organize table data by column */
+	    $rows = array();
+	    foreach($this->report->finalreport->table->data as $row){
+	        foreach($row as $column => $cell){
+	            $rows[$column][] = $cell;
+	        }
+	    }
+	    
+	    /* Perform calculations on rows */
+	    $finalcalcs = array();
+	    $columns = array();
+	    foreach($this->get_plugins() as $plugclass){
+	        $plugname = $plugclass->get_type();
+	        foreach($plugclass->get_instances() as $pid => $calc){
+	            $column = $calc->configdata->column;
+	            if (isset($rows[$column])) {
+	                $finalcalcs[$column][$plugname] = $plugclass->execute($rows[$column]);
+	            }
+	        }
+	    }
+	    
+	    $table = $this->report->create_table(get_string('calcs', 'block_configurable_reports'), $columns);
+	    $table->id = 'calctable';
+	    $PAGE->requires->js_init_call('M.block_configurable_reports.setup_data_table', array('calctable'));
+	    
+	    $tabletitle = get_string("columncalculations", "block_configurable_reports");
+	    $output = html_writer::tag('div', "<b>$tabletitle</b>", array('class' => 'centerpara'));
+	    $output .= html_writer::table($table);
+	    if ($return) {
+	        return $output;
+	    }
+	    echo $output;
 	}
-	
 }
 
 ?>

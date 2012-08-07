@@ -22,73 +22,44 @@
   * @date: 2009
   */
 
-require_once($CFG->dirroot.'/blocks/configurable_reports/plugin.class.php');
+require_once($CFG->dirroot.'/blocks/configurable_reports/components/filters/plugin.class.php');
 
-class plugin_courses extends plugin_base{
-	
-	function init(){
-		$this->form = false;
-		$this->unique = true;
-		$this->fullname = get_string('filtercourses','block_configurable_reports');
-		$this->reporttypes = array('courses','sql');
-	}
-	
-	function summary($data){
-		return get_string('filtercourses_summary','block_configurable_reports');
-	}
+class plugin_courses extends filters_plugin{
 	
 	function execute($finalelements, $data){
-		
-		$filter_courses = optional_param('filter_courses',0,PARAM_INT);
-		if(!$filter_courses)
-			return $finalelements;
-		
-		if($this->report->type != 'sql'){
-				return array($filter_courses);			
-		}
-		else{
-			if(preg_match("/%%FILTER_COURSES:([^%]+)%%/i",$finalelements,
-    $output)){
-				$replace = ' AND '.$output[1].' = '.$filter_courses;				
-				return str_replace('%%FILTER_COURSES:'.$output[1].'%%',$replace,$finalelements);
-			}			
-		}		
-		return $finalelements;
+	    if (! ($filter = optional_param('filter_courses', 0, PARAM_INT))) {
+	        return $finalelements;
+	    }
+
+	    return $this->filter_elements($finalelements, $filter);
 	}
 	
-	function print_filter(&$mform){
-		global $DB, $CFG;
+	function filter_elements($finalelements, $filter){
+	    return array($filter);
+	}
+	
+	function get_course_ids(){
+	    return $this->report->get_elements_by_conditions();
+	}
+	
+	function print_filter(&$mform, $instance){
+		global $DB;
 		
-		$filter_courses = optional_param('filter_courses',0,PARAM_INT);
+		$filter_courses = optional_param('filter_courses', 0, PARAM_INT);
 		
-		$reportclassname = 'report_'.$this->report->type;	
-		$reportclass = new $reportclassname($this->report);
-		
-		if($this->report->type != 'sql'){
-			$components = cr_unserialize($this->report->components);		
-			$conditions = $components['conditions'];
-					
-			$courselist = $reportclass->elements_by_conditions($conditions);
+	    $courseids = $this->get_course_ids();
+		if(empty($courseids)){
+		    return;
 		}
-		else{
-			$courselist = array_keys($DB->get_records('course'));
-		}
-		
-		$courseoptions = array();
-		$courseoptions[0] = get_string('choose');
-		
-		if(!empty($courselist)){
-			list($usql, $params) = $DB->get_in_or_equal($courselist);			
-			$courses = $DB->get_records_select('course',"id $usql",$params);
-			
-			foreach($courses as $c){
-				$courseoptions[$c->id] = format_string($c->fullname);				
-			}
+				
+		$courseoptions = array(0 => get_string('choose'));
+		$courses = $DB->get_records_list('course', 'id', $courseids);
+		foreach($courses as $course){
+			$courseoptions[$course->id] = course_format_name($course);				
 		}
 		
 		$mform->addElement('select', 'filter_courses', get_string('course'), $courseoptions);
 		$mform->setType('filter_courses', PARAM_INT);
-		
 	}
 	
 }

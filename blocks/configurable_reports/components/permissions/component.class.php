@@ -24,84 +24,46 @@
 
 class component_permissions extends component_base{
 	
-	function init(){
-		$this->plugins = true;
-		$this->ordering = false;
-		$this->form = true;
-		$this->help = true;
+	function plugin_classes(){
+	    return array(
+	            'anyone'              => 'plugin_anyone',
+	            'puserfield'          => 'plugin_puserfield',
+	            'reportscapabilities' => 'plugin_reportscapabilities',
+	            'roleincourse'        => 'plugin_roleincourse',
+	            'usersincoursereport' => 'plugin_usersincoursereport',
+	    );
 	}
 	
-	function form_process_data(&$cform){
-		global $DB;
-		
-		if($this->form){
-			$data = $cform->get_data();
-			// cr_serialize() will add slashes
-			
-			$components = cr_unserialize($this->config->components);
-			$components['permissions']['config'] = $data;
-			if(isset($components['permissions']['config']->conditionexpr)){
-				$components['permissions']['config']->conditionexpr = $this->add_missing_conditions($components['permissions']['config']->conditionexpr);
-			}
-			$this->config->components = cr_serialize($components);
-			$DB->update_record('block_configurable_reports_report',$this->config);
-		}
+	function has_form(){
+	    return true;
 	}
 	
-	function add_missing_conditions($cond){
-		$components = cr_unserialize($this->config->components);
-		if(isset($components['permissions']['elements'])){
-			$elements = $components['permissions']['elements'];		
-			$count = count($elements);
-			if($count == 0 || $count == 1)
-				return '';
-			for($i=$count; $i > 0; $i--){
-				if(strpos($cond,'c'.$i) === false){
-					if($count > 1 && $cond)
-						$cond .= " and c$i";
-					else
-						$cond .= "c$i";
-				}
-			}
-			$cond = trim($cond);			
-
-		
-			// Deleting extra conditions
-			
-			for($i = $count + 1; $i <= $count + 5; $i++){
-				$cond = preg_replace('/(\bc'.$i.'\b\s+\b(and|or|not)\b\s*)/i','',$cond);
-				$cond = preg_replace('/(\s+\b(and|or|not)\b\s+\bc'.$i.'\b)/i','',$cond);
-			}		
-		}
-		return $cond;
-		
+	function add_missing_conditions($cond){	     
+	    $instances = $this->get_all_instances();
+	    $count = count($instances);
+	    if(empty($instances) || $count == 1){
+	        return '';
+	    }
+	     
+	    for($i=$count; $i > 0; $i--){
+	        if (strpos($cond,'c'.$i) !== false){
+	            continue;
+	        }
+	        if ($count > 1 && $cond) {
+	            $cond .= " and c$i";
+	        } else {
+	            $cond .= "c$i";
+	        }
+	    }
+	    
+	    // Deleting extra conditions
+	    for($i = $count + 1; $i <= $count + 5; $i++){
+	        $cond = preg_replace('/(\bc'.$i.'\b\s+\b(and|or|not)\b\s*)/i', '', $cond);
+	        $cond = preg_replace('/(\s+\b(and|or|not)\b\s+\bc'.$i.'\b)/i', '', $cond);
+	    }
+	    
+	    return $cond;
 	}
-	
-	function form_set_data(&$cform){
-		global $DB;
-		
-		if($this->form){
-			$fdata = new stdclass;
-			$components = cr_unserialize($this->config->components);
-			//print_r($components);exit;
-			$conditionsconfig = (isset($components['permissions']['config']))? $components['permissions']['config'] : new stdclass;
-			
-			if(!isset($conditionsconfig->conditionexpr)){
-				$fdata->conditionexpr = '';
-				$conditionsconfig->conditionexpr = '';
-			}			
-			$conditionsconfig->conditionexpr = $this->add_missing_conditions($conditionsconfig->conditionexpr);
-			$fdata->conditionexpr = $conditionsconfig->conditionexpr;
-			
-			$components['permissions']['config']->conditionexpr = $fdata->conditionexpr;
-			$this->config->components = cr_serialize($components);
-			$DB->update_record('block_configurable_reports_report',$this->config);
-			
-			
-			$cform->set_data($fdata);			
-		}
-	}
-
 }
 
 ?>

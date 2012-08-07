@@ -22,36 +22,35 @@
   * @date: 2009
   */
 
-require_once($CFG->dirroot.'/blocks/configurable_reports/plugin.class.php');
+require_once($CFG->dirroot.'/blocks/configurable_reports/components/permissions/plugin.class.php');
 
-class plugin_roleincourse extends plugin_base{
+class plugin_roleincourse extends permissions_plugin{
 	
-	function init(){
-		$this->form = true;
-		$this->unique = false;
-		$this->fullname = get_string('roleincourse','block_configurable_reports');
-		$this->reporttypes = array('courses','sql','users','timeline','categories');
-	}
-	
-	function summary($data){
+	function summary($instance){
 		global $DB;
 		
-		$rolename = $DB->get_field('role','name',array('id' => $data->roleid));
-		$coursename = $DB->get_field('course','fullname',array('id' => $this->report->courseid));
+		$data = $instance->configdata;
+		$rolename = $DB->get_field('role', 'name', array('id' => $data->roleid));
+		$coursename = $DB->get_field('course', 'fullname', array('id' => $this->report->config->courseid));
 		return $rolename.' '.$coursename;
 	}
+
+	function has_form(){
+	    return true;
+	}
 	
-	function execute($userid, $context, $data){
-		global $DB, $CFG;
-		
-		$context = ($this->report->courseid == SITEID)? get_context_instance(CONTEXT_SYSTEM): get_context_instance(CONTEXT_COURSE,$this->report->courseid);
-		$roles = get_user_roles($context,$userid);
+	function execute($userid, $context, $instance){
+	    $data = $instance->configdata;
+	    
+		$roles = get_user_roles($context, $userid);
 		if(!empty($roles)){
 			foreach($roles as $rol){
-				if($rol->roleid == $data->roleid)
+				if ($rol->roleid == $data->roleid) {
 					return true;
+				}
 			}
 		}
+		
 		return false;
 	}
 	
