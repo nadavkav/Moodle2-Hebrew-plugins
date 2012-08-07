@@ -26,16 +26,16 @@
  */
 
 $string['title']          = 'מתן ציונים';
-$string['ajaxmarking']    = 'מתן ציונים';
+$string['ajaxmarking']    = 'מתן ציונים כולל';
 $string['marking']        = 'בדיקת משימות';
 $string['waiting']        = 'מחכים לבדיקה';
-$string['nothingtomark']        = 'מהרו - כול העבודות נבדקו!';
-$string['nogradedassessments'] = 'אין לכם מרחבי לימוד עם משימות שבדקתם ונתתם ציון';
-$string['totaltomark']          = 'סך הכל ציון';
+$string['nothingtomark']        = 'כול העבודות נבדקו!';
+$string['nogradedassessments'] = 'לא קיימות פעילויות הממתינות לבדיקה וציינון';
+$string['totaltomark']          = 'טרם נבדקו';
 $string['collapse']       = 'צמצום תצוגה &amp; רענון';
 $string['submitted']      = 'עודכן';
 $string['ago']            = 'בעבר';
 $string['configure']      = 'עדכון הגדרות';
 $string['connectfail']   = 'תקשורת AJAX נכשלה';
 $string['nogroups']       = 'לא נוצרו קבוצות במרחב לימוד זה ';
-$string['settingsheadertext']     = 'AJAX marking block settings for';
+$string['settingsheadertext']     = 'הגדרות רכיב מתן ציונים';
