@@ -52,6 +52,7 @@ div#headerinner {
     line-height: 30px;
     min-width: 400px;
 }
+.dir-rtl #headright {float: left;min-width: 300px;}
 
 #headright a {
     color: #fff;
@@ -65,6 +66,7 @@ div#headerinner {
     margin: 0px 0px 0px 5px !important;
     font-size: 9px;
 }
+.dir-rtl #headright div.langmenu {float: left !important;}
 
 #headleft {
     float: left;
@@ -73,7 +75,7 @@ div#headerinner {
     color: #fff;
     font-size: 12px;
 }
-
+.dir-rtl #headleft {float: right;}
 /** Logo and menu bar divs and wrap **/
 
 #textcontainer-wrap {
@@ -98,6 +100,7 @@ div.thetitle {
     height: 130px;
     float: left;
 }
+.dir-rtl div.thetitle {float: right;}
 
 #nologo {
     width: 337px;
