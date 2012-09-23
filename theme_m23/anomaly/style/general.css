@@ -837,3 +837,8 @@ h1.headermain {
 /* Add Block
 -------------------------*/
 .block .content .singleselect form#add_block .select.menubui_addblock { width: 160px;}
+
+/* UI fixes in forum's post list, when in RTL mode */
+.dir-rtl .forumpost .row .left {clear: right;}
+.dir-rtl .forumpost .row .options {background-color: white;}
+.dir-rtl .forumpost .row {width: 95%;}

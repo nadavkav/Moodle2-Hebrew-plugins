@@ -202,4 +202,11 @@
 /** Fix for IE 6 float background bug */
 .ie .column-content {
     position: relative;
+} 
+
+/* Round corners in RTL mode */
+dir-rtl .opera .forumpost .options, .dir-rtl .safari .forumpost .options, .dir-rtl .gecko .forumpost .options {
+moz-border-bottom-left-radius: 20px;
+webkit-border-bottom-left-radius: 20px;
+order-bottom-left-radius: 20px;
 }
