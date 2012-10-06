@@ -71,6 +71,13 @@ class restore_qtype_order_plugin extends restore_qtype_plugin {
             // Keep question_order->subquestions unmodified
             // after_execute_question() will perform the remapping once all subquestions
             // have been created
+			
+			//Added by justin hunt 20120131, previously errors occured here cos no default value for these fields in DB
+			//yet since these members are new in 2.x, the 1.9 backups didn't contain them
+			if(!isset($data->correctfeedback)){ $data->correctfeedback =" ";}
+			if(!isset($data->partiallycorrectfeedback)){ $data->partiallycorrectfeedback =" ";}
+			if(!isset($data->incorrectfeedback)){ $data->incorrectfeedback =" ";}
+			
             // Insert record
             $newitemid = $DB->insert_record('question_order', $data);
             // Create mapping
@@ -107,15 +114,20 @@ class restore_qtype_order_plugin extends restore_qtype_plugin {
         // they are used by question_states->answer
         } else {
             // Look for ordering subquestion (by question, questiontext and answertext)
-            $sub = $DB->get_record_select('question_order_sub',
-                'question = ? AND '.$DB->sql_compare_text('questiontext').' = '.$DB->sql_compare_text('?').' AND answertext = ?',
-                array($newquestionid, $data->questiontext, $data->answertext), 'id', IGNORE_MULTIPLE);
+            $sub = $DB->get_record_select('question_order_sub', 'question = ? AND ' .
+                    $DB->sql_compare_text('questiontext') . ' = ' .
+                    $DB->sql_compare_text('?').
+                    $DB->sql_compare_text('AND answertext') . ' = ' .
+                    $DB->sql_compare_text('?'),
+                    array($newquestionid, $data->questiontext, $data->answertext),
+                    'id', IGNORE_MULTIPLE);
             // Found, let's create the mapping
             if ($sub) {
                 $this->set_mapping('question_order_sub', $oldid, $sub->id);
             // Something went really wrong, cannot map subquestion for one order question
             } else {
-                throw restore_step_exception('error_question_order_sub_missing_in_db', $data);
+              //  throw restore_step_exception('error_question_order_sub_missing_in_db', $data);
+				print_r($data);
             }
         }
     }

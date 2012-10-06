@@ -44,7 +44,9 @@ class backup_qtype_order_plugin extends backup_qtype_plugin {
 
         // Now create the qtype own structures
         $orderoptions = new backup_nested_element('orderoptions', array('id'), array(
-            'subquestions', 'horizontal'));
+            'subquestions', 'horizontal','correctfeedback', 'correctfeedbackformat',
+            'partiallycorrectfeedback', 'partiallycorrectfeedbackformat',
+            'incorrectfeedback', 'incorrectfeedbackformat', 'shownumcorrect'));
 
         $orders = new backup_nested_element('orders');
 
@@ -73,6 +75,10 @@ class backup_qtype_order_plugin extends backup_qtype_plugin {
      */
     public static function get_qtype_fileareas() {
         return array(
-            'subquestion' => 'question_order_sub');
+            'correctfeedback' => 'question_order',
+            'partiallycorrectfeedback' => 'question_order',
+            'incorrectfeedback' => 'question_order',
+            'subquestion'   => 'question_order_sub',
+            'subanswer'     => 'question_order_sub');
     }
 }
