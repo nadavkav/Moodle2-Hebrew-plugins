@@ -22,33 +22,33 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['modulename'] = 'תת יחידת הוראה';
-$string['modulenameplural'] = 'תתי יחידות הוראה';
-$string['pluginname'] = 'תת יחידת הוראה';
-$string['pluginadministration'] = 'ניהול תת יחידת הוראה';
+$string['modulename'] = 'תת־יחידת־הוראה';
+$string['modulenameplural'] = 'תתי־יחידות־הוראה';
+$string['pluginname'] = 'תת־יחידת־הוראה';
+$string['pluginadministration'] = 'ניהול תת־יחידת־הוראה';
 
 $string['sectionlimitexceeded'] = 'There is a limit on the number of subpage sections permitted per course. You cannot add more subpage sections to any subpage on this course.';
 $string['unspecifysubpageid'] = 'Unspecified subpage id';
-$string['addsection'] = 'הוספת יחידת הוראה';
-$string['sectiondeleteconfirm'] = 'Are you sure you want to delete section {$a}';
-$string['movetopage'] = 'Move items to this page';
-$string['movefrompage'] = 'Move items from this page';
-$string['moveitems'] = 'Move items';
-$string['moveselected'] = 'Move selected items';
-$string['topsection'] = 'יחידת הוראה ראשית';
-$string['newsection'] = 'יחידת הוראה חדשה';
+$string['addsection'] = 'הוספת יחידת־הוראה';
+$string['sectiondeleteconfirm'] = 'האם אתם בטוחים שאתם מעוניינים למחוק את יחידת ההוראה: {$a}';
+$string['movetopage'] = 'העברת פריטים לעמוד זה';
+$string['movefrompage'] = 'העברת פריטים מעמוד זה';
+$string['moveitems'] = 'העברת פריטים';
+$string['moveselected'] = 'העברת פריטים שנבחרו';
+$string['topsection'] = 'יחידת־הוראה ראשית';
+$string['newsection'] = 'יחידת־הוראה חדשה';
 $string['coursemainpage'] = 'העמוד הראשי של מרחב הלימוד';
-$string['anothersection'] = 'Another section on this subpage';
+$string['anothersection'] = 'תת יחידת־הוראה חדשה בתת עמוד זה';
 $string['moveto'] = 'העבירו אל';
-$string['section'] = 'יחידת הוראה';
-$string['nomodulesselected'] = 'No modules were selected to move.';
+$string['section'] = 'יחידת־הוראה';
+$string['nomodulesselected'] = 'לא נבחרו רכיבים להעברה.';
 $string['sectionnotcreatedorexisting'] = 'Section doesn\'t exist or can\'t be created.';
-$string['modulenotfound'] = 'Module not found.';
+$string['modulenotfound'] = 'הרכיב לא קיים.';
 $string['nomodules'] = 'No modules were found on this subpage to move.';
 
 $string['modulename_help'] = '<p>A subpage is a smaller version of the main course page.  You can create sections and add activities to group them together.</p>';
 
-$string['enablesharing'] = 'Enable sharing';
+$string['enablesharing'] = 'אפשרו שיתוף';
 $string['enablesharing_help'] = 'When you choose to enable sharing, anyone can add a copy of this page as a shared subpage to any course.
 
 When enabling sharing you must enter an ID number in the field below. This ID number can then be used to create copies of the page.
@@ -59,6 +59,6 @@ Items are also not shared if they contain any type of access restriction (date, 
 $string['error_noidnumber'] = 'When sharing is enabled, you must enter an ID number';
 $string['error_duplicateidnumber'] = 'The ID number must be unique across the system; choose something different';
 $string['error_sharingused'] = 'Cannot disable sharing because there is already a shared subpage that copies this page';
-$string['stealth'] = 'Stealth';
-$string['unstealth'] = 'Un-stealth';
-$string['error_deletingsection'] = 'Can not delete this section due to it still containing content';
+$string['stealth'] = 'חבוי';
+$string['unstealth'] = 'לא חבוי';
+$string['error_deletingsection'] = 'לא ניתן למחוק תת־יחידת־הוראה אשר קיימים בה רכיבים';
