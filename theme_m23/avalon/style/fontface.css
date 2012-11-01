@@ -1,0 +1,62 @@
+
+.openfont {
+    /*border-bottom: 4px double #CCCCCC;*/
+    font-family: "openfont_boldbold",sans-serif;
+    /*font-size: 40px;*/
+    /*text-align: center;*/
+    /*text-transform: uppercase;*/
+}
+
+.block .header h2 {
+    /*border-bottom: 4px double #CCCCCC;*/
+    font-family: "openfont_boldbold",sans-serif;
+    font-size: 17px;
+    /*text-align: center;*/
+    /*text-transform: uppercase;*/
+}
+
+#page-header .headermain {
+    font-family: "openfont_boldbold",sans-serif;
+
+}
+
+/*  Special FONT FACE samples
+.shmulikclm {
+    border-bottom: 4px double #CCCCCC;
+    font-family: "ShmulikCLMMedium",sans-serif;
+    font-size: 40px;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.block .header h2 {
+    border-bottom: 4px double #CCCCCC;
+    font-family: "ShmulikCLMMedium",sans-serif;
+
+    font-size: 40px;
+    text-align: center;
+   text-transform: uppercase;
+}
+
+.makabiyg {
+    border-bottom: 4px double #CCCCCC;
+    font-family: "MakabiYGDemiBold",sans-serif;
+    font-size: 40px;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+#mod-resource-view p {
+     width: 500px;
+     font-family: Museo;
+     font-weight: normal;
+     line-height: 1em;
+}
+#mod-resource-view p:first-letter {
+     font-size: 2.3em;
+     line-height: .9em;
+     font-weight:bold;
+     float: right;
+     padding: 0 0.1em 0 0;
+}
+*/
