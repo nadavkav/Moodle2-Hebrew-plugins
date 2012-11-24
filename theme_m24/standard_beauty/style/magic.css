@@ -1,0 +1,118 @@
+.block .content {
+    background: white url([[pix:theme|images/grid_bg_pattern]]);
+    width: 96%;
+}
+.block, .block .content {
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+
+#page-mod-forum-discuss .select, select[name="instance"], select,
+select[name="category"], input[type="submit"], input[type="button"] {
+    background: white url([[pix:theme|images/button_bg]]);
+    display: inline-block;
+    color: #333;
+    font-weight: 800;
+    text-shadow: 0 1px 0 white;
+    text-decoration: none;
+    position: relative;
+    cursor: pointer;
+    border: 1px solid #CCC;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+    font-size: 13px;
+    padding: 4px 7px 4px;
+}
+
+.path-mod-questionnaire input[type="submit"],
+#page-mod-label-mod #id_submitbutton2,
+#newentryform input[type="submit"],
+.close-button input[type="button"],
+input[name="submitbutton"], input.form-submit {
+    background-color: #B2FCCD;
+}
+
+#notice.generalbox {
+    background-color: #FFFFC5;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    font-size: 1.4em;
+
+}
+/* MDL-30839 - form validation and error recovery  */
+.mform .fdescription.required {
+    padding: 7px;
+    background-color: #FFF0F0;
+    text-align: center;
+    border-radius: 5px;
+    width: 40%;
+    margin: 15px auto;
+}
+
+input[type="text"],input[type="password"] {font-size: 1.3em;}
+input[type="text"]:focus {background-color: #fafad2;}
+#adminsearchquery,#searchform_search {width: 90%;}
+
+.dir-rtl .mform fieldset legend {
+    font-size: 1.3em;
+    padding: 5px;
+    background-color: beige;
+    border-left: 2px solid gray;
+    border-right: 2px solid gray;
+    margin-right: 0.5em;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+
+}
+.dir-rtl .mform fieldset {
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+
+/*.dir-rtl .generalbox, .dir-rtl .generalboxcontent,*/
+.dir-rtl .generalbox#intro,
+.dir-rtl .informationbox, .dir-rtl .informationboxcontent {
+    -moz-border-radius-bottomleft: 3px;
+    -moz-border-radius-bottomright: 3px;
+    -webkit-border-bottom-left-radius: 3px;
+    -webkit-border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    background-color: #f5f5dc;
+}
+
+/* Admin, Logs in as a different user
+*/
+.userloggedinas #notice.generalbox {
+    background-color: #FFE4B0;
+    font-size: 1.3em;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    width: 60%;
+}
+
+/* New message popup
+*/
+#newmessageoverlay {
+    background-color: #FCF7C7;
+    border: 3px solid black;
+    padding: 20px;
+    position: fixed;
+    bottom: 5px;
+    right: 5px;
+    border-radius: 5px;
+}
+/* Add user button/link on admin user list
+*/
+.main a[href*="editadvanced.php?id=-1"] {
+    border: 2px outset gray;
+    padding: 5px;
+    background-color: beige;
+    border-radius: 3px;
+}
