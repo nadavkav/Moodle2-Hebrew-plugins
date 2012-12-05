@@ -1,3 +1,0 @@
-[submodule "mod/scormcloud/SCORMCloud_PHPLibrary"]
-	path = mod/scormcloud/SCORMCloud_PHPLibrary
-	url = git://github.com/RusticiSoftware/SCORMCloud_PHPLibrary.git
