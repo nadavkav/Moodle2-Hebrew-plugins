@@ -25,9 +25,8 @@ require_once('../../config.php');
 require_once('mod_forumng.php');
 
 function my_link_sort($a, $b) {
-    $tl = textlib_get_instance();
-    $a = $tl->strtolower(substr($a->link, strpos($a->link, '>')+1));
-    $b = $tl->strtolower(substr($b->link, strpos($b->link, '>')+1));
+    $a = textlib::strtolower(substr($a->link, strpos($a->link, '>')+1));
+    $b = textlib::strtolower(substr($b->link, strpos($b->link, '>')+1));
     return strcmp($a, $b);
 }
 
@@ -175,7 +174,7 @@ if (count($subscribers) == 0) {
     if ($canmanage) {
         // Note: This form has to be a post because if there are a lot of
         // subscribers, the list will be too long to fit in a GET
-        print '<form action="subscribers.php" method="post"><div>' .
+        print '<form action="subscribers.php" method="post"><div id="forumng-subscription-list">' .
             $forum->get_link_params(mod_forumng::PARAM_FORM);
     }
 

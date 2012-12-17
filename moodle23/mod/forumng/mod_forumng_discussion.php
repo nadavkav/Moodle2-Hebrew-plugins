@@ -594,9 +594,11 @@ class mod_forumng_discussion {
                 $linear = array();
                 $this->rootpost->build_linear_children($linear);
                 $nextunread = array();
+                $dump = '';
                 foreach ($linear as $index=>$post) {
                     $nextunread[$index] = null;
-                    if ($post->is_unread()) {
+                    if ($post->is_unread() &&
+                            (!$post->get_deleted() || $post->can_undelete($dump))) {
                         for ($j = $index-1; $j>=0; $j--) {
                             if ($nextunread[$j]) {
                                 break;
@@ -608,7 +610,8 @@ class mod_forumng_discussion {
                 $previous = null;
                 foreach ($linear as $index=>$post) {
                     $post->set_unread_list($nextunread[$index], $previous);
-                    if ($post->is_unread()) {
+                    if ($post->is_unread() &&
+                            (!$post->get_deleted() || $post->can_undelete($dump))) {
                         $previous = $post;
                     }
                 }
@@ -1232,20 +1235,28 @@ WHERE
         //Deleting the relevant data in the forumng_flags table
         $DB->execute("DELETE FROM {forumng_flags} $query", $queryparams);
 
+        //Delete all the attachment files of this discussion.
+        $fs = get_file_storage();
+        $filecontext = $this->get_forum()->get_context(true);
+
+        // Get list of all affected post ids (includes edited, deleted) that have attachments.
+        $postids = $DB->get_records('forumng_posts', array(
+                'discussionid' => $this->get_id(), 'attachments' => 1), '', 'id');
+
+        // Loop through all posts and deleting the attachments for each post.
+        foreach ($postids as $postid=>$junk) {
+            foreach (array('attachment', 'message') as $filearea) {
+                $fs->delete_area_files($filecontext->id, 'mod_forumng', $filearea,
+                        $postid);
+            }
+        }
+
         //Deleting the relevant posts in this discussion in the forumng_posts table
         $DB->delete_records('forumng_posts', array('discussionid' => $this->get_id()));
 
         //Finally deleting this discussion in the forumng_discussions table
         $DB->delete_records('forumng_discussions', array('id' => $this->get_id()));
 
-        //Delete the entire attachment folder if any
-        $folder = $this->get_attachment_folder();
-        if (is_dir($folder)) {
-            if (!remove_dir($folder)) {
-                throw new mod_mod_forumng_file_exception(
-                        "Error deleting attachment folder: $folder");
-            }
-        }
         //Log delete
         if ($log) {
             $this->log('permdelete discussion');
@@ -1282,7 +1293,7 @@ WHERE
 
         // Log
         if ($log) {
-            $this->log('lock discussion p' . $postid);
+            $this->log('lock discussion', 'p' . $postid . ' d' . $this->get_id());
         }
 
         $transaction->allow_commit();
@@ -1312,7 +1323,7 @@ WHERE
 
         // Log
         if ($log) {
-            $this->log('unlock discussion p' . $lockpost->get_id());
+            $this->log('unlock discussion', 'p' . $lockpost->get_id() . ' d' . $this->get_id());
         }
 
         $transaction->allow_commit();
@@ -1366,7 +1377,8 @@ WHERE
         $newroot->search_update_children();
 
         if ($log) {
-            $this->log('merge discussion d' . $targetdiscussion->get_id());
+            $this->log('merge discussion', 'd' . $this->get_id() . ' into d' .
+                    $targetdiscussion->get_id());
         }
 
         $transaction->allow_commit();
@@ -1528,7 +1540,7 @@ ORDER BY
      *   is just the discussion id again)
      */
     function log($action, $replaceinfo = '') {
-        $info = $this->discussionfields->id;
+        $info = 'd' . $this->discussionfields->id;
         if ($replaceinfo !== '') {
             $info = $replaceinfo;
         }
@@ -1775,9 +1787,14 @@ WHERE
         }
 
         // If there is cached data, use it
-        if ($this->groupscache) {
+        if ($this->groupscache && $cacheall) {
             if (!array_key_exists($userid, $this->groupscache)) {
-                throw new invalid_argument_exception("Unknown discussion user");
+                // This can happen in rare cases when sending out email. If there
+                // is only one post from user X in a discussion, and that post is
+                // deleted/moved to another discussion between when it gets the
+                // list of all posts and when it tries to cache this list of groups
+                // for the individual discussion.
+                return $this->get_user_groups($userid, false);// Re-call to use code below.
             }
             return $this->groupscache[$userid];
         }
@@ -1971,12 +1988,10 @@ WHERE
      *   appended (text format)
      * @param string $allhtml Output variable; text of all posts will be
      *   appended (HTML format)
-     * @param bool $showuserimage True (default) to include user pictures
-     * @param bool $printableversion True to use the printable-version flag to
-     *   display posts.
+     * @param array $extraoptions Set or override options when displaying posts
      */
     function build_selected_posts_email($postids, &$alltext, &$allhtml,
-        $showuserimage=true, $printableversion=false) {
+            $extraoptions = array()) {
         global $USER;
         $list = array();
         $rootpost = $this->get_root_post();
@@ -1991,14 +2006,18 @@ WHERE
             $post->build_email(null, $subject, $text, $html, true,
                 false, has_capability('moodle/site:viewfullnames',
                     $this->get_forum()->get_context()), current_language(),
-                $USER->timezone, true, true, $showuserimage, $printableversion);
+                $USER->timezone, true, true, $extraoptions);
 
-            if ($alltext != '') {
+            // Don't put <hr> after the first post or after one which we didn't
+            // actually print (deleted posts)
+            if ($alltext != '' && $text !== '') {
                 $alltext .= "\n" . mod_forumng_cron::EMAIL_DIVIDER . "\n";
                 $allhtml .= '<hr size="1" noshade="noshade" />';
             }
-            $alltext .= $text;
-            $allhtml .= $html;
+            if ($text !== '') {
+                $alltext .= $text;
+                $allhtml .= $html;
+            }
         }
 
         // Remove crosslinks to posts that do not exist
@@ -2153,7 +2172,8 @@ WHERE
      * @return string HTML skip link to unread posts
      */
     public function display_unread_skip_link() {
-        if ($this->get_num_unread_posts() == 0 || $this->get_num_unread_posts() == '') {
+        if ($this->get_num_unread_posts() == 0 || $this->get_num_unread_posts() == ''
+                || $this->get_root_post()->is_unread()) {
             return '';
         }
 

@@ -34,6 +34,13 @@ $cloneid = optional_param('clone', 0, PARAM_INT);
 // Delete or undelete
 $delete = optional_param('delete', 1, PARAM_INT);
 
+// Email author
+$email = optional_param('email', 0, PARAM_INT);
+
+// Were the posts expanded?
+$expand = optional_param('expand', 0, PARAM_INT);
+$expandparam = $expand ? '&expand=1' : '';
+
 $pageparams = array('p'=>$postid);
 if ($cloneid) {
     $pageparams['clone'] = $cloneid;
@@ -44,8 +51,10 @@ if ($delete != 1) {
 if ($ajax) {
     $pageparams['ajax'] = $ajax;
 }
+if ($expand) {
+    $pageparams['expand'] = $expand;
+}
 
-// Get post
 $post = mod_forumng_post::get_from_id($postid, $cloneid);
 
 // Get convenience variables
@@ -73,7 +82,7 @@ if ($delete) {
 }
 
 // Is this the actual delete?
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && $email != 1) {
     // Delete or undelete the post
     if ($delete) {
         $post->delete();
@@ -91,32 +100,134 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (!$delete || has_capability('mod/forumng:editanypost', $forum->get_context())) {
         $postid = '#p' . $post->get_id();
     }
-    redirect('discuss.php?' . $discussion->get_link_params(mod_forumng::PARAM_PLAIN) . $postid);
+
+    redirect('discuss.php?' . $discussion->get_link_params(mod_forumng::PARAM_PLAIN) . $expandparam . $postid);
+}
+
+if ($email) {
+    require_once('deletepost_form.php');
+
+    $urlparams = array('p' => $postid, 'delete' => $delete, 'email' => $email);
+    if ($cloneid) {
+        $urlparams['clone'] = $cloneid;
+    }
+
+    $url = new moodle_url("{$CFG->wwwroot}/mod/forumng/deletepost.php", $urlparams);
+    $mform = new mod_forumng_deletepost_form($url);
+
+    if ($mform->is_cancelled()) {
+        //form is cancelled, redirect back to the discussion
+        redirect('discuss.php?' . $discussion->get_link_params(mod_forumng::PARAM_PLAIN) . $expandparam);
+
+    } else if ($mform->is_submitted()) {
+        // Delete the post
+        $post->delete();
+
+        // Get the form data and set up the email
+        $submitted = $mform->get_data();
+        $messagetext = $submitted->message['text'];
+        $copyself = (isset($submitted->copyself))? true : false;
+        $user = $post->get_user();
+        $from = $SITE->fullname;
+        $subject = get_string('deletedforumpost', 'forumng');
+
+        // Always send HTML version
+        $user->mailformat = 1;
+        $messagehtml = $out->deletion_email(text_to_html($messagetext));
+
+        // send an email to the author of the post
+        if (!email_to_user($user, $from, $subject, '', $messagehtml)) {
+            print_error(get_string('emailerror', 'forumng'));
+        }
+
+        // send a copy so self
+        if ($copyself) {
+            $user = $USER;
+            $user->mailformat = 1;  // Always send HTML version
+            $subject = strtoupper(get_string('copy')) . ' - '. $subject;
+            if (!email_to_user($user, $from, $subject, '', $messagehtml)) {
+                print_error(get_string('emailerror', 'forumng'));
+            }
+        }
+
+        // redirect back to the discussion.
+        redirect('discuss.php?' . $discussion->get_link_params(mod_forumng::PARAM_PLAIN) . $expandparam);
+    }
 }
 
 // Confirm page. Work out navigation for header
 print $out->header();
 
-// Show confirm option
-if ($delete) {
-    $confirmstring = get_string('confirmdelete', 'forumng');
-    if ($post->is_root_post()) {
-        $confirmstring .= ' ' . get_string('confirmdelete_nodiscussion', 'forumng');
-    }
+// Include forum JS
+$forum->print_js($cm->id, true);
+
+if ($email) {
+    // prepare the object for the get_string
+    $emailmessage = new stdClass;
+    $emailmessage->subject = $post->get_effective_subject(true);
+    $emailmessage->firstname = $USER->firstname;
+    $emailmessage->lastname = $USER->lastname;
+    $emailmessage->course = $COURSE->fullname;
+    $emailmessage->forum = $post->get_forum()->get_name();
+    $emailmessage->deleteurl = $CFG->wwwroot . '/mod/forumng/discuss.php?d=' .
+                                $discussion->get_id();
+    $formdata = new stdClass;
+
+    // Use the plain
+    $messagetext = get_string('emailcontentplain', 'forumng', $emailmessage);
+
+    $formdata->message['text'] = $messagetext;
+    $formdata->expand = $expand;
+
+    $mform->set_data($formdata);
+    $mform->display();
+    // output the html for use when JS is enabled
+    echo $out->delete_form_html(get_string('emailcontenthtml', 'forumng', $emailmessage));
 } else {
-    $confirmstring = get_string('confirmundelete', 'forumng');
+    // Show confirm option
+    if ($delete) {
+        $confirmstring = get_string('confirmdelete', 'forumng');
+        if ($post->is_root_post()) {
+            $confirmstring .= ' ' . get_string('confirmdelete_nodiscussion', 'forumng');
+        }
+
+        $deletebutton = new single_button(new moodle_url('/mod/forumng/deletepost.php',
+                        array('p'=>$post->get_id(), 'delete'=>$delete,
+                        'clone'=>$cloneid, 'expand'=>$expand)),
+                        $delete ? get_string('delete') : get_string('undelete', 'forumng'),
+                        'post');
+        $cancelbutton = new single_button(new moodle_url('/mod/forumng/discuss.php',
+                        array('d'=>$discussion->get_id(), 'clone'=>$cloneid, 'expand'=>$expand)),
+                        get_string('cancel'), 'get');
+        if ($USER->id == $post->get_user()->id) {
+            print $out->confirm($confirmstring, $deletebutton, $cancelbutton);
+        } else {
+            print $out->confirm_three_button($confirmstring,
+                    new single_button(new moodle_url('/mod/forumng/deletepost.php',
+                        array('p'=>$post->get_id(), 'delete'=>$delete,
+                        'clone'=>$cloneid, 'email' => 1, 'expand'=>$expand)),
+                        $delete ? get_string('deleteemailpostbutton', 'forumng') :
+                        get_string('undelete', 'forumng'), 'post'),
+                    $deletebutton,
+                    $cancelbutton);
+        }
+    } else {
+        $confirmstring = get_string('confirmundelete', 'forumng');
+        print $out->confirm($confirmstring,
+                new single_button(new moodle_url('/mod/forumng/deletepost.php',
+                    array('p'=>$post->get_id(), 'delete'=>$delete,
+                    'clone'=>$cloneid, 'expand'=>$expand)),
+                    $delete ? get_string('delete') : get_string('undelete', 'forumng'), 'post'),
+                new single_button(new moodle_url('/mod/forumng/discuss.php',
+                    array('d'=>$discussion->get_id(), 'clone'=>$cloneid, 'expand'=>$expand)),
+                    get_string('cancel'), 'get'));
+    }
+
 }
-print $out->confirm($confirmstring,
-        new single_button(new moodle_url('/mod/forumng/deletepost.php',
-            array('p'=>$post->get_id(), 'delete'=>$delete, 'clone'=>$cloneid)),
-            $delete ? get_string('delete') : get_string('undelete', 'forumng'), 'post'),
-        new single_button(new moodle_url('/mod/forumng/discuss.php',
-            array('d'=>$discussion->get_id(), 'clone'=>$cloneid)),
-            get_string('cancel'), 'get'));
 
 // Print post
-print $post->display(true,
-        array(mod_forumng_post::OPTION_NO_COMMANDS=>true));
+print $post->display(true, array(mod_forumng_post::OPTION_NO_COMMANDS => true,
+        mod_forumng_post::OPTION_SINGLE_POST => true));
 
 // Display footer
 print $out->footer();

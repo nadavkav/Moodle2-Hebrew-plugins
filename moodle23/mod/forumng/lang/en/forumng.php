@@ -76,7 +76,7 @@ $string['ratingtime'] = 'Restrict ratings to posts with dates in this range:';
 $string['ratings'] = 'Ratings';
 $string['grading'] = 'Grade';
 $string['grading_help'] = 'If you select this option, a grade for this forum will be added to the
-course gradebook and calcualted automatically. Leave this off for a non-assessed forum, or one you
+course gradebook and calculated automatically. Leave this off for a non-assessed forum, or one you
 plan to assess manually.
 
 The different ways to calculate grading are fairly self-explanatory; in each case, the grade for
@@ -114,6 +114,7 @@ $string['readafterdays'] = 'Read after days';
 $string['configreadafterdays'] = 'After this number of days, posts are considered to have been read
 by all users.';
 $string['trackreadposts'] = 'Track unread posts';
+$string['teacher_grades_students'] = 'Teacher grades students';
 $string['grading_average'] = 'Average of ratings';
 $string['grading_count'] = 'Count of ratings';
 $string['grading_max'] = 'Maximum rating';
@@ -140,6 +141,7 @@ $string['forumng:editanypost'] = 'Edit any post';
 $string['forumng:managesubscriptions'] = 'Manage subscriptions';
 $string['forumng:movediscussions'] = 'Move discussions';
 $string['forumng:rate'] = 'Rate posts';
+$string['forumng:grade'] = 'Grade posts';
 $string['forumng:replypost'] = 'Reply to posts';
 $string['forumng:splitdiscussions'] = 'Split discussions';
 $string['forumng:startdiscussion'] = 'Start new discussions';
@@ -308,7 +310,30 @@ $string['history'] = 'History';
 $string['historypage'] = 'History: {$a}';
 $string['currentpost'] = 'Current version of post';
 $string['olderversions'] = 'Older versions (most recent first)';
-$string['deletepostbutton'] = 'Delete post';
+$string['deleteemailpostbutton'] = 'Delete and email';
+$string['deleteandemail'] = 'Delete and email author';
+$string['emailmessage'] = 'Message';
+$string['emailcontentplain'] = 'This is a notification to advise you that your forum post with the '.
+'following details has been deleted by \'{$a->firstname} {$a->lastname}\':
+
+Subject: {$a->subject}
+Forum: {$a->forum}
+Module: {$a->course}
+
+To view the discussion visit {$a->deleteurl}';
+$string['emailcontenthtml'] = 'This is a notification to advise you that your forum post with the '.
+'following details has been deleted by \'{$a->firstname} {$a->lastname}\':<br />
+<br />
+Subject: {$a->subject}<br />
+Forum: {$a->forum}<br />
+Module: {$a->course}<br/>
+<br/>
+<a href="{$a->deleteurl}" title="view deleted post">View the discussion</a>';
+$string['copytoself'] = 'Send a copy to yourself';
+$string['deletedforumpost'] = 'Your post has been deleted';
+$string['emailerror'] = 'There was an error sending the email';
+$string['sendanddelete'] = 'Send and delete';
+$string['deletepostbutton'] = 'Delete';
 $string['undeletepostbutton'] = 'Undelete post';
 $string['averagerating'] = 'Average rating: {$a->avg} (from {$a->num})';
 $string['yourrating'] = 'Your rating:';
@@ -347,7 +372,8 @@ $string['choosefile'] = '1. Choose file';
 $string['clicktoadd'] = '2. Add it';
 $string['readdata'] = 'Read data';
 $string['search_update_count'] = '{$a} forums to process.';
-$string['searchthisforum'] = $string['searchthisforumlink'] = 'Search this forum';
+$string['searchthisforum'] = 'Search this forum';
+$string['searchthisforumlink'] = 'Search this forum';
 $string['viewsubscribers'] = 'View subscribers';
 $string['inreplyto'] = 'In reply to';
 $string['forumng:view'] = 'View forum';
@@ -491,11 +517,11 @@ $string['switchto_simple_link']='Switch to simple view.';
 $string['switchto_standard_link']='Switch to standard view.';
 $string['displayversion'] = 'ForumNG version: <strong>{$a}</strong>';
 
-// OU only
+// OU only.
 $string['externaldashboardadd'] = 'Add forum to dashboard';
 $string['externaldashboardremove'] = 'Remove forum from dashboard';
 
-// New error strings
+// New error strings.
 $string['error_fileexception'] = 'A file processing error occurred. This is likely to be caused by
 system problems. You may wish to try again later.';
 $string['error_subscribeparams'] = 'Parameters incorrect: requires either id or course or d.';
@@ -612,7 +638,8 @@ $string['alert_reporterdetail'] = '{$a->fullname} ({$a->username}; {$a->email}; 
 $string['invalidalert'] = 'You need to specify the reason for reporting this post.';
 $string['invalidalertcheckbox'] = 'You need to tick at least one of the boxes.';
 $string['alert_submit'] = "Send alert";
-$string['error_sendalert'] = 'There was an error sending your report. Report could not be sent.';
+$string['error_sendalert'] = 'There was an error sending your report to {$a}.
+Report could not be sent.';
 $string['error_portfoliosave'] = 'An error occurred while saving this data to MyStuff.';
 $string['alert_pagename'] = 'Report a post as unacceptable';
 $string['alert_emailsubject'] = 'Alert F{$a->postid}: {$a->coursename} {$a->forumname}';
@@ -673,6 +700,7 @@ $string['error_sharinginuse'] = 'You cannot turn sharing off for this forum beca
 already forums that share it. If necessary, delete these other forums first.';
 $string['error_nosharedforum'] = 'Forum <strong>{$a->name}</strong>: Could not restore as shared
 forum; ID number {$a->idnumber} not found. Restored forum is an independent forum.';
+$string['error_ratingrequired'] = 'Grading chosen to be based on ratings, but ratings not enabled';
 
 $string['advancedsearch'] = 'Advanced search';
 $string['words'] = 'Search for';
@@ -705,12 +733,9 @@ $string['nextresults'] = 'Find more results';
 $string['author'] = ' author: \"{$a}\"';
 $string['from'] = ' from: {$a}';
 $string['to'] = ' to: {$a}';
-$string['inappropriatedateortime'] = '<strong>Date range from</strong> is after current date/time.
-Please check and try again!';
-$string['daterangemismatch'] = 'Date range mismatch: <strong>Date range from</strong> is after
-<strong>Date range to</strong>. Please check and try again!';
-$string['nosearchcriteria'] = 'No search criteria: Please use one or more of the above criteria
-and try again!';
+$string['inappropriatedateortime'] = 'From date cannot be after present.';
+$string['daterangemismatch'] = 'To date is before From date.';
+$string['nosearchcriteria'] = 'No search criteria. Please use one or more of the criteria below.';
 $string['searchallforums'] = 'Search all forums';
 
 $string['replies'] = 'Replies';
@@ -779,3 +804,8 @@ To exclude a word insert a hyphen immediately before the word.
 Example: the search term <tt>picasso -sculpture &quot;early works&quot;</tt> will return results for &lsquo;picasso&rsquo; or the phrase &lsquo;early works&rsquo; but will exclude items containing &lsquo;sculpture&rsquo;.
 
 To search by author or date, click &lsquo;More options&rsquo;.';
+
+$string['notext'] = '(no text)';
+
+$string['grade'] = 'Grade';
+$string['gradingscale'] = 'Grading scale';

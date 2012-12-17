@@ -21,13 +21,13 @@
  * @copyright 2011 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$string['manualmark_auto'] = 'Automatically marking discussions read';
-$string['manualmark_manual'] = 'Manually marking discussions read';
-$string['manualmark_change'] = 'Change';
+$string['manualmark_auto'] = 'הדיון במצב: סימון קריאה אוטומטי';
+$string['manualmark_manual'] = 'הדיון במצב: סימון קריאה ידני';
+$string['manualmark_change'] = 'עדכון';
 
 $string['manualmark_change_help'] = '&lsquo;Automatically marking discussions read&rsquo; marks all posts in a discussion as read when you view any post in that discussion.
 
 &lsquo;Manually marking discussions read&rsquo; leaves posts marked as unread until you click &lsquo;Mark discussion read&rsquo;.
 
 This option applies to all forums on the system.';
-$string['pluginname'] = 'Option to manually mark discussions read';
+$string['pluginname'] = 'מצבי קריאת דיון: אוטומטי/ידני';

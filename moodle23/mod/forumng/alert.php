@@ -48,7 +48,7 @@ if (!$post->can_alert($whynot)) {
 
 // Set up page
 $pagename = get_string('alert_pagename', 'forumng');
-$url = new moodle_url('mod/forumng/alert.php', $pageparams);
+$url = new moodle_url('/mod/forumng/alert.php', $pageparams);
 $out = $discussion->init_page($url, $pagename);
 
 // Create the alert form
@@ -146,19 +146,19 @@ if ($fromform = $mform->get_data()) {
     if ($emailcopy == 1) {
         $alltext .= get_string('alert_emailappendix', 'forumng' );
         if (!email_to_user($fakeuser, $from, $subject, $alltext)) {
-            print_error('error_sendalert', 'forumng', $fakeuser->email);
+            print_error('error_sendalert', 'forumng', $url, $fakeuser->email);
         }
     } else {
         //Send 2 emails
         $alltext1 =$fakeuser1->ccnote. "\n\n". $alltext . "\n" .
                 get_string('alert_emailappendix', 'forumng' );
         if (!email_to_user($fakeuser1, $from, $subject, $alltext1)) {
-            print_error('error_sendalert', 'forumng', $fakeuser1->email);
+            print_error('error_sendalert', 'forumng', $url, $fakeuser1->email);
         }
         $alltext2 =$fakeuser2->ccnote. "\n\n". $alltext . "\n" .
                 get_string('alert_emailappendix', 'forumng' );
         if (!email_to_user($fakeuser2, $from, $subject, $alltext2)) {
-            print_error('error_sendalert', 'forumng', $fakeuser2->email);
+            print_error('error_sendalert', 'forumng', $url, $fakeuser2->email);
         }
     }
     // Log it after senting out
@@ -167,7 +167,7 @@ if ($fromform = $mform->get_data()) {
     print $out->header();
 
     print $out->box(get_string('alert_feedback', 'forumng'));
-    print $out->continue('discuss.php?' .
+    print $out->continue_button('discuss.php?' .
             $discussion->get_link_params(mod_forumng::PARAM_HTML) . '#p' . $postid);
 
 } else {

@@ -52,6 +52,9 @@ class forumngtype_general extends forumngtype {
             }
         } else {
             if (optional_param('sortlink', '' , PARAM_ALPHA)) {
+                if (!isset($SESSION->forumng_discussionlist[$forumngid])) {
+                    $SESSION->forumng_discussionlist[$forumngid] = new stdClass();
+                }
                 $SESSION->forumng_discussionlist[$forumngid]->sort = $sortorder;
                 unset ($SESSION->forumng_discussionlist[$forumngid]->page);
             }
@@ -65,6 +68,9 @@ class forumngtype_general extends forumngtype {
                 $page = 1;
             }
         } else {
+            if (!isset($SESSION->forumng_discussionlist[$forumngid])) {
+                $SESSION->forumng_discussionlist[$forumngid] = new stdClass();
+            }
             $SESSION->forumng_discussionlist[$forumngid]->page = $page;
             $SESSION->forumng_discussionlist[$forumngid]->groupid = $groupid;
         }
@@ -218,6 +224,9 @@ class forumngtype_general extends forumngtype {
             || $PAGE->devicetypeinuse == 'legacy';
         // 'Expand all' option (always chosen for non-JS browsers)
         $collapseall = optional_param('collapse', 0, PARAM_INT);
+        if (!$collapseall && !$expandall && $PAGE->devicetypeinuse == 'mobile') {
+            $collapseall = 1;
+        }
 
         // Link back to first unread post if there is one
         print $discussion->display_unread_skip_link();
@@ -252,7 +261,7 @@ class forumngtype_general extends forumngtype {
         // Note: On bad browsers we always expand all posts
         $showcollapseall = preg_match(
             '~<div class="forumng-post forumng-full.*<div class="forumng-post forumng-full~s',
-            $content) && !$PAGE->devicetypeinuse == 'legacy';
+            $content) && $PAGE->devicetypeinuse != 'legacy';
         if ($showexpandall) {
             print '<a class="forumng-expandall-link" href="' .
                         $discussion->get_url(mod_forumng::PARAM_HTML) . '&amp;expand=1' .
@@ -270,9 +279,6 @@ class forumngtype_general extends forumngtype {
 
         // Display content
         print $content;
-
-        // Print reply/edit forms for AJAX
-        print $out->render_ajax_forms($discussion->get_forum());
 
         // Link back to forum
         print $discussion->display_link_back_to_forum();
